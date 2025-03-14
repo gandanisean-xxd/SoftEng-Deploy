@@ -1,0 +1,224 @@
+/* General Styles */
+.home-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+/* Header Section */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #fff;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  margin-right: 10px;
+}
+
+.title-container {
+  text-align: left;
+}
+
+.title {
+  font-size: 24px;
+  color: green;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: gray;
+  margin: 0;
+}
+
+.login-button {
+  background-color: green;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.login-icon {
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Hero Section - Full Width */
+.hero-section {
+  width: 100vw;
+  height: 1000px; /* Increased from 450px */
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  text-align: center;
+}
+
+/* Search and Buttons Section */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.search-input {
+  padding: 10px;
+  width: 50%;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+.search-button {
+  background-color: green;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.search-button img {
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Buttons */
+.buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.location-button,
+.mapview-button {
+  background-color: green;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.location-button img,
+.mapview-button img {
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Info Section */
+.info-section {
+  padding: 20px;
+  background-color: white;
+  font-size: 14px;
+  color: gray;
+  text-align: center;
+}
+
+/* Footer Section */
+.footer {
+  background-color: #f4f4f4;
+  padding: 20px;
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-buttons {
+  text-align: left;
+}
+
+.footer-buttons button {
+  margin: 5px;
+  padding: 8px 15px;
+  border: none;
+  background-color: green;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.partners {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-grow: 1;
+}
+
+.partners img {
+  height: 40px;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+  position: relative;
+  width: 768px;
+  max-width: 90%;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+/* Close Button */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  z-index: 1001;
+}
+
+.close-button:hover {
+  color: #512da8;
+}

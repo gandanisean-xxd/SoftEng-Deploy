@@ -46,8 +46,8 @@
 
 /* Sidebar */
 .sidebar {
-  width: 250px;
-  padding: 15px;
+  width: 275px;
+  padding: 5px;
   height: 100vh;
   position: fixed;
   left: 0;
@@ -58,6 +58,12 @@
 }
 
 /* Sidebar Collapsed */
+
+/* Adjust menu button margin when sidebar is collapsed */
+.top-bar.collapsed .menu-button {
+  margin-left: 0px;
+}
+
 .sidebar.collapsed {
   width: 70px; /* Adjusted to prevent excessive collapse */
 }
@@ -110,39 +116,42 @@
 }
 
 /* Search Bar */
-
-.search-bar-container:hover {
-  background: transparent; /* Remove hover effect */
-}
-
 .search-bar-container {
-  margin-bottom: 0px;
+  padding: 5px;
+  width: 90%;
 }
 
 .search-bar {
   display: flex;
   align-items: center;
   background: white;
-  border-radius: 30px; /* Rounded corners */
-  padding: 3px 3px;
-  width: 195px;
-  height: 30px; /* Same height as other buttons */
-  border: 1px solid #ccc; /* Optional: Add border */
-}
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 15px;
+  padding: 5px 10px;
+  width: 100%;
+  height: 35px;
+  border-radius: 4px;
+  position: relative;
 }
 
 .search-input {
-  flex: 1;
+  width: 100%;
   border: none;
   outline: none;
   font-size: 14px;
-  margin-left: 15px;
+  padding-left: 35px;
+  padding-right: 30px;
   background: transparent;
+}
+
+.clear-button {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Sidebar Icons */
@@ -161,7 +170,7 @@
 
 .sidebar ul .dropdown li {
   padding: 8px;
-  background: rgba(0, 0, 0, 0.1);
+  background: #E5F5E1;
   border-radius: 4px;
   margin-bottom: 5px;
   display: flex;
@@ -169,7 +178,8 @@
 }
 
 .sidebar ul .dropdown li:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: #d0f0c8 ;
+  
 }
 
 .dropdown-item {
@@ -259,9 +269,9 @@ input[type="checkbox"] {
   border: none;
   color: white;
   cursor: pointer;
-  margin-left: 20px;
-  margin-right: 20px;
-  padding: 8px 12px;
+  margin-left: 25px;
+  margin-right: 0px;
+  padding: 9px 12px;
   border-radius: 4px;
   font-size: 16px;
   font-weight: bold;
@@ -306,3 +316,586 @@ input[type="checkbox"] {
   color: white;
 }
 
+/* Sidebar Section Labels */
+.sidebar-section-label {
+  font-size: 14px;
+  background-color: #41AB5D;
+  color: #ffffff;
+  margin: 0px 0 0px 0; /* Removed left margin */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 10px;
+  width: 100%; /* Make it full width */
+  text-align: center; /* Center the text */
+  display: block; /* Ensure block-level display */
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 10px;
+  top: 50px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  background-color: #E7FAE3; /* Set background color */
+  width: 250px; /* Ensure width matches your requirement */
+  height: 160px; /* Ensure height matches your requirement */
+}
+
+.dropdown-item {
+  margin-top: 7px;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* Align icon and text vertically */
+  color: black; /* Set font color to black */
+  position: relative; /* For positioning the vertical rectangle */
+}
+
+.dropdown-item:hover {
+  background-color: #e4ebe5; /* Dirty white hover color */
+}
+
+.dropdown-item:hover::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 7px; /* Width of the vertical rectangle */
+  background-color: #74C476; /* Color of the vertical rectangle */
+  border-radius: 5px; /* Radius of the vertical rectangle */
+}
+
+/* Add space for the icon */
+.dropdown-item img {
+  width: 22px; /* Adjust icon size as needed */
+  height: 22px;
+  margin-left: 10px;
+  margin-right: 10px; /* Space between icon and text */
+}
+
+/* Profile Pop-up Overlay */
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Profile Pop-up Overlay */
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Profile Pop-up */
+.profile-popup {
+  width: 700px;
+  height: 550px;
+  background-color: #F2F0F0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Panel */
+.profile-panel {
+  display: flex;
+  height: 55px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  color: white;
+}
+
+.panel-right button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-right button:hover {
+  opacity: 0.8;
+}
+
+.panel-left, .panel-right {
+  display: flex;
+  align-items: baseline;
+}
+
+.panel-center {
+  flex-grow: 1;
+  margin-left: 170px;
+  font-weight: bold;
+}
+
+/* Tabs */
+.profile-tabs {
+  display: flex;
+  justify-content: center;
+  padding: 7px;
+  border-bottom: 1px solid #ccc;
+}
+
+.profile-tabs button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.profile-tabs button.active {
+  border-bottom: 2px solid #41AB5D;
+}
+
+/* My Profile Section */
+.my-profile-section {
+  padding: 32px;
+}
+
+.input-group {
+  margin-bottom: 20px; /* Reduced gap between textboxes */
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  height: 45px; /* Updated textbox height */
+  width: 90%; /* Ensure full width */
+}
+
+
+/* Result Popup Container */
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.profile-popup {
+  background: white;
+  border-radius: 10px;
+  width: 600px; /* Adjust width as needed */
+  height: 500px; /* Adjust height as needed */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Panel */
+.profile-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #41AB5D;
+  color: white;
+}
+
+.panel-left, .panel-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-right button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Top Panel */
+.result-top-panel {
+  width: 560px; /* Adjusted width */
+  height: 50px;
+  background-color: #74C476;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  margin: 7px auto; /* Center horizontally */
+}
+
+/* Content Panels */
+.result-content {
+  width: 500px; /* Adjusted width */
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column;
+  gap: 100px;
+  align-items: center;
+  padding: 0px;
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  margin: 0 auto; /* Center horizontally */
+}
+
+.result-content-panel {
+  width: 90%;
+  height: 50px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+/* Bottom Panel */
+.result-bottom-panel {
+  width: 100%;
+  height: 60px;
+  background-color: #74C476;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin-top: auto; /* Push to the bottom */
+}
+
+/* View Report Button */
+.view-report-button {
+  width: 455px;
+  height: 45px;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.view-report-button:hover {
+  background-color: #f0f0f0;
+}
+
+
+/* Chatbot Popup Container */
+.profile-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.profile-popup {
+  background: #F2F0F0;
+  border-radius: 10px;
+  width: 700px;
+  height: 550px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Panel */
+.profile-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #41AB5D;
+  color: white;
+}
+
+.panel-left, .panel-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-right button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Top Panel */
+.chatbot-top-panel {
+    width: 560px;
+    height: 50px;
+    background-color: #74C476;
+    margin: 7px auto 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+  }
+
+/* Chat Content */
+.chat-content {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  display: flex;
+  align-items: center;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  margin-left: 20px;
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.chat-message.bot {
+  margin-left: 20px;
+  align-self: flex-start;
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  max-width: 70%;
+}
+
+.chat-message.user .chat-bubble {
+  background-color: #A0E89D;
+  margin-right: 20px;
+}
+
+.chat-message.bot .chat-bubble {
+  background-color: #d0f0d3;
+  margin-left: 20px;
+}
+
+.chat-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
+
+/* Chat Input Container */
+.chat-input-container {
+  padding: 8px;
+  background-color: #F2F0F0;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat-input {
+  display: flex;
+  background: white;  
+  width: 600px;
+  border-radius: 25px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #41AB5D;
+}
+
+
+/* Submission History Table */
+.submission-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px; /* Smaller font size */
+}
+
+.submission-history-table th,
+.submission-history-table td {
+  padding: 12px;
+  text-align: center; /* Center-align text */
+  border-bottom: 1px solid #ddd;
+}
+
+.submission-history-table th {
+  background-color: #74C476;
+  color: white;
+  font-weight: bold;
+}
+
+.submission-history-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* View Chat and View Result Buttons */
+.view-chat-button,
+.view-result-button {
+  background-color: #41AB5D;
+  color: white;
+  border: none;
+  padding: 6px 12px; /* Smaller padding */
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px; /* Smaller font size */
+  margin: 0 4px; /* Add spacing between buttons */
+}
+
+.view-chat-button:hover,
+.view-result-button:hover {
+  background-color: #369946;
+}
+
+
+/* Button Styles */
+.panel-left button {
+  width: 70px;
+  height: 55px;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 1;
+  margin-right: 15px;
+  margin-left: -9px;
+  transition: background-color 0.3s, opacity 0.3s;
+}
+
+/* Button Icons - Default State (White) */
+.panel-left button img {
+  width: 27px;
+  height: 27px;
+  transition: filter 0.3s;
+  filter: brightness(0) saturate(100%) invert(100%); /* Makes icon white */
+}
+
+/* Active Button Styles */
+.panel-left button.active {
+  height: 55px; /* Match panel height */
+  width: 75px; /* New width */
+  background-color: white;
+  opacity: 1;
+  margin-left: -12px;
+}
+
+/* Button Icons */
+.panel-left button img {
+  width: 27px;
+  height: 27px;
+  transition: filter 0.3s;
+}
+
+/* Active Button Icons */
+.panel-left button.active img {
+  filter: brightness(0) saturate(100%) invert(58%) sepia(98%) saturate(365%) hue-rotate(81deg) brightness(91%) contrast(87%); /* Green filter */
+}
+
+/* Flexbox for Name and Role */
+.name-role-container {
+  display: flex;
+  gap: 10px; /* Space between the two textboxes */
+}
+
+.name-role-container .input-group {
+  flex: 1; /* Each input group takes equal space */
+}
+
+/* Update Button */
+.update-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px; /* Reduced gap between last textbox and Update button */
+}
+
+.update-button {
+  padding: 10px 20px;
+  background-color: #41AB5D;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button:hover {
+  background-color: #369c4d;
+}
+
+.change-password-section {
+  padding: 32px;
+}
+
+.change-password-section .input-group {
+  margin-bottom: 20px;
+}
+
+.change-password-section .input-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.change-password-section .input-group input {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  width: 100%;
+}

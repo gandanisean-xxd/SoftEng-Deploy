@@ -46,7 +46,7 @@ body {
 /* Position zoom controls beside the sidebar */
 .leaflet-control-zoom {
   position: absolute !important;
-  left: 270px !important; /* Default position beside expanded sidebar */
+  left: 275px !important; /* Default position beside expanded sidebar */
   top: 70px !important; /* Adjust height to match sidebar */
   z-index: 1000 !important;
   transition: left 0.3s ease; /* Smooth transition */
@@ -54,5 +54,5 @@ body {
 
 /* Adjust position when sidebar is collapsed */
 .sidebar-collapsed .leaflet-control-zoom {
-  left: 90px !important; /* Position beside collapsed sidebar */
+  left: 70px !important; /* Position beside collapsed sidebar */
 }

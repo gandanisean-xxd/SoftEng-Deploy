@@ -1,4 +1,6 @@
-/* General Styles */
+/* ==================== */
+/* GLOBAL & THEME STYLES */
+/* ==================== */
 .app {
   display: flex;
   min-height: 100vh;
@@ -9,17 +11,14 @@
   background: #f5f5f5;
   color: #000;
 }
-
 .light-theme .sidebar {
   background: #fcfcf7;
   color: #000;
 }
-
 .light-theme .top-bar {
   background: #41AB5D;
   color: #fff;
 }
-
 .light-theme .sidebar ul li:hover {
   background: #E5F5E1;
 }
@@ -29,22 +28,21 @@
   background: #181516;
   color: #fff;
 }
-
 .dark-theme .sidebar {
   background: #2d2d2d;
   color: #fff;
 }
-
 .dark-theme .top-bar {
   background: #355e3b;
   color: #fff;
 }
-
 .dark-theme .sidebar ul li:hover {
   background: #3d3d3d;
 }
 
-/* Sidebar */
+/* ==================== */
+/* SIDEBAR STYLES */
+/* ==================== */
 .sidebar {
   width: 275px;
   padding: 5px;
@@ -56,55 +54,45 @@
   transition: width 0.3s ease;
   z-index: 1000;
 }
-
-/* Sidebar Collapsed */
-
-/* Adjust menu button margin when sidebar is collapsed */
-.top-bar.collapsed .menu-button {
-  margin-left: 0px;
-}
-
 .sidebar.collapsed {
-  width: 70px; /* Adjusted to prevent excessive collapse */
+  width: 70px;
 }
-
 .sidebar.collapsed ul li {
   justify-content: center;
 }
-
 .sidebar.collapsed ul li img {
   margin-right: 0;
 }
-
 .sidebar.collapsed ul li span {
   display: none;
 }
 
+/* Sidebar Elements */
 .logo-container {
   text-align: center;
   margin-bottom: 20px;
 }
-
 .logo {
   width: 80%;
   max-width: 150px;
   height: auto;
 }
-
-.sidebar h2 {
+.sidebar-section-label {
+  font-size: 14px;
+  background-color: #41AB5D;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 10px;
+  width: 100%;
   text-align: center;
-  display: none;
+  display: block;
 }
-
-.sidebar.collapsed h2 {
-  display: none;
-}
-
 .sidebar ul {
   list-style: none;
   padding: 0;
 }
-
 .sidebar ul li {
   padding: 10px;
   cursor: pointer;
@@ -114,60 +102,89 @@
   transition: background 0.3s ease;
   position: relative;
 }
-
-/* Search Bar */
-.search-bar-container {
-  padding: 5px;
-  width: 90%;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: white;
-  padding: 5px 10px;
-  width: 100%;
-  height: 35px;
-  border-radius: 4px;
-  position: relative;
-}
-
-.search-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  padding-left: 35px;
-  padding-right: 30px;
-  background: transparent;
-}
-
-.clear-button {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Sidebar Icons */
 .sidebar ul li img {
   width: 24px;
   height: 24px;
   margin-right: 10px;
 }
 
-/* Dropdown Styling */
+/* ==================== */
+/* SEARCH BAR STYLES */
+/* ==================== */
+.search-bar-container {
+  height: 45px;
+  padding: 5px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.search-bar {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: transparent;
+  position: relative;
+}
+.search-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+  padding: 5px 30px 5px 25px;
+  background: transparent;
+  transition: border-bottom 0.3s ease;
+}
+.search-input:focus {
+  border-bottom: 2px solid #41AB5D;
+}
+.clear-button {
+  position: absolute;
+  right: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+.clear-button:hover {
+  color: #555;
+}
+
+/* ==================== */
+/* DROPDOWN STYLES */
+/* ==================== */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+.dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.dropdown-arrow {
+  width: 12px;
+  height: 12px;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
 .sidebar ul .dropdown {
   list-style: none;
   padding-left: 20px;
   margin-top: 5px;
 }
-
 .sidebar ul .dropdown li {
   padding: 8px;
   background: #E5F5E1;
@@ -176,35 +193,11 @@
   display: flex;
   align-items: center;
 }
-
 .sidebar ul .dropdown li:hover {
-  background: #d0f0c8 ;
-  
+  background: #d0f0c8;
 }
 
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 10px;
-  transition: background 0.3s ease;
-}
-
-.dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-/* Dropdown Indicator */
-.dropdown-arrow {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-}
-
-.dropdown-arrow.open {
-  transform: rotate(180deg);
-}
-
-/* Selection Circle */
+/* Selection Elements */
 .selection-circle {
   width: 16px;
   height: 16px;
@@ -215,7 +208,6 @@
   align-items: center;
   justify-content: center;
 }
-
 .selected-circle {
   width: 10px;
   height: 10px;
@@ -223,23 +215,24 @@
   border-radius: 50%;
 }
 
-/* Checkbox for Hazards */
+.dropdown .selected {
+  background-color: rgba(65, 171, 93, 0.1);
+}
+
+/* Hazard Items */
 input[type="checkbox"] {
   margin-right: 8px;
   cursor: pointer;
 }
-
 .hazard-icon {
   width: 20px;
   height: 20px;
   margin-right: 8px;
 }
 
-.sidebar ul .logout {
-  color: #ff5252;
-}
-
-/* Top Bar */
+/* ==================== */
+/* TOP BAR STYLES */
+/* ==================== */
 .top-bar {
   width: calc(100% - 250px);
   height: 60px;
@@ -251,20 +244,19 @@ input[type="checkbox"] {
   left: 250px;
   z-index: 999;
   transition: left 0.3s ease, width 0.3s ease;
-  background-color: #2E7D32; /* Example background color */
+  background-color: #2E7D32;
 }
-
-/* Adjustments when Sidebar is Collapsed */
 .top-bar.collapsed {
   left: 70px;
   width: calc(100% - 70px);
 }
-
-/* Styling for all buttons in Top Bar */
+.top-bar.collapsed .menu-button {
+  margin-left: 0px;
+}
 .top-bar button {
   display: flex;
-  align-items: center; /* Align icon and text */
-  gap: 8px; /* Space between icon and text */
+  align-items: center;
+  gap: 8px;
   background: none;
   border: none;
   color: white;
@@ -277,106 +269,61 @@ input[type="checkbox"] {
   font-weight: bold;
   transition: background 0.3s ease;
 }
-
 .top-bar button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-
-/* Icon inside the button */
 .top-bar button img {
   width: 24px;
   height: 24px;
 }
-
-/* Aligning buttons to the right */
 .top-bar-right {
   margin-left: auto;
   display: flex;
   align-items: center;
 }
 
-/* Different Button Styles */
-.menu-button {
-  background-color: transparent;
-  color: white;
-}
-
-.home-button {
-  background-color: transparent;
-  color: white;
-}
-
-.result-button {
-  background-color: transparent;
-  color: white;
-}
-
+/* Button Variants */
+.menu-button,
+.home-button,
+.result-button,
 .profile-button {
   background-color: transparent;
   color: white;
 }
 
-/* Sidebar Section Labels */
-.sidebar-section-label {
-  font-size: 14px;
-  background-color: #41AB5D;
-  color: #ffffff;
-  margin: 0px 0 0px 0; /* Removed left margin */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 8px 10px;
-  width: 100%; /* Make it full width */
-  text-align: center; /* Center the text */
-  display: block; /* Ensure block-level display */
-}
-
+/* ==================== */
+/* PROFILE DROPDOWN STYLES */
+/* ==================== */
 .profile-dropdown {
   position: absolute;
   right: 10px;
-  top: 50px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  top: 60px;
+  background: #E7FAE3;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   z-index: 1000;
-  background-color: #E7FAE3; /* Set background color */
-  width: 250px; /* Ensure width matches your requirement */
-  height: 160px; /* Ensure height matches your requirement */
+  width: 220px;
 }
-
-.dropdown-item {
-  margin-top: 7px;
-  padding: 10px;
+.profile-dropdown .dropdown-item {
+  color: #000;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
-  display: flex;
-  align-items: center; /* Align icon and text vertically */
-  color: black; /* Set font color to black */
-  position: relative; /* For positioning the vertical rectangle */
+  transition: background-color 0.2s;
+}
+.profile-dropdown .dropdown-item:hover {
+  background-color: #c9ecc2;
+}
+.profile-dropdown .dropdown-item img {
+  margin-right: 10px;
+  width: 23px;
+  height: 23px;
 }
 
-.dropdown-item:hover {
-  background-color: #e4ebe5; /* Dirty white hover color */
-}
-
-.dropdown-item:hover::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 7px; /* Width of the vertical rectangle */
-  background-color: #74C476; /* Color of the vertical rectangle */
-  border-radius: 5px; /* Radius of the vertical rectangle */
-}
-
-/* Add space for the icon */
-.dropdown-item img {
-  width: 22px; /* Adjust icon size as needed */
-  height: 22px;
-  margin-left: 10px;
-  margin-right: 10px; /* Space between icon and text */
-}
-
-/* Profile Pop-up Overlay */
+/* ==================== */
+/* POPUP OVERLAY STYLES */
+/* ==================== */
 .profile-popup-overlay {
   position: fixed;
   top: 0;
@@ -390,44 +337,47 @@ input[type="checkbox"] {
   z-index: 1000;
 }
 
-/* Profile Pop-up Overlay */
-.profile-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* Profile Pop-up */
+/* ==================== */
+/* BASE POPUP STYLES */
+/* ==================== */
 .profile-popup {
-  width: 700px;
-  height: 550px;
   background-color: #F2F0F0;
   border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Panel */
+/* Panel Styles - Shared Across All Popups */
 .profile-panel {
   display: flex;
   height: 55px;
   justify-content: space-between;
   align-items: center;
   padding: 12px;
+  background-color: #41AB5D;
   color: white;
 }
 
+.panel-left, 
+.panel-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-center {
+  flex-grow: 1;
+  margin-left: 170px;
+  font-weight: bold;
+}
+
 .panel-right button {
-  background-color: transparent;
+  background: none;
   border: none;
   color: white;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
   padding: 5px 10px;
   display: flex;
@@ -439,15 +389,12 @@ input[type="checkbox"] {
   opacity: 0.8;
 }
 
-.panel-left, .panel-right {
-  display: flex;
-  align-items: baseline;
-}
-
-.panel-center {
-  flex-grow: 1;
-  margin-left: 170px;
-  font-weight: bold;
+/* ==================== */
+/* PROFILE POPUP SPECIFIC */
+/* ==================== */
+.profile-popup {
+  width: 700px;
+  height: 550px;
 }
 
 /* Tabs */
@@ -467,16 +414,18 @@ input[type="checkbox"] {
 }
 
 .profile-tabs button.active {
+  color: #2e8345;
   border-bottom: 2px solid #41AB5D;
 }
 
-/* My Profile Section */
-.my-profile-section {
+/* Form Sections */
+.my-profile-section,
+.change-password-section {
   padding: 32px;
 }
 
 .input-group {
-  margin-bottom: 20px; /* Reduced gap between textboxes */
+  margin-bottom: 20px;
 }
 
 .input-group label {
@@ -488,63 +437,49 @@ input[type="checkbox"] {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
-  height: 45px; /* Updated textbox height */
-  width: 90%; /* Ensure full width */
+  height: 45px;
+  width: 90%;
 }
 
-
-/* Result Popup Container */
-.profile-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+.name-role-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.profile-popup {
-  background: white;
-  border-radius: 10px;
-  width: 600px; /* Adjust width as needed */
-  height: 500px; /* Adjust height as needed */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Panel */
-.profile-panel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #41AB5D;
-  color: white;
-}
-
-.panel-left, .panel-right {
-  display: flex;
-  align-items: center;
   gap: 10px;
 }
 
-.panel-right button {
-  background: none;
-  border: none;
+.name-role-container .input-group {
+  flex: 1;
+}
+
+.update-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.update-button {
+  padding: 10px 20px;
+  background-color: #41AB5D;
   color: white;
-  font-size: 16px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-/* Top Panel */
+.update-button:hover {
+  background-color: #369c4d;
+}
+
+/* ==================== */
+/* RESULT POPUP SPECIFIC */
+/* ==================== */
+.result-popup {
+  width: 600px;
+  height: 500px;
+  background: white;
+}
+
 .result-top-panel {
-  width: 560px; /* Adjusted width */
+  width: 560px;
   height: 50px;
   background-color: #74C476;
   display: flex;
@@ -553,20 +488,19 @@ input[type="checkbox"] {
   color: white;
   font-weight: bold;
   border-radius: 5px;
-  margin: 7px auto; /* Center horizontally */
+  margin: 7px auto;
 }
 
-/* Content Panels */
 .result-content {
-  width: 500px; /* Adjusted width */
-  flex: 1; /* Take up remaining space */
+  width: 500px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 100px;
   align-items: center;
   padding: 0px;
-  overflow-y: auto; /* Enable scrolling if content overflows */
-  margin: 0 auto; /* Center horizontally */
+  overflow-y: auto;
+  margin: 0 auto;
 }
 
 .result-content-panel {
@@ -581,7 +515,6 @@ input[type="checkbox"] {
   font-weight: bold;
 }
 
-/* Bottom Panel */
 .result-bottom-panel {
   width: 100%;
   height: 60px;
@@ -590,10 +523,9 @@ input[type="checkbox"] {
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  margin-top: auto; /* Push to the bottom */
+  margin-top: auto;
 }
 
-/* View Report Button */
 .view-report-button {
   width: 455px;
   height: 45px;
@@ -608,71 +540,27 @@ input[type="checkbox"] {
   background-color: #f0f0f0;
 }
 
+/* ==================== */
+/* CHATBOT POPUP SPECIFIC */
+/* ==================== */
+.chatbot-popup {
+  width: 700px;
+  height: 550px;
+}
 
-/* Chatbot Popup Container */
-.profile-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+.chatbot-top-panel {
+  width: 560px;
+  height: 50px;
+  background-color: #74C476;
+  margin: 7px auto 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-.profile-popup {
-  background: #F2F0F0;
-  border-radius: 10px;
-  width: 700px;
-  height: 550px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Panel */
-.profile-panel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #41AB5D;
   color: white;
+  font-weight: bold;
+  border-radius: 5px;
 }
 
-.panel-left, .panel-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.panel-right button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* Top Panel */
-.chatbot-top-panel {
-    width: 560px;
-    height: 50px;
-    background-color: #74C476;
-    margin: 7px auto 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    border-radius: 5px;
-  }
-
-/* Chat Content */
 .chat-content {
   flex: 1;
   padding: 15px;
@@ -723,7 +611,6 @@ input[type="checkbox"] {
   margin-right: 5px;
 }
 
-/* Chat Input Container */
 .chat-input-container {
   padding: 8px;
   background-color: #F2F0F0;
@@ -735,7 +622,7 @@ input[type="checkbox"] {
 
 .chat-input {
   display: flex;
-  background: white;  
+  background: white;
   width: 600px;
   border-radius: 25px;
   padding: 5px 10px;
@@ -759,19 +646,20 @@ input[type="checkbox"] {
   color: #41AB5D;
 }
 
-
-/* Submission History Table */
+/* ==================== */
+/* SUBMISSION HISTORY STYLES */
+/* ==================== */
 .submission-history-table {
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
-  font-size: 14px; /* Smaller font size */
+  font-size: 14px;
 }
 
 .submission-history-table th,
 .submission-history-table td {
   padding: 12px;
-  text-align: center; /* Center-align text */
+  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 
@@ -785,18 +673,17 @@ input[type="checkbox"] {
   background-color: #f5f5f5;
 }
 
-/* View Chat and View Result Buttons */
 .view-chat-button,
 .view-result-button {
   background-color: #41AB5D;
   color: white;
   border: none;
-  padding: 6px 12px; /* Smaller padding */
+  padding: 6px 12px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 12px; /* Smaller font size */
-  margin: 0 4px; /* Add spacing between buttons */
+  font-size: 12px;
+  margin: 0 4px;
 }
 
 .view-chat-button:hover,
@@ -804,10 +691,12 @@ input[type="checkbox"] {
   background-color: #369946;
 }
 
-
-/* Button Styles */
+/* ==================== */
+/* PANEL BUTTON STYLES */
+/* ==================== */
 .panel-left button {
-  width: 70px;
+  margin-left: -12px;
+  width: 75px;
   height: 55px;
   background-color: transparent;
   border: none;
@@ -815,87 +704,20 @@ input[type="checkbox"] {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  opacity: 1;
-  margin-right: 15px;
-  margin-left: -9px;
   transition: background-color 0.3s, opacity 0.3s;
 }
 
-/* Button Icons - Default State (White) */
 .panel-left button img {
   width: 27px;
   height: 27px;
   transition: filter 0.3s;
-  filter: brightness(0) saturate(100%) invert(100%); /* Makes icon white */
+  filter: brightness(0) saturate(100%) invert(100%);
 }
 
-/* Active Button Styles */
 .panel-left button.active {
-  height: 55px; /* Match panel height */
-  width: 75px; /* New width */
   background-color: white;
-  opacity: 1;
-  margin-left: -12px;
 }
 
-/* Button Icons */
-.panel-left button img {
-  width: 27px;
-  height: 27px;
-  transition: filter 0.3s;
-}
-
-/* Active Button Icons */
 .panel-left button.active img {
-  filter: brightness(0) saturate(100%) invert(58%) sepia(98%) saturate(365%) hue-rotate(81deg) brightness(91%) contrast(87%); /* Green filter */
-}
-
-/* Flexbox for Name and Role */
-.name-role-container {
-  display: flex;
-  gap: 10px; /* Space between the two textboxes */
-}
-
-.name-role-container .input-group {
-  flex: 1; /* Each input group takes equal space */
-}
-
-/* Update Button */
-.update-button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px; /* Reduced gap between last textbox and Update button */
-}
-
-.update-button {
-  padding: 10px 20px;
-  background-color: #41AB5D;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.update-button:hover {
-  background-color: #369c4d;
-}
-
-.change-password-section {
-  padding: 32px;
-}
-
-.change-password-section .input-group {
-  margin-bottom: 20px;
-}
-
-.change-password-section .input-group label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.change-password-section .input-group input {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  width: 100%;
+  filter: brightness(0) saturate(100%) invert(58%) sepia(98%) saturate(365%) hue-rotate(81deg) brightness(91%) contrast(87%);
 }

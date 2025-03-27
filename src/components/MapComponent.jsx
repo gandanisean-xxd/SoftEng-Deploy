@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import "leaflet-ruler"; // Import Ruler Plugin
-import "leaflet-compass"; // Import Compass Plugin
+import "leaflet-ruler";
+import "leaflet-compass";
 
 // Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -52,9 +52,8 @@ const MapTools = () => {
   return null;
 };
 
-const MapComponent = ({ searchLocation }) => {
+const MapComponent = ({ searchLocation, selectedBasemap = "Streets" }) => {
   const [userLocation, setUserLocation] = useState(null);
-  const [satelliteMode, setSatelliteMode] = useState(false);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -72,6 +71,25 @@ const MapComponent = ({ searchLocation }) => {
     }
   }, [searchLocation]);
 
+  // Define tile layer configurations
+  const baseLayers = {
+    "Streets": {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      subdomains: ["a", "b", "c"]
+    },
+    "Satellite Imagery": {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+      subdomains: []
+    },
+    "Terrain": {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      attribution: 'Map data: &copy; <a href="https://www.opentopomap.org">OpenTopoMap</a> contributors',
+      subdomains: ["a", "b", "c"]
+    }
+  };
+
   return (
     <div style={{ position: "absolute", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: 0 }}>
       <MapContainer
@@ -80,14 +98,11 @@ const MapComponent = ({ searchLocation }) => {
         style={{ width: "100%", height: "100%" }}
         ref={mapRef}
       >
+        {/* Dynamic Tile Layer based on selectedBasemap */}
         <TileLayer
-          url={
-            satelliteMode
-              ? "https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-              : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          }
-          attribution="&copy; OpenStreetMap contributors"
-          subdomains={satelliteMode ? ["mt0", "mt1", "mt2", "mt3"] : ["a", "b", "c"]}
+          url={baseLayers[selectedBasemap].url}
+          attribution={baseLayers[selectedBasemap].attribution}
+          subdomains={baseLayers[selectedBasemap].subdomains}
         />
 
         {/* Add Tools (Zoom, Compass, Ruler) */}
@@ -108,24 +123,21 @@ const MapComponent = ({ searchLocation }) => {
         )}
       </MapContainer>
 
-      {/* Toggle Button for Satellite View */}
-      <button
-        onClick={() => setSatelliteMode(!satelliteMode)}
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          zIndex: "1000",
-          padding: "8px 12px",
-          background: "#41AB5D",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        {satelliteMode ? "Switch to Map View" : "Switch to Satellite View"}
-      </button>
+      {/* Current Basemap Indicator (Optional) */}
+      <div style={{
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        zIndex: "1000",
+        padding: "8px 12px",
+        background: "#41AB5D",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        fontSize: "14px"
+      }}>
+        {selectedBasemap}
+      </div>
     </div>
   );
 };

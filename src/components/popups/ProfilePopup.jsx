@@ -1,15 +1,8 @@
 import React, { useState } from "react";
-import "./Popup.css";
+import "../Sidebar.css";
 
-const ProfilePopup = ({ onClose }) => {
-  const [showProfilePopup, setShowProfilePopup] = useState(true);
-  const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
+const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHistoryPopup, setShowProfilePopup }) => {
   const [activeTab, setActiveTab] = useState("myProfile");
-
-  const toggleProfilePopup = () => {
-    setShowProfilePopup(!showProfilePopup);
-    onClose(); // Ensure it closes the popup from the parent component
-  };
 
   return (
     <div className="profile-popup-overlay">
@@ -18,33 +11,21 @@ const ProfilePopup = ({ onClose }) => {
         <div className="profile-panel" style={{ backgroundColor: "#41AB5D" }}>
           <div className="panel-left">
             <button
-              className={showProfilePopup ? "active" : ""}
-              onClick={() => {
-                setShowProfilePopup(true);
-                setShowSubmissionHistoryPopup(false);
-              }}
+              className={true ? "active" : ""} // Always active since we're in profile
+              onClick={() => { setShowProfilePopup(true); setShowSubmissionHistoryPopup(false); }}
             >
-              <img
-                src={showProfilePopup ? "/icons/profile.png" : "/icons/greenprofile.png"}
-                alt="Profile"
-              />
+              <img src="/icons/profile.png" alt="Profile" />
             </button>
             <button
               className={showSubmissionHistoryPopup ? "active" : ""}
-              onClick={() => {
-                setShowSubmissionHistoryPopup(true);
-                setShowProfilePopup(false);
-              }}
+              onClick={() => { setShowSubmissionHistoryPopup(true); setShowProfilePopup(false); }}
             >
-              <img
-                src={showSubmissionHistoryPopup ? "/icons/result.png" : "/icons/greenresult.png"}
-                alt="Submission History"
-              />
+              <img src="/icons/result.png" alt="Submission History" />
             </button>
           </div>
           <div className="panel-center">PROFILE</div>
           <div className="panel-right">
-            <button onClick={toggleProfilePopup}>X</button>
+            <button onClick={onClose}>X</button>
           </div>
         </div>
 
@@ -67,7 +48,6 @@ const ProfilePopup = ({ onClose }) => {
         {/* My Profile Section */}
         {activeTab === "myProfile" && (
           <div className="my-profile-section">
-            {/* Name and Role Side by Side */}
             <div className="name-role-container">
               <div className="input-group">
                 <label>Name</label>
@@ -79,7 +59,6 @@ const ProfilePopup = ({ onClose }) => {
               </div>
             </div>
 
-            {/* Email and Username */}
             <div className="input-group">
               <label>Email</label>
               <input type="text" style={{ width: "542px" }} />

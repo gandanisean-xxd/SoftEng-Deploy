@@ -26,6 +26,8 @@ const Sidebar = ({
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [activeTab, setActiveTab] = useState("myProfile");
+  const [showSeeResult, setShowSeeResult] = useState(false);
+  const [progress, setProgress] = useState(0); // Track progress percentage
 
   const navigate = useNavigate();
 
@@ -83,7 +85,7 @@ const Sidebar = ({
 
     const handleSearch = () => {
       if (searchQuery.trim() === "") return;
-
+    
       const mockGeocoding = (query) => {
         const locations = {
           "manila": [14.5995, 120.9842],
@@ -98,16 +100,30 @@ const Sidebar = ({
           "bohol": [9.8499, 124.1435],
         };
 
+      
       return locations[query.trim().toLowerCase()] || null;
+      };
+    
+      const location = mockGeocoding(searchQuery);
+      if (location) {
+        onSearch(location);
+        setShowSeeResult(true);
+        setProgress(0); // Reset progress
+        
+        // Animate progress bar over 3 seconds
+        const interval = setInterval(() => {
+          setProgress(prev => {
+            if (prev >= 100) {
+              clearInterval(interval);
+              return 100;
+            }
+            return prev + 1;
+          });
+        }, 30); // Update every 30ms for smooth animation
+      } else {
+        alert("Location not found. Please try another search.");
+      }
     };
-
-    const location = mockGeocoding(searchQuery);
-    if (location) {
-      onSearch(location);
-    } else {
-      alert("Location not found. Please try another search.");
-    }
-  };
 
   const handleClearSearch = () => {
     setSearchQuery("");
@@ -135,7 +151,8 @@ const Sidebar = ({
           {!isCollapsed && <h3 className="sidebar-section-label">LOCATION TOOLS</h3>}
 
           {/* Search Bar */}
-          <li className="search-bar-container">
+          <li className="search-bar-container"
+          data-tooltip="Search Location">
             <img src="/icons/searchicon.png" alt="Search" className="search-icon" />
             {!isCollapsed && (
               <div className="search-bar">
@@ -157,7 +174,8 @@ const Sidebar = ({
           </li>
 
           {/* Current Location */}
-          <li onClick={onLocate}>
+          <li onClick={onLocate}
+          data-tooltip="Current Location">
             <img src="/icons/currentloc.png" alt="Location" />
             {!isCollapsed && <span>Current Location</span>}
           </li>
@@ -166,7 +184,9 @@ const Sidebar = ({
           {!isCollapsed && <h3 className="sidebar-section-label">DISPLAY OPTIONS</h3>}
 
            {/* Updated Reference Map Dropdown */}
-           <li className="dropdown-item" onClick={toggleReferenceMapDropdown}>
+           <li className="dropdown-item" 
+            onClick={toggleReferenceMapDropdown}
+            data-tooltip="Basemaps">
             <img src="/icons/basemap.png" alt="Map" />
             {!isCollapsed && <span>Basemaps</span>}
             {!isCollapsed && <DropdownArrow isOpen={showReferenceMapDropdown} />}
@@ -190,7 +210,9 @@ const Sidebar = ({
 
 
           {/* Hazards Dropdown */}
-          <li className="dropdown-item" onClick={toggleHazardsDropdown}>
+          <li  className="dropdown-item" 
+          onClick={toggleHazardsDropdown}
+          data-tooltip="Hazards">
             <img src="/icons/hazard.png" alt="Hazards" />
             {!isCollapsed && <span>Hazards</span>}
             {!isCollapsed && <DropdownArrow isOpen={showHazardsDropdown} />}
@@ -219,23 +241,38 @@ const Sidebar = ({
           {!isCollapsed && <h3 className="sidebar-section-label">USEFUL LINKS</h3>}
 
           {/* Useful Links */}
-          <li>
+          <li data-tooltip="PAGASA">
             <img src="/icons/pagasa.png" alt="PAGASA" />
             {!isCollapsed && <span>PAGASA</span>}
           </li>
-          <li>
+          <li data-tooltip="DENR">
             <img src="/icons/denr.png" alt="DENR" />
             {!isCollapsed && <span>DENR</span>}
           </li>
-          <li>
-            <img src="/icons/nasa.png" alt="NASA" />
+          <li data-tooltip="NASA">
+            <img src="/icons/nasalogo.png" alt="NASA" />
             {!isCollapsed && <span>NASA</span>}
           </li>
 
-          {/* Theme Toggle */}
-          <button className="theme-toggle" onClick={toggleTheme}>
-            <img src={isDarkTheme ? "light-icon.png" : "dark-icon.png"} alt="Theme Toggle" />
-          </button>
+          {/* Theme Toggle - Replace the existing button with this */}
+          <li 
+            className="theme-toggle-container" 
+            onClick={toggleTheme}
+            data-tooltip={isDarkTheme ? "Light Mode" : "Dark Mode"}
+          >
+            <div className={`theme-toggle-switch ${isDarkTheme ? 'theme-toggle-dark' : 'theme-toggle-light'}`}>
+              <div className="theme-toggle-circle">
+                <img 
+                  src={isDarkTheme ? "/icons/moon.png" : "/icons/sun.png"} 
+                  alt="Theme icon" 
+                  className="theme-toggle-icon" 
+                />
+              </div>
+            </div>
+            {!isCollapsed && (
+              <span>{isDarkTheme ? "Dark Mode" : "Light Mode"}</span>
+            )}
+          </li>
         </ul>
       </div>
 
@@ -264,11 +301,11 @@ const Sidebar = ({
           {showProfileDropdown && (
             <div className="profile-dropdown">
               <div className="dropdown-item" onClick={() => setShowSubmissionHistoryPopup(true)}>
-                <img src="/icons/history.png" alt="Submission History" />
+                <img src="/icons/submissionhistory.png" alt="Submission History" />
                 <span>Submission History</span>
               </div>            
               <div className="dropdown-item" onClick={toggleProfilePopup}>
-                <img src="/icons/profile.png" alt="Profile" />
+                <img src="/icons/greenprofile.png" alt="Profile" />
                 <span>Profile</span>
               </div>
               <div className="dropdown-item" onClick={handleLogout}>
@@ -317,6 +354,38 @@ const Sidebar = ({
           setShowResultPopup={setShowResultPopup}
           setShowChatbotPopup={setShowChatbotPopup}
         />
+      )}
+
+
+      {showSeeResult && (
+        <div className="processing-popup-overlay">
+          <div className="processing-popup">
+            <div className="processing-content">
+              <div className="processing-message">
+                Processing Hazard Assessment, Please wait...
+              </div>
+              
+              <div className="progress-container">
+                <div 
+                  className="progress-bar"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              
+              {progress === 100 && (
+                <button 
+                  className="processing-button"
+                  onClick={() => {
+                    setShowSeeResult(false);
+                    setShowResultPopup(true);
+                  }}
+                >
+                  See Result
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -14,7 +14,7 @@ const SearchBar = ({ onSearch }) => {
     
     if (data.length > 0) {
       const { lat, lon } = data[0];
-      onSearch([parseFloat(lat), parseFloat(lon)]);
+      onSearch([parseFloat(lat), parseFloat(lon)], false); // Add false parameter to indicate no pin
     } else {
       alert("Location not found!");
     }

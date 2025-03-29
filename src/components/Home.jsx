@@ -58,11 +58,19 @@ const Home = () => {
             </button>
           </div>
           <div className="buttons-container">
-            <button className="location-button">
+            <button 
+              className="location-button"
+              data-tooltip="Get your real-time 
+              location and navigate easily"
+            >
               <img src="your-location-icon.png" alt="Current Location" />
               Current Location
             </button>
-            <button className="mapview-button" onClick={() => navigate("/map")}>
+            <button 
+              className="mapview-button" 
+              onClick={() => navigate("/map")}
+              data-tooltip="See More Features"
+            >
               <img src="your-mapview-icon.png" alt="Map View" />
               Go to Map View
             </button>

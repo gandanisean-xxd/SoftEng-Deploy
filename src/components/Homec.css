@@ -1,4 +1,5 @@
 /* General Styles */
+
 .home-container {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -101,7 +102,7 @@
 }
 
 .search-button {
-  background-color: green;
+  background-color: #41AB5D;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -126,7 +127,7 @@
 
 .location-button,
 .mapview-button {
-  background-color: green;
+  background-color: #41AB5D;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -175,7 +176,7 @@
 .footer-buttons button {
   padding: 8px 15px;
   border: none;
-  background-color: green;
+  background-color: #74C476;
   color: white;
   cursor: pointer;
   border-radius: 5px;
@@ -234,4 +235,85 @@
 
 .close-button:hover {
   color: #512da8;
+}
+
+
+
+/* Add these styles to your Homec.css file */
+/* Tooltip styles */
+.location-button,
+.mapview-button {
+  position: relative;
+}
+
+/* Current Location - Tooltip on right */
+.location-button:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 10px;
+  padding: 6px 12px;
+  background: #41AB5D;
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: normal;
+  width: 160px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.location-button:hover::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid #41AB5D;
+  margin-right: 4px;
+  z-index: 101;
+}
+
+/* Map View - Tooltip on left */
+.mapview-button:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  padding: 6px 12px;
+  background: #41AB5D;
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.mapview-button:hover::before {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid #41AB5D;
+  margin-left: 4px;
+  z-index: 101;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

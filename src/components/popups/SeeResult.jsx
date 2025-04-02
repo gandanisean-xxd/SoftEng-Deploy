@@ -38,11 +38,12 @@ const SeeResult = ({ onClose, onViewResult }) => {
 
           {showButton && (
             <button 
-              className="processing-button"
-              onClick={onViewResult}
-            >
-              See Result
-            </button>
+            className="processing-button"
+            onClick={onViewResult} // This uses the handler from App.js
+          >
+            See Result
+          </button>
+  
           )}
         </div>
       </div>

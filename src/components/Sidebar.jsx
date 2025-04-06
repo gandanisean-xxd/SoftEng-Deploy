@@ -5,6 +5,7 @@ import ChatbotPopup from "./popups/chatbotpopup";
 import ProfilePopup from "./popups/ProfilePopup";
 import ResultPopup from "./popups/ResultPopup";
 import SubmissionHistoryPopup from "./popups/SubmissionHistoryPopup";
+import SearchBar from "./SearchBar";
 
 const Sidebar = ({ 
   onSearch, 
@@ -19,7 +20,6 @@ const Sidebar = ({
   const [showReferenceMapDropdown, setShowReferenceMapDropdown] = useState(false);
   const [showHazardsDropdown, setShowHazardsDropdown] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
@@ -79,66 +79,7 @@ const Sidebar = ({
     );
   };
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-    const handleSearch = () => {
-      if (searchQuery.trim() === "") return;
-    
-      const mockGeocoding = (query) => {
-        const locations = {
-          "manila": [14.5995, 120.9842],
-          "cebu": [10.3157, 123.8854],
-          "davao": [7.1907, 125.4553],
-          "baguio": [16.4023, 120.5960],
-          "palawan": [9.8349, 118.7384],
-          "quezon city": [14.6760, 121.0437],
-          "cagayan de oro": [8.4542, 124.6319],
-          "iloilo": [10.7202, 122.5621],
-          "zamboanga": [6.9214, 122.0790],
-          "bohol": [9.8499, 124.1435],
-        };
-
-      
-      return locations[query.trim().toLowerCase()] || null;
-      };
-    
-      const location = mockGeocoding(searchQuery);
-      if (location) {
-        onSearch(location);
-        setShowSeeResult(true);
-        setProgress(0); // Reset progress
-        
-        // Animate progress bar over 3 seconds
-        const interval = setInterval(() => {
-          setProgress(prev => {
-            if (prev >= 100) {
-              clearInterval(interval);
-              return 100;
-            }
-            return prev + 1;
-          });
-        }, 30); // Update every 30ms for smooth animation
-      } else {
-        alert("Location not found. Please try another search.");
-      }
-    };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-    onClearSearch();
-  };
-
-   // DropdownArrow component for reusability
-   const DropdownArrow = ({ isOpen }) => (
-    <img 
-      src="/icons/expand.png" 
-      alt="Expand" 
-      className={`dropdown-arrow ${isOpen ? "rotate" : ""}`}
-    />
-  );
-
+  
   return (
     <div className={`app ${isDarkTheme ? "dark-theme" : "light-theme"}`}>
       {/* Sidebar */}
@@ -151,27 +92,13 @@ const Sidebar = ({
           {!isCollapsed && <h3 className="sidebar-section-label">LOCATION TOOLS</h3>}
 
           {/* Search Bar */}
-          <li className="search-bar-container"
-          data-tooltip="Search Location">
-            <img src="/icons/searchicon.png" alt="Search" className="search-icon" />
-            {!isCollapsed && (
-              <div className="search-bar">
-                <input
-                  type="text"
-                  placeholder="Search Location"
-                  className="search-input"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                />
-                {searchQuery && (
-                  <button className="clear-button" onClick={handleClearSearch}>
-                    ✕
-                  </button>
-                )}
-              </div>
-            )}
-          </li>
+          <SearchBar 
+            onSearch={(location) => {
+              onSearch(location);
+            }}
+            onClearSearch={onClearSearch}
+            isCollapsed={isCollapsed}
+          />
 
           {/* Current Location */}
           <li onClick={onLocate}
@@ -183,13 +110,22 @@ const Sidebar = ({
           {/* Display Options Section */}
           {!isCollapsed && <h3 className="sidebar-section-label">DISPLAY OPTIONS</h3>}
 
-           {/* Updated Reference Map Dropdown */}
-           <li className="dropdown-item" 
+          {/* Updated Reference Map Dropdown */}
+          <li 
+            className="dropdown-item" 
             onClick={toggleReferenceMapDropdown}
-            data-tooltip="Basemaps">
+            data-tooltip="Basemaps"
+          >
             <img src="/icons/basemap.png" alt="Map" />
             {!isCollapsed && <span>Basemaps</span>}
-            {!isCollapsed && <DropdownArrow isOpen={showReferenceMapDropdown} />}
+            {!isCollapsed && (
+              <img 
+                src="/icons/dropdown0.png" 
+                alt="Expand" 
+                className={`dropdown-arrow ${showReferenceMapDropdown ? "rotate" : ""}`}
+                style={{ width: '14px', height: '14px' }}
+              />
+            )}
           </li>
           {showReferenceMapDropdown && !isCollapsed && (
             <ul className="dropdown">
@@ -208,14 +144,22 @@ const Sidebar = ({
             </ul>
           )}
 
-
           {/* Hazards Dropdown */}
-          <li  className="dropdown-item" 
-          onClick={toggleHazardsDropdown}
-          data-tooltip="Hazards">
+          <li 
+            className="dropdown-item" 
+            onClick={toggleHazardsDropdown}
+            data-tooltip="Hazards"
+          >
             <img src="/icons/hazard.png" alt="Hazards" />
             {!isCollapsed && <span>Hazards</span>}
-            {!isCollapsed && <DropdownArrow isOpen={showHazardsDropdown} />}
+            {!isCollapsed && (
+              <img 
+                src="/icons/dropdown0.png" 
+                alt="Expand" 
+                className={`dropdown-arrow ${showHazardsDropdown ? "rotate" : ""}`}
+                style={{ width: '14px', height: '14px' }}
+              />
+            )}
           </li>
           {showHazardsDropdown && !isCollapsed && (
             <ul className="dropdown">
@@ -296,7 +240,12 @@ const Sidebar = ({
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <img src="/icons/profile.png" alt="Profile" />
             <span>Profile</span>
-            <DropdownArrow isOpen={showProfileDropdown} />
+            <img 
+              src="/icons/dropdown0.png" 
+              alt="Expand" 
+              className={`dropdown-arrow profile-dropdown-arrow ${showProfileDropdown ? "rotate" : ""}`}
+              style={{ width: '15px', height: '15px' }}
+            />
           </button>
           {showProfileDropdown && (
             <div className="profile-dropdown">

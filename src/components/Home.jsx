@@ -19,15 +19,15 @@ const Home = () => {
       {/* Header Section */}
       <header className="header">
         <div className="logo-container">
-          <img src="your-logo-image.png" alt="Logo" className="logo" />
-          <div className="title-container">
+        <img src="/icons/logo.png" alt="Logo" className="logo" />
+        <div className="title-container">
             <h1 className="title">AI-Driven GIS</h1>
             <p className="subtitle">Shaping Sustainable Urban Landscapes</p>
           </div>
         </div>
         <button className="login-button" onClick={handleLoginClick}>
-          <img src="your-login-icon.png" alt="Login" className="login-icon" />
-          Login
+        <img src="/icons/login.png" alt="Login" className="login-icon" />
+        Login
         </button>
       </header>
 
@@ -43,40 +43,38 @@ const Home = () => {
         </div>
       )}
     
-  
-
-
-      {/* Hero Section */}
-      <div className="hero-section">
-        <img src="/icons/philippines.webp" alt="Background" className="hero-image" />
-        <div className="overlay">
-          <div className="Hsearch-container">
-            <input type="text" placeholder="Type a location" className="search-input" />
-            <button className="search-button">
-              <img src="your-search-icon.png" alt="Search" />
-              Search
-            </button>
-          </div>
-          <div className="buttons-container">
-            <button 
-              className="location-button"
-              data-tooltip="Get your real-time 
-              location and navigate easily"
-            >
-              <img src="your-location-icon.png" alt="Current Location" />
-              Current Location
-            </button>
-            <button 
-              className="mapview-button" 
-              onClick={() => navigate("/map")}
-              data-tooltip="See More Features"
-            >
-              <img src="your-mapview-icon.png" alt="Map View" />
-              Go to Map View
-            </button>
-          </div>
-        </div>
+ {/* Hero Section */}
+<div className="hero-section">
+  <img src="/icons/philippines.webp" alt="Background" className="hero-image" />
+  <div className="overlay">
+    <div className="Hsearch-container">
+      <div className="search-wrapper">
+        <input type="text" placeholder="Type a location" className="search-input" />
+        <button className="search-button">
+          <img src="/icons/search.png" alt="Search" />
+        </button>
       </div>
+    </div>
+    <div className="buttons-container">
+      <button 
+        className="location-button"
+        data-tooltip="Get your real-time location and navigate easily"
+      >
+        <img src="/icons/currentlocation1.png" alt="Current Location" />
+        Current Location
+      </button>
+      <button 
+        className="mapview-button" 
+        onClick={() => navigate("/map")}
+        data-tooltip="See More Features"
+      >
+        <img src="/icons/mapview.png" alt="Map View" />
+        Go to Map View
+      </button>
+    </div>
+  </div>
+</div>
+
 
       {/* Info Section */}
       <div className="info-section">
@@ -85,20 +83,40 @@ const Home = () => {
         </p>
       </div>
 
-      {/* Footer Section */}
-      <footer className="footer">
-        <div className="footer-buttons">
-          <button>About</button>
-          <button>Features</button>
-          <button>Contact</button>
-        </div>
-        <div className="partners">
-          <img src="your-partner1-logo.png" alt="Partner 1" />
-          <img src="your-partner2-logo.png" alt="Partner 2" />
-          <img src="your-partner3-logo.png" alt="Partner 3" />
-          <img src="your-partner4-logo.png" alt="Partner 4" />
-        </div>
-      </footer>
+{/* Footer Section */}
+<footer className="footer">
+  <div className="footer-buttons">
+    <a href="/about" className="button">About</a>
+    <a href="/features" className="button">Features</a>
+    <a href="/contact" className="button">Contact</a>
+  </div>
+  <div className="partners">
+    <div className="partner">
+      <a href="https://www.dost.gov.ph" target="_blank" rel="noopener noreferrer">
+        <img src="icons/dost.png" alt="DOST" />
+        <p>DOST</p>
+      </a>
+    </div>
+    <div className="partner">
+      <a href="https://pcieerd.dost.gov.ph" target="_blank" rel="noopener noreferrer">
+        <img src="icons/pcieerd.png" alt="DOST-PCIEERD" />
+        <p>DOST-PCIEERD</p>
+      </a>
+    </div>
+    <div className="partner">
+      <a href="https://www.phivolcs.dost.gov.ph" target="_blank" rel="noopener noreferrer">
+        <img src="icons/phivolcs.jpg" alt="DOST-PHIVOLCS" />
+        <p>DOST-PHIVOLCS</p>
+      </a>
+    </div>
+    <div className="partner">
+      <a href="https://www.pagasa.dost.gov.ph" target="_blank" rel="noopener noreferrer">
+        <img src="icons/pagasa.png" alt="DOST-PAGASA" />
+        <p>DOST-PAGASA</p>
+      </a>
+    </div>
+  </div>
+</footer>
     </div>
   );
 };

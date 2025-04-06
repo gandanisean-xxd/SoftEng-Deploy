@@ -144,7 +144,7 @@ const Sidebar = ({
       {/* Sidebar */}
       <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
         <div className="logo-container">
-          <img src="logo.png" alt="Logo" className="logo" />
+          <img src="icons/logo.png" alt="Logo" className="logo" />
         </div>
         <ul>
           {/* Location Tools Section */}

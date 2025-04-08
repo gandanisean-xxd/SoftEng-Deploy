@@ -12,8 +12,10 @@ body{
     height: 100vh;
 }
 
+
 .container{
-    background-color: #fff;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     border-radius: 30px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
     position: relative;
@@ -41,7 +43,7 @@ body{
     margin: 15px 0 10px;
 }
 
-.container button {
+.container button:not(.googleBtn) {
     background-color: #41AB5D;
     color: #fff;
     font-size: 12px;
@@ -61,7 +63,7 @@ body{
 }
 
 .container form {
-  background-color: #fff;
+  background-color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,8 +74,10 @@ body{
 }
 
 .container input {
-    background-color: #eee;
-    border: none;
+    margin-top: 10px;
+    border: var(--result-panel-border);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
     margin: 8px 0;
     padding: 10px 15px;
     font-size: 13px;
@@ -81,6 +85,12 @@ body{
     width: 100%;
     outline: none;
 }
+
+input::placeholder {
+  color: var(--text-primary);
+  opacity: 0.6  ;
+}
+
 
 .formContainer {
     position: absolute;
@@ -126,21 +136,6 @@ body{
   }
 }
 
-.socialIcons {
-  margin: 20px 0;
-  
-}
-
-.socialIcons a {
-    border: 1px solid #ccc;
-    border-radius: 20%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 3px;
-    width: 40px;
-    height: 40px;
-}
 
 .toggleContainer {
     position: absolute;
@@ -152,6 +147,8 @@ body{
     transition: all 0.6s ease-in-out;
     border-radius: 150px 0 0 100px;
     z-index: 1000;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2), 
+    -5px 0 15px rgba(0, 0, 0, 0.2); /* Added side shadows */
 }
 
 .container.active .toggleContainer {
@@ -162,7 +159,7 @@ body{
 .toggle {
     background-color: #41AB5D;
     height: 100%;
-    background: linear-gradient(to right, #41c047, #41AB5D);
+    background: linear-gradient(to right, var(--button-primary), var(--button-primary));
     color: #fff;
     position: relative;
     left: -100%;
@@ -171,6 +168,7 @@ body{
     transform: translateX(0);
     transition: all 0.6s ease-in-out;
 }
+  
 
 .container.active .toggle {
   transform: translateX(50%);
@@ -208,3 +206,72 @@ body{
 .container.active .toggleRight {
   transform: translateX(200%);
 }
+
+
+.socialContainer {
+  margin: 20px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 50px;
+  width: 100%;
+  max-width: 230px;
+}
+
+.googleBtn:hover {
+  background-color: var(--googleBtn-hover);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.googleIcon {
+  width: 35px;
+  height: 35px;
+}
+
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+  margin-right: 0.75em;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 0.75em;
+}
+
+.divider span {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+

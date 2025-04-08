@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../Sidebar.css";
+import "./PopupStyles.css";
 
 const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHistoryPopup, setShowProfilePopup }) => {
   const [activeTab, setActiveTab] = useState("myProfile");
@@ -25,7 +25,9 @@ const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHi
           </div>
           <div className="panel-center">PROFILE</div>
           <div className="panel-right">
-            <button onClick={onClose}>X</button>
+            <button onClick={onClose}>
+              <img src="/icons/close.png" alt="Close" className="close-icon" />
+            </button>
           </div>
         </div>
 

@@ -4,7 +4,7 @@
   import L from "leaflet";
   import "leaflet-ruler";
   import "leaflet-compass";
-  import SeeResult from "./popups/SeeResult";
+  import SeeResult from "../popups/SeeResult";
 
   // Fix default marker icon issue
   delete L.Icon.Default.prototype._getIconUrl;

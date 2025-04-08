@@ -1,15 +1,15 @@
 import React from "react";
-import "../Sidebar.css";
+import "./PopupStyles.css";
 
-const ResultPopup = ({ onClose, showChatbotPopup, setShowChatbotPopup, setShowResultPopup }) => {
+const ResultPopup = ({ onClose, showChatbotPopup, setShowChatbotPopup, setShowResultPopup, darkMode }) => {
   return (
     <div className="profile-popup-overlay">
-      <div className="profile-popup">
+      <div className={`profile-popup ${darkMode ? "dark-mode" : ""}`}>
         {/* Panel */}
-        <div className="profile-panel" style={{ backgroundColor: "#41AB5D" }}>
+        <div className="profile-panel">
           <div className="panel-left">
             <button
-              className={true ? "active" : ""} // Always active since we're in result
+              className={true ? "active" : ""}
               onClick={() => {}}
             >
               <img src="/icons/result.png" alt="Assessment Result" />
@@ -23,7 +23,9 @@ const ResultPopup = ({ onClose, showChatbotPopup, setShowChatbotPopup, setShowRe
           </div>
 
           <div className="panel-right">
-            <button onClick={onClose}>X</button>
+            <button onClick={onClose}>
+              <img src="/icons/close.png" alt="Close" className="close-icon" />
+            </button>
           </div>
         </div>
 
@@ -34,15 +36,9 @@ const ResultPopup = ({ onClose, showChatbotPopup, setShowChatbotPopup, setShowRe
 
         {/* Content Panels */}
         <div className="result-content">
-          <div className="result-content-panel">
-            Flooding Assessment
-          </div>
-          <div className="result-content-panel">
-            Rainfall Assessment
-          </div>
-          <div className="result-content-panel">
-            Heat Index Assessment
-          </div>
+          <div className="result-content-panel">Flooding Assessment</div>
+          <div className="result-content-panel">Rainfall Assessment</div>
+          <div className="result-content-panel">Heat Index Assessment</div>
         </div>
 
         {/* Bottom Panel */}
@@ -55,5 +51,6 @@ const ResultPopup = ({ onClose, showChatbotPopup, setShowChatbotPopup, setShowRe
     </div>
   );
 };
+
 
 export default ResultPopup;

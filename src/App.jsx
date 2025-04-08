@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import MapComponent from "./components/MapComponent";
-import Home from "./components/Home";
+import Sidebar from "./components/MainDashboard/Sidebar";
+import MapComponent from "./components/MainDashboard/MapComponent";
+import Home from "./components/Homepage/Home";
 import SeeResult from "./components/popups/SeeResult";
 import ResultPopup from "./components/popups/ResultPopup";
 import "./index.css";

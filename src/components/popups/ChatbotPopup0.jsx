@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../Sidebar.css";
+import "./PopupStyles.css";
 
-const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup }) => {
+const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup, darkMode }) => {
   const [messages, setMessages] = useState([
     { sender: "user", text: "Why is this place prone to flooding?" },
     {
@@ -19,7 +19,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
 
   return (
     <div className="profile-popup-overlay">
-      <div className="profile-popup">
+      <div className={`profile-popup ${darkMode ? "dark-mode" : ""}`}>
         {/* Panel */}
         <div className="profile-panel" style={{ backgroundColor: "#41AB5D" }}>
           <div className="panel-left">
@@ -38,7 +38,9 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
           </div>
 
           <div className="panel-right">
-            <button onClick={onClose}>x</button>
+            <button onClick={onClose}>
+              <img src="/icons/close.png" alt="Close" className="close-icon" />
+            </button>
           </div>
         </div>
 

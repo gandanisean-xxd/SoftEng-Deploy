@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
-import ChatbotPopup from "./popups/chatbotpopup";
-import ProfilePopup from "./popups/ProfilePopup";
-import ResultPopup from "./popups/ResultPopup";
-import SubmissionHistoryPopup from "./popups/SubmissionHistoryPopup";
+import ChatbotPopup from "../popups/ChatbotPopup0";
+import ProfilePopup from "../popups/ProfilePopup";
+import ResultPopup from "../popups/ResultPopup";
+import SubmissionHistoryPopup from "../popups/SubmissionHistoryPopup";
 import SearchBar from "./SearchBar";
+import { useTheme } from "../../Context/ThemeContext";
+
 
 const Sidebar = ({ 
   onSearch, 
   onLocate, 
   onClearSearch, 
   updateSidebarState,
-  onBasemapChange,       // New prop for basemap updates
-  selectedBasemap        // New prop for current basemap
+  onBasemapChange,
+  selectedBasemap
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  // Remove the local isDarkTheme state since we're using context now
   const [showReferenceMapDropdown, setShowReferenceMapDropdown] = useState(false);
   const [showHazardsDropdown, setShowHazardsDropdown] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
@@ -27,13 +29,15 @@ const Sidebar = ({
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [activeTab, setActiveTab] = useState("myProfile");
   const [showSeeResult, setShowSeeResult] = useState(false);
-  const [progress, setProgress] = useState(0); // Track progress percentage
+  const [progress, setProgress] = useState(0);
 
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
 
   const toggleProfileDropdown = () => {
     setShowProfileDropdown(!showProfileDropdown);
   };
+  
 
   const toggleProfilePopup = () => {
     setShowProfilePopup(!showProfilePopup);
@@ -53,7 +57,6 @@ const Sidebar = ({
     updateSidebarState(!isCollapsed);
   };
 
-  const toggleTheme = () => setIsDarkTheme(!isDarkTheme);
 
   const toggleReferenceMapDropdown = () => {
     setShowReferenceMapDropdown(!showReferenceMapDropdown);
@@ -73,20 +76,27 @@ const Sidebar = ({
 
  
 
-  const handleHazardSelect = (hazard) => {
-    setSelectedHazards((prevSelected) =>
-      prevSelected.includes(hazard) ? prevSelected.filter((h) => h !== hazard) : [...prevSelected, hazard]
+  const handleHazardSelect = (hazardName) => {
+    setSelectedHazards(prev => 
+      prev.includes(hazardName) 
+        ? prev.filter(h => h !== hazardName)  // Remove if already selected
+        : [...prev, hazardName]              // Add if not selected
     );
   };
 
   
   return (
-    <div className={`app ${isDarkTheme ? "dark-theme" : "light-theme"}`}>
+    <div className={`app ${isDarkMode ? "dark-theme" : "light-theme"}`}>
       {/* Sidebar */}
-      <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-        <div className="logo-container">
-          <img src="icons/logo.png" alt="Logo" className="logo" />
-        </div>
+      <div className={`sidebar ${isCollapsed ? "collapsed" : ""} ${isDarkMode ? "dark-theme" : ""}`}>
+      <div className={`sidebar-logo-container ${isCollapsed ? "collapsed" : ""}`}>
+        <img 
+          src="/icons/logo.png" 
+          alt="AI-Driven GIS Logo" 
+          className="sidebar-logo" 
+        />
+        {!isCollapsed && <span className="sidebar-title">AI-Driven GIS</span>}
+      </div>
         <ul>
           {/* Location Tools Section */}
           {!isCollapsed && <h3 className="sidebar-section-label">LOCATION TOOLS</h3>}
@@ -168,14 +178,19 @@ const Sidebar = ({
                 { name: "Rainfall", icon: "/icons/rainfall.png" },
                 { name: "Heat Index", icon: "/icons/heat.png" },
               ].map((hazard) => (
-                <li key={hazard.name}>
-                  <input
-                    type="checkbox"
-                    checked={selectedHazards.includes(hazard.name)}
-                    onChange={() => handleHazardSelect(hazard.name)}
-                  />
-                  <img src={hazard.icon} alt={hazard.name} className="hazard-icon" />
-                  <span>{hazard.name}</span>
+                <li 
+                    key={hazard.name}
+                    className="hazard-item"
+                  >
+                  <label style={{ display: 'flex', alignItems: 'center', width: '100%', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedHazards.includes(hazard.name)}
+                      onChange={() => handleHazardSelect(hazard.name)}
+                    />
+                    <img src={hazard.icon} alt={hazard.name} />
+                    <span>{hazard.name}</span>
+                  </label>
                 </li>
               ))}
             </ul>
@@ -198,25 +213,25 @@ const Sidebar = ({
             {!isCollapsed && <span>NASA</span>}
           </li>
 
-          {/* Theme Toggle - Replace the existing button with this */}
-          <li 
-            className="theme-toggle-container" 
-            onClick={toggleTheme}
-            data-tooltip={isDarkTheme ? "Light Mode" : "Dark Mode"}
-          >
-            <div className={`theme-toggle-switch ${isDarkTheme ? 'theme-toggle-dark' : 'theme-toggle-light'}`}>
-              <div className="theme-toggle-circle">
-                <img 
-                  src={isDarkTheme ? "/icons/moon.png" : "/icons/sun.png"} 
-                  alt="Theme icon" 
-                  className="theme-toggle-icon" 
-                />
-              </div>
+          {/* Theme toggle - updated to use context */}
+        <li 
+          className="theme-toggle-container" 
+          onClick={toggleTheme}  // Using context toggle function
+          data-tooltip={isDarkMode ? "Light Mode" : "Dark Mode"}
+        >
+          <div className={`theme-toggle-switch ${isDarkMode ? 'theme-toggle-dark' : 'theme-toggle-light'}`}>
+            <div className="theme-toggle-circle">
+              <img 
+                src={isDarkMode ? "/icons/moon.png" : "/icons/sun.png"} 
+                alt="Theme icon" 
+                className="theme-toggle-icon" 
+              />
             </div>
-            {!isCollapsed && (
-              <span>{isDarkTheme ? "Dark Mode" : "Light Mode"}</span>
-            )}
-          </li>
+          </div>
+          {!isCollapsed && (
+            <span>{isDarkMode ? "Dark Mode" : "Light Mode"}</span>
+          )}
+        </li>
         </ul>
       </div>
 

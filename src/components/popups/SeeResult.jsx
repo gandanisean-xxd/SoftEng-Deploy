@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../Sidebar.css";
+import "./PopupStyles.css";
 
 const SeeResult = ({ onClose, onViewResult }) => {
   const [progress, setProgress] = useState(0);

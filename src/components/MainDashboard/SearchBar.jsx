@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Searchbar.css";
+import "./Sidebar.css";
 
 const SearchBar = ({ 
   onSearch,  // Just focuses map on coordinates

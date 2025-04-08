@@ -1,7 +1,22 @@
 import React from "react";
-import "../Sidebar.css";
+import "./PopupStyles.css";
+import ChatbotPopup from "./ChatbotPopup0"; 
+import ResultPopup from "./ResultPopup";
+import { useState } from "react";
+
 
 const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup, setShowSubmissionHistoryPopup }) => {
+
+  const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [showResultPopup, setShowResultPopup] = useState(false);
+  const [activeSubmission, setActiveSubmission] = useState(null);
+
+  const submissions = [
+    { id: 1, location: "Quezon City...", hazards: ["Flooding", "Rainfall"] },
+    { id: 2, location: "Makati City...", hazards: ["Flooding", "Rainfall", "Heat Index"] },
+    { id: 3, location: "Cebu City...", hazards: ["Flooding", "Rainfall", "Heat Index"] },
+  ];
+
   return (
     <div className="profile-popup-overlay">
       <div className="profile-popup">
@@ -23,7 +38,9 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
           </div>
           <div className="panel-center">SUBMISSION HISTORY</div>
           <div className="panel-right">
-            <button onClick={onClose}>X</button>
+            <button onClick={onClose}>
+              <img src="/icons/close.png" alt="Close" className="close-icon" />
+            </button>
           </div>
         </div>
 
@@ -37,36 +54,63 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Quezon City, Philippines, Barangay Commonwealth</td>
-                <td>Flooding, Rainfall</td>
-                <td>
-                  <button className="view-chat-button">View Chat</button>
-                  <button className="view-result-button">View Result</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Makati City, Philippines, Barangay 505</td>
-                <td>Flooding, Rainfall, Heat Index</td>
-                <td>
-                  <button className="view-chat-button">View Chat</button>
-                  <button className="view-result-button">View Result</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Cebu City, Philippines, Barangay 102</td>
-                <td>Flooding, Rainfall, Heat Index</td>
-                <td>
-                  <button className="view-chat-button">View Chat</button>
-                  <button className="view-result-button">View Result</button>
-                </td>
-              </tr>
-            </tbody>
+              <tbody>
+                <tr>
+                  <td>Quezon City, Philippines, Barangay Commonwealth</td>
+                  <td>Flooding, Rainfall</td>
+                  <td>
+                    <div className="submission-buttons">
+                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
+                      <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Makati City, Philippines, Barangay 505</td>
+                  <td>Flooding, Rainfall, Heat Index</td>
+                  <td>
+                    <div className="submission-buttons">
+                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
+                      <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Cebu City, Philippines, Barangay 102</td>
+                  <td>Flooding, Rainfall, Heat Index</td>
+                  <td>
+                    <div className="submission-buttons">
+                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
+                      <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
           </table>
         </div>
       </div>
+      {showChatbotPopup && (
+        <ChatbotPopup
+          onClose={() => setShowChatbotPopup(false)}
+          showResultPopup={showResultPopup}
+          setShowResultPopup={setShowResultPopup}
+          setShowChatbotPopup={setShowChatbotPopup}
+          darkMode={false} // or true if needed
+        />
+      )}
+
+      {showResultPopup && (
+        <ResultPopup
+          onClose={() => setShowResultPopup(false)}
+          showChatbotPopup={showChatbotPopup}
+          setShowChatbotPopup={setShowChatbotPopup}
+          setShowResultPopup={setShowResultPopup}
+          darkMode={false} // or true if needed
+        />
+      )}
+
     </div>
+    
   );
 };
 

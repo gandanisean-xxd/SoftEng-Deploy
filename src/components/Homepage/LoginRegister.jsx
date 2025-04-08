@@ -25,21 +25,37 @@ const LoginRegister = ({ closeModal }) => {
       <div className={`${styles.formContainer} ${styles.signUp}`}>
         <form onSubmit={handleRegister}>
           <h1>Create Account</h1>
-          <div className={styles.socialIcons}>
-            <a href="#" className={styles.icon}>
-              <i className="fa-brands fa-google-plus-g"></i>
-            </a>           
+          <button type="button" className={styles.googleBtn}>
+            <img 
+              src="/icons/google.webp" 
+              alt="Google logo" 
+              className={styles.googleIcon}
+            />
+            Sign up with Google
+          </button>
+          <div className={styles.divider}>
+            <span>OR</span>
           </div>
-          <label htmlFor="username">Username</label>
-          <input type="text" id="username" name="username" required />
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" name="password" required />
-          <label htmlFor="confirm_password">Confirm Password</label>
-          <input
-            type="password"
-            id="confirm_password"
-            name="confirm_password"
-            required
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="Username" 
+            required 
+          />
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Password" 
+            required 
+          />
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            placeholder="Confirm Password" 
+            required 
           />
           <button type="submit">Sign Up</button>
         </form>
@@ -49,16 +65,31 @@ const LoginRegister = ({ closeModal }) => {
       <div className={`${styles.formContainer} ${styles.signIn}`}>
         <form onSubmit={handleLogin}>
           <h1>Sign In</h1>
-          <div className={styles.socialIcons}>
-            <a href="#" className={styles.icon}>
-              <i className="fa-brands fa-google-plus-g"></i>
-            </a>
-            
+          <button type="button" className={styles.googleBtn}>
+            <img 
+              src="/icons/google.webp" 
+              alt="Google logo" 
+              className={styles.googleIcon}
+            />
+            Sign in with Google
+          </button>
+          <div className={styles.divider}>
+            <span>OR</span>
           </div>
-          <label htmlFor="username">Username</label>
-          <input type="text" id="username" name="username" required />
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" name="password" required />
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="Username" 
+            required 
+          />
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Password" 
+            required 
+          />
           <a href="#">Forget Your Password?</a>
           <button type="submit">Sign In</button>
         </form>
@@ -75,7 +106,7 @@ const LoginRegister = ({ closeModal }) => {
             </button>
           </div>
           <div className={`${styles.togglePanel} ${styles.toggleRight}`}>
-            <h1>Hello, Friend!</h1>
+            <h1>Hey!</h1>
             <p>Register with your personal details to use all of site features</p>
             <button className={styles.hidden} id="register" onClick={toggleForm}>
               Sign Up

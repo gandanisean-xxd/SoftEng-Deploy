@@ -6,6 +6,7 @@ import Home from "./components/Homepage/Home";
 import SeeResult from "./components/popups/SeeResult";
 import ResultPopup from "./components/popups/ResultPopup";
 import "./index.css";
+import ChatbotPopup from "./components/popups/ChatbotPopup0";
 
 function App() {
   const [searchLocation, setSearchLocation] = useState(null);
@@ -41,13 +42,6 @@ function App() {
   const handleViewResult = () => {
     setShowSeeResult(false);
     setShowResultPopup(true);
-  };
-
-  // New handler for chatbot button
-  const handleChatbotButton = () => {
-    setShowResultPopup(false);
-    setShowChatbotPopup(true);
-    setShowSeeResult(false); // Ensure SeeResult is closed
   };
 
   return (
@@ -90,12 +84,21 @@ function App() {
                 />
               )}
 
-              {showResultPopup && (
-                <ResultPopup 
+             {showResultPopup && (
+                <ResultPopup
                   onClose={() => setShowResultPopup(false)}
                   showChatbotPopup={showChatbotPopup}
-                  setShowChatbotPopup={handleChatbotButton} // Use the new handler
+                  setShowChatbotPopup={setShowChatbotPopup}
                   setShowResultPopup={setShowResultPopup}
+                />
+              )}
+
+             {showChatbotPopup && (
+                <ChatbotPopup
+                  onClose={() => setShowChatbotPopup(false)}
+                  showResultPopup={showResultPopup}
+                  setShowResultPopup={setShowResultPopup}
+                  setShowChatbotPopup={setShowChatbotPopup}
                 />
               )}
             </div>

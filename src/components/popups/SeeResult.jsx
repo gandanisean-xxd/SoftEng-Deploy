@@ -5,6 +5,7 @@ const SeeResult = ({ onClose, onViewResult }) => {
   const [progress, setProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
 
+
   useEffect(() => {
     // Animate progress bar over 3 seconds
     const timer = setInterval(() => {
@@ -39,8 +40,11 @@ const SeeResult = ({ onClose, onViewResult }) => {
           {showButton && (
             <button 
             className="processing-button"
-            onClick={onViewResult} // This uses the handler from App.js
-          >
+            onClick={() => {
+              onClose();
+              onViewResult();
+            }}
+            >
             See Result
           </button>
   

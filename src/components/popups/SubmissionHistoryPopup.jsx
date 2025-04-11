@@ -5,7 +5,7 @@ import ResultPopup from "./ResultPopup";
 import { useState } from "react";
 
 
-const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup, setShowSubmissionHistoryPopup }) => {
+const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup, setShowSubmissionHistoryPopup, selectedHazards }) => {
 
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
@@ -60,7 +60,7 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
                   <td>Flooding, Rainfall</td>
                   <td>
                     <div className="submission-buttons">
-                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
+                      <button className="view-chat-button" onClick={() =>  setShowChatbotPopup(true)}>View Chat</button>
                       <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
                     </div>
                   </td>
@@ -105,6 +105,7 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
           showChatbotPopup={showChatbotPopup}
           setShowChatbotPopup={setShowChatbotPopup}
           setShowResultPopup={setShowResultPopup}
+          selectedHazards={selectedHazards}
           darkMode={false} // or true if needed
         />
       )}

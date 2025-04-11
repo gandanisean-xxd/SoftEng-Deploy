@@ -4,7 +4,6 @@
   import L from "leaflet";
   import "leaflet-ruler";
   import "leaflet-compass";
-  import SeeResult from "../popups/SeeResult";
 
   // Fix default marker icon issue
   delete L.Icon.Default.prototype._getIconUrl;
@@ -153,15 +152,6 @@
             </Marker>
           )}
         </MapContainer>
-
-        {showPopup && (
-          <SeeResult 
-            onClose={() => setShowPopup(false)}
-            onViewResult={() => {
-              console.log("Viewing assessment for location:", markerPosition);
-            }}
-          />
-        )}
 
         <div style={{
           position: "absolute",

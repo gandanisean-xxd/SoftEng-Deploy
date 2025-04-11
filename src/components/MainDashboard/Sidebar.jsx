@@ -8,7 +8,7 @@ import SubmissionHistoryPopup from "../popups/SubmissionHistoryPopup";
 import SearchBar from "./SearchBar";
 import { useTheme } from "../../Context/ThemeContext";
 
-
+const allHazards = ["Flooding", "Rainfall", "Heat Index"];
 const Sidebar = ({ 
   onSearch, 
   onLocate, 
@@ -74,16 +74,17 @@ const Sidebar = ({
     setShowReferenceMapDropdown(false);
   };
 
- 
-
   const handleHazardSelect = (hazardName) => {
-    setSelectedHazards(prev => 
-      prev.includes(hazardName) 
-        ? prev.filter(h => h !== hazardName)  // Remove if already selected
-        : [...prev, hazardName]              // Add if not selected
-    );
+    setSelectedHazards((prev) => {
+      // Toggle the hazard on or off
+      const updatedHazards = prev.includes(hazardName)
+        ? prev.filter(h => h !== hazardName)
+        : [...prev, hazardName];
+  
+      // Sort the hazards back to the predefined order
+      return allHazards.filter(hazard => updatedHazards.includes(hazard));
+    });
   };
-
   
   return (
     <div className={`app ${isDarkMode ? "dark-theme" : "light-theme"}`}>
@@ -195,7 +196,7 @@ const Sidebar = ({
               ))}
             </ul>
           )}
-
+    
           {/* Useful Links Section */}
           {!isCollapsed && <h3 className="sidebar-section-label">USEFUL LINKS</h3>}
 
@@ -288,6 +289,7 @@ const Sidebar = ({
           showProfilePopup={showProfilePopup}
           setShowProfilePopup={setShowProfilePopup}
           setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+          selectedHazards={selectedHazards}
         />
       )}
 
@@ -299,6 +301,7 @@ const Sidebar = ({
           setShowProfilePopup={setShowProfilePopup}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          selectedHazards={selectedHazards}
         />
       )}
 
@@ -308,6 +311,7 @@ const Sidebar = ({
           showChatbotPopup={showChatbotPopup}
           setShowChatbotPopup={setShowChatbotPopup}
           setShowResultPopup={setShowResultPopup}
+          selectedHazards={selectedHazards}
         />
       )}
 
@@ -317,6 +321,7 @@ const Sidebar = ({
           showResultPopup={showResultPopup}
           setShowResultPopup={setShowResultPopup}
           setShowChatbotPopup={setShowChatbotPopup}
+          selectedHazards={selectedHazards}
         />
       )}
 

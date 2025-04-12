@@ -17,6 +17,8 @@ function App() {
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [selectedHazards, setSelectedHazards] = useState([]);
+
 
   const handleLocate = () => {
     setLocateTrigger(prev => prev + 1);
@@ -81,6 +83,7 @@ function App() {
                 <SeeResult 
                   onClose={() => setShowSeeResult(false)}
                   onViewResult={handleViewResult}
+                  setSelectedHazards={setSelectedHazards}
                 />
               )}
 
@@ -90,6 +93,7 @@ function App() {
                   showChatbotPopup={showChatbotPopup}
                   setShowChatbotPopup={setShowChatbotPopup}
                   setShowResultPopup={setShowResultPopup}
+                  selectedHazards={selectedHazards}
                 />
               )}
 

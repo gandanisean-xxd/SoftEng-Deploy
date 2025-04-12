@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./PopupStyles.css";
 
-const SeeResult = ({ onClose, onViewResult }) => {
+const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
   const [progress, setProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
 
@@ -41,8 +41,10 @@ const SeeResult = ({ onClose, onViewResult }) => {
             <button 
             className="processing-button"
             onClick={() => {
-              onClose();
-              onViewResult();
+              const all = ["Flooding", "Rainfall", "Heat Index"];
+              setSelectedHazards(all);
+              onClose(); 
+              onViewResult(); 
             }}
             >
             See Result

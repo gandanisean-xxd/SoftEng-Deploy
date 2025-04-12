@@ -90,14 +90,16 @@ const Sidebar = ({
     <div className={`app ${isDarkMode ? "dark-theme" : "light-theme"}`}>
       {/* Sidebar */}
       <div className={`sidebar ${isCollapsed ? "collapsed" : ""} ${isDarkMode ? "dark-theme" : ""}`}>
-      <div className={`sidebar-logo-container ${isCollapsed ? "collapsed" : ""}`}>
-        <img 
-          src="/icons/logo.png" 
-          alt="AI-Driven GIS Logo" 
-          className="sidebar-logo" 
-        />
-        {!isCollapsed && <span className="sidebar-title">AI-Driven GIS</span>}
-      </div>
+        <header className="sidebar-header">
+          <div className={`sidebar-logo-container ${isCollapsed ? "collapsed" : ""}`}>
+            <img 
+              src="/icons/logo.png" 
+              alt="AI-Driven GIS Logo" 
+              className="sidebar-logo" 
+            />
+            {!isCollapsed && <span className="sidebar-title">AI-Driven GIS</span>}
+          </div>
+      </header>
         <ul>
           {/* Location Tools Section */}
           {!isCollapsed && <h3 className="sidebar-section-label">LOCATION TOOLS</h3>}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/MainDashboard/Sidebar";
 import MapComponent from "./components/MainDashboard/MapComponent";
@@ -17,11 +17,22 @@ function App() {
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
-
+  
+  // Create a function to handle the locate action
   const handleLocate = () => {
     setLocateTrigger(prev => prev + 1);
     setShowSeeResult(true);
   };
+
+  // Expose the handleLocate function to the window object
+  useEffect(() => {
+    window.triggerLocateFunction = handleLocate;
+    
+    // Clean up when component unmounts
+    return () => {
+      delete window.triggerLocateFunction;
+    };
+  }, []);
 
   const handleSearch = (location) => {
     setSearchLocation(location);

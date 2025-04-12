@@ -54,6 +54,9 @@ body {
   width: 100% !important;
 }
 
+
+
+
 /* Position zoom controls beside the sidebar */
 .leaflet-control-zoom {
   position: absolute !important;
@@ -209,6 +212,8 @@ body {
   --dropdown-arrow-filter: none;
   --search-placeholder-opacity: 0.7;
   --googleBtn-hover: #f0eeee;
+  --sidebar-ul-dropdown-bg: #daf3d4;
+  --sidebar-ul-selected-bg: #b9e7ad;
 }
 
 /* Dark Theme */
@@ -228,6 +233,8 @@ body {
   --dropdown-arrow-filter: brightness(0) invert(1);
   --search-placeholder-opacity: 0.9; 
   --googleBtn-hover: #383535;
+  --sidebar-ul-dropdown-bg: #496949;
+  --sidebar-ul-selected-bg: #7bc77b;
 }
 
 /* Apply variables to elements */

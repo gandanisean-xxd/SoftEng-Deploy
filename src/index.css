@@ -214,6 +214,7 @@ body {
   --googleBtn-hover: #f0eeee;
   --sidebar-ul-dropdown-bg: #daf3d4;
   --sidebar-ul-selected-bg: #b9e7ad;
+  --header-bg: rgba(245, 245, 245, 0.85);
 }
 
 /* Dark Theme */
@@ -235,6 +236,7 @@ body {
   --googleBtn-hover: #383535;
   --sidebar-ul-dropdown-bg: #496949;
   --sidebar-ul-selected-bg: #7bc77b;
+  --header-bg: rgba(42, 42, 42, 0.6);
 }
 
 /* Apply variables to elements */

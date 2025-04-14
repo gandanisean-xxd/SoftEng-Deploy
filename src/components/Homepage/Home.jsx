@@ -5,8 +5,10 @@ import "./Homec.css";
 
 const Home = () => {
   const [showLoginRegister, setShowLoginRegister] = useState(false);
-  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [headerScrolled,] = useState(false);
   const [activeSection, setActiveSection] = useState('about');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   
   // Refs for scrolling to sections
@@ -21,7 +23,6 @@ const Home = () => {
     const scrollPosition = window.scrollY + 100; // Adding offset for better UX
     
     // Get section positions
-    const aboutPosition = aboutRef.current?.offsetTop || 0;
     const featuresPosition = featuresRef.current?.offsetTop || 0;
     const contactPosition = contactRef.current?.offsetTop || 0;
     
@@ -68,6 +69,50 @@ const Home = () => {
         window.triggerLocateFunction();
       }
     }, 500);
+  };
+
+
+  const handleSearch = async () => {
+    if (searchQuery.trim() === "") return;
+    
+    setIsSearching(true);
+    
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}` +
+        `&countrycodes=ph` +
+        `&viewbox=116.95,4.6,126.6,18.2` +
+        `&bounded=1`
+      );
+      
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        // Navigate to map page
+        navigate('/map');
+        
+        // Allow time for the map component to load before triggering the search
+        setTimeout(() => {
+          if (window.searchLocationFunction) {
+            window.searchLocationFunction([parseFloat(lat), parseFloat(lon)]);
+          }
+        }, 500);
+      } else {
+        alert("Location not found in the Philippines. Please try another search.");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      alert("Error searching for location");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   // Feature data for mapping - changed emoji icons to image paths
@@ -180,20 +225,32 @@ const Home = () => {
     
       {/* Hero Section */}
       <div className="hero-section">
-        <img src="/icons/philippines.webp" alt="Background" className="hero-image" />
+        <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
         <div className="overlay">
         <div className="side-search-container">
-  <div className="side-search-wrapper">
-    <input 
-      type="text" 
-      placeholder="Type a location" 
-      className="side-search-input" 
-    />
-    <button className="side-search-button">
-      <img src="/icons/search.png" alt="Search" />
-    </button>
-  </div>
-</div>
+      <div className="side-search-wrapper">
+        <input 
+          type="text" 
+          placeholder="Type a location" 
+          className="side-search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={isSearching}
+        />
+        <button 
+          className="side-search-button"
+          onClick={handleSearch}
+          disabled={isSearching}
+        >
+          {isSearching ? (
+            <div className="search-spinner"></div>
+          ) : (
+            <img src="/icons/search.png" alt="Search" />
+          )}
+        </button>
+      </div>
+    </div>
 
           <div className="buttons-container">
             <button 

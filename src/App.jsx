@@ -19,7 +19,6 @@ function App() {
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
 
-
   const handleLocate = () => {
     setLocateTrigger(prev => prev + 1);
     setShowSeeResult(true);
@@ -29,9 +28,13 @@ function App() {
   useEffect(() => {
     window.triggerLocateFunction = handleLocate;
     
+    // Expose search location function to window object
+    window.searchLocationFunction = setSearchLocation;
+    
     // Clean up when component unmounts
     return () => {
       delete window.triggerLocateFunction;
+      delete window.searchLocationFunction;
     };
   }, []);
 

@@ -60,7 +60,7 @@ const MapTools = () => {
 const MapComponent = ({ searchLocation, selectedBasemap = "Satellite Imagery", onLocate }) => {
   const mapRef = useRef(null);
   const [markerPosition, setMarkerPosition] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
+  const [setShowPopup] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
 

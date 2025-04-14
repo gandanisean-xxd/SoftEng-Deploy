@@ -314,7 +314,8 @@
     padding: 10px 15px;
     border-radius: 15px;
     font-size: 14px;
-    max-width: 85%;
+    max-width: 100%;
+    word-wrap: break-word;
   }
   
   .chat-message.user .chat-bubble {
@@ -328,9 +329,11 @@
   }
   
   .chat-icon {
-    width: 30px;
-    height: 30px;
-    margin-right: 5px;
+    width: 40px;
+    height: 40px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    padding: 5px;
   }
   
   .chat-input-container {
@@ -504,10 +507,18 @@
     background: #74C476;
   }
   
-  .processing-button {
+  .button-row {
+    display: flex;
+    justify-content:center;
+    margin-top: 20px;
+    width: 100%;
+    gap: 30px;
+  }
+  
+  .processing-button,
+  .cancel-button {
     width: 115px;
     height: 40px;
-    margin-left: 290px;
     background: #74C476;
     color: white;
     border: none;
@@ -516,7 +527,6 @@
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
-    align-self: center;
     opacity: 0;
     animation: fadeIn 0.5s ease forwards;
   }
@@ -526,12 +536,24 @@
     transform: translateY(-1px);
   }
   
+  .cancel-button {
+    background: #c95959;
+    color: var(--text-primary);
+  }
+  
+  .cancel-button:hover {
+    background: #c04f4f;
+    transform: translateY(-1px);
+  }
+  
+  
   /* ResultPopup Location Coordinates */
   .location-coordinates {
     font-size: 0.9rem;
     margin-top: 0.5rem;
     color: #555;
   }
+  
   
   @keyframes fadeIn {
     to {

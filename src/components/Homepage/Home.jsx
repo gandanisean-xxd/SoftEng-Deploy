@@ -16,23 +16,30 @@ const Home = () => {
   const featuresRef = useRef(null);
   const contactRef = useRef(null);
   
-  // Function to determine which section is in view
   const handleScroll = () => {
+    const scrollPosition = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const viewportMiddle = scrollPosition + (windowHeight / 2);
     
-    // Determine which section is in view
-    const scrollPosition = window.scrollY + 100; // Adding offset for better UX
-    
-    // Get section positions
-    const featuresPosition = featuresRef.current?.offsetTop || 0;
-    const contactPosition = contactRef.current?.offsetTop || 0;
-    
-    // Set active section based on scroll position
-    if (scrollPosition >= contactPosition) {
-      setActiveSection('contact');
-    } else if (scrollPosition >= featuresPosition) {
-      setActiveSection('features');
-    } else {
-      setActiveSection('about');
+    // Get the positions of each section
+    if (aboutRef.current && featuresRef.current && contactRef.current) {
+      const aboutPosition = aboutRef.current.getBoundingClientRect().top + scrollPosition;
+      const featuresPosition = featuresRef.current.getBoundingClientRect().top + scrollPosition;
+      const contactPosition = contactRef.current.getBoundingClientRect().top + scrollPosition;
+      
+      // Determine the visible section based on their actual positions
+      const aboutHeight = aboutRef.current.offsetHeight;
+      const featuresHeight = featuresRef.current.offsetHeight;
+      const contactHeight = contactRef.current.offsetHeight;
+      
+      // Check which section contains the middle of the viewport
+      if (viewportMiddle >= contactPosition && viewportMiddle <= contactPosition + contactHeight) {
+        setActiveSection('contact');
+      } else if (viewportMiddle >= featuresPosition && viewportMiddle <= featuresPosition + featuresHeight) {
+        setActiveSection('features');
+      } else if (viewportMiddle >= aboutPosition && viewportMiddle <= aboutPosition + aboutHeight) {
+        setActiveSection('about');
+      }
     }
   };
   
@@ -223,34 +230,34 @@ const Home = () => {
         </div>
       )}
     
-      {/* Hero Section */}
-      <div className="hero-section">
-        <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
-        <div className="overlay">
-        <div className="side-search-container">
-      <div className="side-search-wrapper">
-        <input 
-          type="text" 
-          placeholder="Type a location" 
-          className="side-search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={isSearching}
-        />
-        <button 
-          className="side-search-button"
-          onClick={handleSearch}
-          disabled={isSearching}
-        >
-          {isSearching ? (
-            <div className="search-spinner"></div>
-          ) : (
-            <img src="/icons/search.png" alt="Search" />
-          )}
-        </button>
-      </div>
-    </div>
+            {/* Hero Section */}
+            <div className="hero-section">
+              <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
+              <div className="overlay">
+              <div className="side-search-container">
+            <div className="side-search-wrapper">
+              <input 
+                type="text" 
+                placeholder="Type a location" 
+                className="side-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSearching}
+              />
+              <button 
+                className="side-search-button"
+                onClick={handleSearch}
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <div className="search-spinner"></div>
+                ) : (
+                  <img src="/icons/search.png" alt="Search" />
+                )}
+              </button>
+            </div>
+          </div>
 
           <div className="buttons-container">
             <button 
@@ -287,18 +294,6 @@ const Home = () => {
               <img src="icons/qcu.webp" alt="DOST" className="partner-logo" />
             </a>
             <p className="partner-text">QCU</p>
-          </div>
-          <div className="partner">
-            <a className="partner-link">
-              <img src="icons/pcieerd.png" alt="DOST-PCIEERD" className="partner-logo" />
-            </a>
-            <p className="partner-text">DOST-PCIEERD</p>
-          </div>
-          <div className="partner">
-            <a className="partner-link">
-              <img src="icons/phil.png" alt="DOST-PHIVOLCS" className="partner-logo" />
-            </a>
-            <p className="partner-text">DOST-PHIVOLCS</p>
           </div>
           <div className="partner">
             <a className="partner-link">

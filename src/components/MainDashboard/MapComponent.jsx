@@ -114,10 +114,11 @@ const MapComponent = ({ searchLocation, selectedBasemap = "Satellite Imagery", o
       subdomains: ["a", "b", "c"]
     },
     "Satellite Imagery": {
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
-      subdomains: []
-    },
+    // Imagery only
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+    subdomains: []
+  },
     "Terrain": {
       url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
       attribution: 'Map data: &copy; <a href="https://www.opentopomap.org">OpenTopoMap</a> contributors',
@@ -136,10 +137,18 @@ const MapComponent = ({ searchLocation, selectedBasemap = "Satellite Imagery", o
         onDblClick={handleMapDoubleClick}
       >
         <TileLayer
-          url={baseLayers[selectedBasemap].url}
-          attribution={baseLayers[selectedBasemap].attribution}
-          subdomains={baseLayers[selectedBasemap].subdomains}
+        url={baseLayers[selectedBasemap].url}
+        attribution={baseLayers[selectedBasemap].attribution}
+        subdomains={baseLayers[selectedBasemap].subdomains}
+      />
+
+      {selectedBasemap === "Satellite Imagery" && (
+        <TileLayer
+          url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+          attribution='Labels &copy; Esri'
+          pane="overlayPane"
         />
+      )}
         <MapTools />
 
         {/* Marker for locations */}

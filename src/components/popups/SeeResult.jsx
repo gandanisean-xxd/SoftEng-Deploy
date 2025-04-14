@@ -38,19 +38,29 @@ const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
           </div>
 
           {showButton && (
-            <button 
-            className="processing-button"
-            onClick={() => {
-              const all = ["Flooding", "Rainfall", "Heat Index"];
-              setSelectedHazards(all);
-              onClose(); 
-              onViewResult(); 
-            }}
-            >
-            See Result
-          </button>
-  
-          )}
+  <div className="button-row">
+    <button 
+      className="cancel-button"
+      onClick={onClose}
+    >
+      Cancel
+    </button>
+
+    <button 
+      className="processing-button"
+      onClick={() => {
+        const all = ["Flooding", "Rainfall", "Heat Index"];
+        setSelectedHazards(all);
+        onClose(); 
+        onViewResult(); 
+      }}
+    >
+      See Result
+    </button>
+  </div>
+)}
+
+
         </div>
       </div>
     </div>

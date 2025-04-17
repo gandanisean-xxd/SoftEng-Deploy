@@ -3,69 +3,36 @@ import axios from "axios";
 import "./PopupStyles.css";
 
 const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup, darkMode }) => {
-  const getGreeting = () => {
-    const greetings = [
-      "Hello! 👋 I'm your virtual assistant. How can I help you today?",
-      "Hi there! 😊 What would you like to know?",
-      "Greetings! 🌟 I'm here to assist you. What can I do for you?",
-      "Hey! 🙌 Feel free to ask me anything.",
-      "Welcome! 🎉 What can I do for you today?"
-    ];
-    return greetings[Math.floor(Math.random() * greetings.length)];
-  };
-
   const [messages, setMessages] = useState([
-    { sender: "bot", text: getGreeting() },
-    { sender: "bot", text: "Feel free to ask me anything about our services, or just say hi!" }
+    { sender: "user", text: "Why is this place prone to flooding?" },
+    {
+      sender: "bot",
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    }
   ]);
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
 
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
 
     // Add user message to chat
-    const userMessage = { sender: "user", text: newMessage };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
-
-    // Check for greeting responses
-    const greetingResponses = {
-      "hi": "Hello! 👋 How can I assist you today?",
-      "hello": "Hi there! 😊 What would you like to know?",
-      "hey": "Hey! 🙌 Feel free to ask me anything.",
-      "greetings": "Greetings! 🌟 I'm here to help.",
-      "welcome": "Welcome! 🎉 What can I do for you today?"
-    };
-
-    const userInputLower = newMessage.toLowerCase();
-    if (greetingResponses[userInputLower]) {
-      const botResponse = greetingResponses[userInputLower];
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botResponse }]);
-      setNewMessage(""); // Clear input immediately
-      return; // Exit the function early
-    }
-
-    // Set loading state
-    setLoading(true);
+    setMessages([...messages, { sender: "user", text: newMessage }]);
 
     try {
-      // Send message to Flask server
-      const response = await axios.post('http://localhost:5000/chat', { message: newMessage });
-      const botMessage = response.data.response;
+        // Send message to Flask server
+        const response = await axios.post('http://localhost:5000/chat', { message: newMessage });
+        const botMessage = response.data.response;
 
-      // Add bot response to chat
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
+        // Add bot response to chat
+        setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {
-      console.error("Error sending message:", error);
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, something went wrong." }]);
-    } finally {
-      // Reset loading state
-      setLoading(false);
+        console.error("Error sending message:", error);
+        setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, something went wrong." }]);
     }
 
     // Clear the input textbox
     setNewMessage("");
-  };
+};
 
   return (
     <div className="profile-popup-overlay">
@@ -103,11 +70,6 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
               <div className="chat-bubble">{msg.text}</div>
             </div>
           ))}
-          {loading && (
-            <div className="chat-message bot">
-              <div className="chat-bubble">Typing...</div>
-            </div>
-          )}
         </div>
 
         <div className="chat-input-container">
@@ -118,11 +80,8 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              disabled={loading} // Disable input while loading
             />
-            <button onClick={handleSendMessage} disabled={loading}>
-              ➤
-            </button>
+            <button onClick={handleSendMessage}>➤</button>
           </div>
         </div>
       </div>

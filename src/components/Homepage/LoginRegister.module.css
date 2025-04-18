@@ -13,6 +13,70 @@ body{
 }
 
 
+/* Container for password input and toggle button */
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.passwordWrapper input {
+  width: 100%;
+}
+
+/* Style for the eye button */
+.togglePassword {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 24px;
+}
+
+.eyeIcon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+}
+
+.togglePassword:hover .eyeIcon {
+  opacity: 1;
+}
+
+/* Admin Button Styles */
+.adminBtn0 {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  background-color: var(--bg-primary);
+}
+
+.adminBtn0:hover {
+  background-color: none;
+  transform: translateY(-1px);
+}
+
+.adminIcon0 {
+  filter: invert(48%) sepia(98%) saturate(668%) hue-rotate(87deg) brightness(94%) contrast(87%);
+  width: 40px;
+  height: 40px;
+  background: none;
+  object-fit: contain;
+}
+
 .container{
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -37,13 +101,13 @@ body{
 }
 
 .container a{
-    color: #333;
+    color: var(--placeholder-color);
     font-size: 13px;
     text-decoration: none;
     margin: 15px 0 10px;
 }
 
-.container button:not(.googleBtn) {
+.container button:not(.googleBtn, .adminBtn0, .togglePassword ) {
     background-color: #41AB5D;
     color: #fff;
     font-size: 12px;
@@ -80,9 +144,10 @@ body{
     color: var(--text-primary);
     margin: 8px 0;
     padding: 10px 15px;
-    font-size: 13px;
+    font-size: 14px;
     border-radius: 8px;
     width: 100%;
+    height: 50px;
     outline: none;
 }
 

@@ -107,6 +107,19 @@
   /* ==================== */
   /* PROFILE POPUP SPECIFIC */
   /* ==================== */
+
+/* Container for password input and toggle button */
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.passwordWrapper input {
+  width: 100%;
+}
+
   .profile-popup {
     width: 700px;
     height: 550px;
@@ -137,6 +150,7 @@
   /* Form Sections */
   .my-profile-section,
   .change-password-section {
+    margin-left: 45px;
     padding: 32px;
   }
   
@@ -155,9 +169,36 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    height: 45px;
+    height: 50px;
     width: 90%;
+    font-size: 16px;
   }
+
+  
+/* Style for the eye button */
+.togglePassword {
+  position: absolute;
+  right: 65px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+}
+
+.eyeIcon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+}
+
+.togglePassword:hover .eyeIcon {
+  opacity: 1;
+}
   
   .name-role-container {
     display: flex;

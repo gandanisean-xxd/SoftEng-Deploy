@@ -132,9 +132,9 @@ body {
 
 /* Light mode styles */
 .theme-toggle-light {
-  background-color: #ebe9e9;
-  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.1), 
-  inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+  background-color: #c9c8c8;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4), 
+  inset -2px -2px 4px rgba(255, 255, 255, 0.9);
 }
 
 .theme-toggle-light .theme-toggle-circle {
@@ -221,6 +221,7 @@ body {
   --sidebar-ul-dropdown-bg: #daf3d4;
   --sidebar-ul-selected-bg: #b9e7ad;
   --header-bg: rgba(245, 245, 245, 0.85);
+  --placeholder-color: #777;
 }
 
 /* Dark Theme */
@@ -243,6 +244,7 @@ body {
   --sidebar-ul-dropdown-bg: #496949;
   --sidebar-ul-selected-bg: #7bc77b;
   --header-bg: rgba(42, 42, 42, 0.6);
+  --placeholder-color: #fff;
 }
 
 /* Apply variables to elements */

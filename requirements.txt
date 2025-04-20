@@ -4,3 +4,4 @@ requests
 sentence-transformers
 faiss-cpu
 ollama
+gunicorn

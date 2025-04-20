@@ -44,113 +44,53 @@ const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHi
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="profile-tabs">
-          <button
-            className={activeTab === "myProfile" ? "active" : ""}
-            onClick={() => setActiveTab("myProfile")}
-          >
-            My Profile
-          </button>
-          <button
-            className={activeTab === "changePassword" ? "active" : ""}
-            onClick={() => setActiveTab("changePassword")}
-          >
-            Change Password
-          </button>
-        </div>
-
-        {/* My Profile Section */}
         {activeTab === "myProfile" && (
-          <div className="my-profile-section">
-            <div className="name-role-container">
-              <div className="input-group">
-                <label>Name</label>
-                <input type="text" />
-              </div>
-              <div className="input-group">
-                <label>Role</label>
-                <input type="text" />
-              </div>
-            </div>
+        <div className="profile-popup1">
+          {/* Background overlays */}
+          <div className="background-layer" />
+          <div className="image-overlay" />
+          <div className="top-fade-overlay" />
+          <div className="right-geo" />
+          <div className="left-geo" />
 
-            <div className="input-group">
-              <label>Email</label>
-              <input type="text" style={{ width: "542px" }} />
-            </div>
-            <div className="input-group">
-              <label>Username</label>
-              <input type="text" style={{ width: "542px" }} />
+          {/* Profile content */}
+          <div className="profile-content">
+            <div className="profile-info">
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/profile.png" alt="User Icon" />
+                </div>
+                <div>
+                  <div className="label">Username</div>
+                  <div className="value">John Doe</div>
+                </div>
+              </div>
+
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/email.png" alt="Email Icon" />
+                </div>
+                <div>
+                  <div className="label">Email</div>
+                  <div className="value">johndoe@example.com</div>
+                </div>
+              </div>
+
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/role.png" alt="Role Icon" />
+                </div>
+                <div>
+                  <div className="label">Role</div>
+                  <div className="value">Urban Planner</div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Change Password Section */}
-{activeTab === "changePassword" && (
-  <div className="change-password-section">
-    <div className="input-group">
-      <label>Current Password</label>
-      <div className="passwordWrapper">
-        <input 
-          type={showPassword.current ? "text" : "password"} 
-          style={{ width: "542px" }} 
-        />
-        <button 
-          type="button" 
-          className="togglePassword" 
-          onClick={() => togglePasswordVisibility('current')}
-        >
-          {showPassword.current ? 
-            <img src="/icons/ayclose.png" alt="Hide" className="eyeIcon" /> : 
-            <img src="/icons/ay.png" alt="Show" className="eyeIcon" />
-          }
-        </button>
-      </div>
-    </div>
-    <div className="input-group">
-      <label>New Password</label>
-      <div className="passwordWrapper">
-        <input 
-          type={showPassword.new ? "text" : "password"} 
-          style={{ width: "542px" }} 
-        />
-        <button 
-          type="button" 
-          className="togglePassword" 
-          onClick={() => togglePasswordVisibility('new')}
-        >
-          {showPassword.new ? 
-            <img src="/icons/ayclose.png" alt="Hide" className="eyeIcon" /> : 
-            <img src="/icons/ay.png" alt="Show" className="eyeIcon" />
-          }
-        </button>
-      </div>
-    </div>
-    <div className="input-group">
-      <label>Confirm New Password</label>
-      <div className="passwordWrapper">
-        <input 
-          type={showPassword.confirm ? "text" : "password"} 
-          style={{ width: "542px" }} 
-        />
-        <button 
-          type="button" 
-          className="togglePassword" 
-          onClick={() => togglePasswordVisibility('confirm')}
-        >
-          {showPassword.confirm ? 
-            <img src="/icons/ayclose.png" alt="Hide" className="eyeIcon" /> : 
-            <img src="/icons/ay.png" alt="Show" className="eyeIcon" />
-          }
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-        {/* Update Button */}
-        <div className="update-button-container">
-          <button className="update-button">Update</button>
         </div>
+      )}
+
+
       </div>
     </div>
   );

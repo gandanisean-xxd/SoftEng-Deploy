@@ -60,7 +60,6 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
                   <td>Flooding, Rainfall</td>
                   <td>
                     <div className="submission-buttons">
-                      <button className="view-chat-button" onClick={() =>  setShowChatbotPopup(true)}>View Chat</button>
                       <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
                     </div>
                   </td>
@@ -70,7 +69,6 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
                   <td>Flooding, Rainfall, Heat Index</td>
                   <td>
                     <div className="submission-buttons">
-                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
                       <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
                     </div>
                   </td>
@@ -80,7 +78,6 @@ const SubmissionHistoryPopup = ({ onClose, showProfilePopup, setShowProfilePopup
                   <td>Flooding, Rainfall, Heat Index</td>
                   <td>
                     <div className="submission-buttons">
-                      <button className="view-chat-button" onClick={() => setShowChatbotPopup(true)}>View Chat</button>
                       <button className="view-result-button" onClick={() => setShowResultPopup(true)}>View Result</button>
                     </div>
                   </td>

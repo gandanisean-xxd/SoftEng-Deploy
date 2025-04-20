@@ -8,6 +8,7 @@ import re
 from ollama import generate
 from sentence_transformers import SentenceTransformer
 import faiss
+import os  # Import os to access environment variables
 
 app = Flask(__name__)
 CORS(app)
@@ -98,7 +99,7 @@ def embed_new_question():
     new_embedding = embed_model.encode([question])
     index.add(np.array(new_embedding))
 
-    return jsonify({'message': f'New Q&A added to \"{category}\" and embedded.'})
+    return jsonify({'message': f'New Q&A added to "{category}" and embedded.'})
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -195,4 +196,5 @@ def chat():
         return jsonify({'error': 'AI response failed'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))  # Use the PORT environment variable
+    app.run(host='0.0.0.0', port=port, debug=True)

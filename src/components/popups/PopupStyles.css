@@ -104,88 +104,146 @@
     opacity: 0.8;
   }
   
-  /* ==================== */
-  /* PROFILE POPUP SPECIFIC */
-  /* ==================== */
-  .profile-popup {
-    width: 700px;
-    height: 550px;
-  }
-  
-  /* Tabs */
-  .profile-tabs {
-    display: flex;
-    justify-content: center;
-    padding: 7px;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .profile-tabs button {
-    color: var(--text-primary);
-    padding: 10px 20px;
-    margin: 0 10px;
-    border: none;
-    background: none;
-    cursor: pointer;
-  }
-  
-  .profile-tabs button.active {
-    color: #1abe46;
-    border-bottom: 2px solid #1abe46;
-  }
-  
-  /* Form Sections */
-  .my-profile-section,
-  .change-password-section {
-    padding: 32px;
-  }
-  
-  .input-group {
-    margin-bottom: 20px;
-  }
-  
-  .input-group label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .input-group input {
-    background: var(--result-panel-bg);
-    color:var(--input-text);
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    height: 45px;
-    width: 90%;
-  }
-  
-  .name-role-container {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .name-role-container .input-group {
-    flex: 1;
-  }
-  
-  .update-button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .update-button {
-    padding: 10px 20px;
-    background-color: #41AB5D;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .update-button:hover {
-    background-color: #369c4d;
-  }
+ /* ==================== */
+/* PROFILE POPUP SPECIFIC */
+/* ==================== */
+.profile-popup {
+  width: 700px;
+  height: 550px;
+}
+
+.profile-popup1 {
+  position: relative;
+  width: 700px;
+  height: 550px;
+  border-radius: none;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Background layers */
+.profile-popup .background-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, #064e24, #022c10, #11271e);
+  z-index: 1;
+}
+
+.profile-popup .image-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.pexels.com/photos/14428698/pexels-photo-14428698.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  z-index: 2;
+}
+
+.profile-popup .top-fade-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 66, 27, 0.1), transparent);
+  z-index: 3;
+}
+
+.profile-popup .right-geo,
+.profile-popup .left-geo {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 3;
+}
+
+.profile-popup .right-geo {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.profile-popup .left-geo {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+}
+
+/* Content container */
+.profile-popup .profile-content {
+  position: relative;
+  z-index: 4;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+}
+
+/* Form Sections */
+.profile-popup .my-profile-section,
+.profile-popup .change-password-section {
+  margin-left: 45px;
+  padding: 32px;
+}
+
+/* Info Layout */
+.profile-popup .profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Cards */
+.profile-popup .info-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease;
+}
+
+.profile-popup .info-card:hover {
+  transform: scale(1.02);
+}
+
+/* Icon box */
+.profile-popup .icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 16px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-popup .icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text */
+.profile-popup .label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: left;
+}
+
+.profile-popup .value {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: white;
+  text-align: left;
+}
+
   
   /* ==================== */
 /* RESULT POPUP SPECIFIC */
@@ -329,11 +387,11 @@
   }
   
   .chat-icon {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     background-color: #ffffff;
     border-radius: 50%;
-    padding: 5px;
+    padding: 8px;
   }
   
   .chat-input-container {
@@ -407,7 +465,6 @@
     background-color: var(--table-row-hover);
   }
   
-  .view-chat-button,
   .view-result-button {
     background-color: #41AB5D;
     color: white;
@@ -420,7 +477,6 @@
     margin: 0 4px;
   }
   
-  .view-chat-button:hover,
   .view-result-button:hover {
     background-color: #369946;
   }

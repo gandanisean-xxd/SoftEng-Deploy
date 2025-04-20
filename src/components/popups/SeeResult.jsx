@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import "./PopupStyles.css";
+import React, { useState, useEffect } from 'react';
+import './PopupStyles.css';
 
 const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
   const [progress, setProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
-
 
   useEffect(() => {
     // Animate progress bar over 3 seconds
@@ -31,36 +30,31 @@ const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
           </div>
 
           <div className="progress-container">
-            <div 
+            <div
               className="progress-bar"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
 
           {showButton && (
-  <div className="button-row">
-    <button 
-      className="cancel-button"
-      onClick={onClose}
-    >
-      Cancel
-    </button>
+            <div className="button-row">
+              <button className="cancel-button" onClick={onClose}>
+                Cancel
+              </button>
 
-    <button 
-      className="processing-button"
-      onClick={() => {
-        const all = ["Flooding", "Rainfall", "Heat Index"];
-        setSelectedHazards(all);
-        onClose(); 
-        onViewResult(); 
-      }}
-    >
-      See Result
-    </button>
-  </div>
-)}
-
-
+              <button
+                className="processing-button"
+                onClick={() => {
+                  const all = ['Flooding', 'Rainfall', 'Heat Index'];
+                  setSelectedHazards(all);
+                  onClose();
+                  onViewResult();
+                }}
+              >
+                See Result
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

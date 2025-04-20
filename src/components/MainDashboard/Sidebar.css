@@ -451,6 +451,35 @@ input[type="checkbox"] {
 /* SEARCHBAR STYLES */
 /* ==================== */
 /* Search Bar Container */
+
+.sidebar-suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0px; /* adjust if needed */
+  right: 0px;
+  background-color: var(--bg-primary);
+  border: none;
+  max-height: 500px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 999;
+}
+
+.sidebar-suggestion-item {
+  font-size: 15px;
+  height: 40px;
+  padding: 10px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+
 li.search-bar-container {
   height: 50px;
   padding: 10px;

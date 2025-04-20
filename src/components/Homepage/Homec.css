@@ -190,6 +190,38 @@
 }
 
 /* Search Bar */
+.suggestions-list {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0px; /* adjust if needed */
+  right: 0px;
+  background-color: #181516;
+  border: none;
+  max-height: 500px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+  border-radius: 10px;
+
+}
+
+.suggestion-item {
+  text-align: left;
+  color: #eee;
+  font-size: 15px;
+  height: 50px;
+  padding: 10px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+  background-color: #242323;
+}
+
+
 .side-search-container {
   margin-top: -200px;
   position: absolute;
@@ -218,7 +250,7 @@
 
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(141, 216, 132, 0.8);
 }
 
 .side-search-input::placeholder {
@@ -266,6 +298,7 @@
   justify-content: center;
   gap: 15px;
   margin-top: -120px;
+  z-index: -1;
 }
 
 .location-button,
@@ -525,7 +558,7 @@
 .about-section {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  width: 200vh;
+  width: 210vh;
   position: relative;
   left: 50%;
   right: 50%;
@@ -536,11 +569,10 @@
 
 .about-content-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: -30px auto;
   padding: 0 2rem;
 }
 
-/* About Us Card */
 .about-us-card {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -587,9 +619,19 @@
   padding: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
-  height: auto; /* Let content determine height */
+  height: auto;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Add this to center horizontally */
+  text-align: center; /* Center text content */
+}
+
+/* About Icon - Modified */
+.about-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 1rem;
+  /* No additional changes needed - will now be centered by parent */
 }
 
 .about-card:hover {
@@ -598,19 +640,22 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* Adjust the title underline to be centered */
 .about-card-title {
   font-size: 1.4rem;
   margin-bottom: 1.2rem;
   color: var(--text-primary);
   position: relative;
   padding-bottom: 0.8rem;
+  width: 100%; /* Ensure full width for centering */
 }
 
 .about-card-title::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 50%; /* Change from left: 0 */
+  transform: translateX(-50%); /* Center the pseudo-element */
   width: 50px;
   height: 2px;
   background: var(--accent-color);
@@ -659,7 +704,7 @@
 
 .features-container {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 0  auto;
   position: relative;
   z-index: 1;
 }
@@ -863,6 +908,25 @@
 }
 
 /* ENHANCED CONTACT SECTION */
+.form-status {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.form-status.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.form-status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
 .contact-section {
   margin-top: -65px;
   padding: 2rem 0;
@@ -1167,6 +1231,14 @@
 
 .footer-links button.footer-link:hover {
   opacity: 0.8;
+}
+
+.copyright {
+  height: 70px;
+  font-size: 14px;
+  background-color: var(--bg-primary);
+  color: #888;
+  text-align: center;
 }
 
 /* Responsive Adjustments */

@@ -4,6 +4,19 @@ import "./PopupStyles.css";
 const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHistoryPopup, setShowProfilePopup }) => {
   const [activeTab, setActiveTab] = useState("myProfile");
 
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  
+  const togglePasswordVisibility = (field) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
   return (
     <div className="profile-popup-overlay">
       <div className="profile-popup">
@@ -31,69 +44,53 @@ const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHi
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="profile-tabs">
-          <button
-            className={activeTab === "myProfile" ? "active" : ""}
-            onClick={() => setActiveTab("myProfile")}
-          >
-            My Profile
-          </button>
-          <button
-            className={activeTab === "changePassword" ? "active" : ""}
-            onClick={() => setActiveTab("changePassword")}
-          >
-            Change Password
-          </button>
-        </div>
-
-        {/* My Profile Section */}
         {activeTab === "myProfile" && (
-          <div className="my-profile-section">
-            <div className="name-role-container">
-              <div className="input-group">
-                <label>Name</label>
-                <input type="text" />
-              </div>
-              <div className="input-group">
-                <label>Role</label>
-                <input type="text" />
-              </div>
-            </div>
+        <div className="profile-popup1">
+          {/* Background overlays */}
+          <div className="background-layer" />
+          <div className="image-overlay" />
+          <div className="top-fade-overlay" />
+          <div className="right-geo" />
+          <div className="left-geo" />
 
-            <div className="input-group">
-              <label>Email</label>
-              <input type="text" style={{ width: "542px" }} />
-            </div>
-            <div className="input-group">
-              <label>Username</label>
-              <input type="text" style={{ width: "542px" }} />
+          {/* Profile content */}
+          <div className="profile-content">
+            <div className="profile-info">
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/profile.png" alt="User Icon" />
+                </div>
+                <div>
+                  <div className="label">Username</div>
+                  <div className="value">John Doe</div>
+                </div>
+              </div>
+
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/email.png" alt="Email Icon" />
+                </div>
+                <div>
+                  <div className="label">Email</div>
+                  <div className="value">johndoe@example.com</div>
+                </div>
+              </div>
+
+              <div className="info-card">
+                <div className="icon">
+                  <img src="/icons/role.png" alt="Role Icon" />
+                </div>
+                <div>
+                  <div className="label">Role</div>
+                  <div className="value">Urban Planner</div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Change Password Section */}
-        {activeTab === "changePassword" && (
-          <div className="change-password-section">
-            <div className="input-group">
-              <label>Current Password</label>
-              <input type="password" style={{ width: "542px" }} />
-            </div>
-            <div className="input-group">
-              <label>New Password</label>
-              <input type="password" style={{ width: "542px" }} />
-            </div>
-            <div className="input-group">
-              <label>Confirm New Password</label>
-              <input type="password" style={{ width: "542px" }} />
-            </div>
-          </div>
-        )}
-
-        {/* Update Button */}
-        <div className="update-button-container">
-          <button className="update-button">Update</button>
         </div>
+      )}
+
+
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginRegister from "./LoginRegister";
+import emailjs from '@emailjs/browser';
 import "./Homec.css";
 
 const Home = () => {
@@ -9,12 +10,227 @@ const Home = () => {
   const [activeSection, setActiveSection] = useState('about');
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const searchDebounceRef = useRef(null);
+  const suggestionBoxRef = useRef(null);
   const navigate = useNavigate();
   
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
   const featuresRef = useRef(null);
   const contactRef = useRef(null);
+  
+ // Improved display name formatting to show specific locations
+const formatDisplayName = (place) => {
+  if (!place) return "";
+
+  const addr = place.address || {};
+  
+  // If the place has a name that's different from the raw location name
+  // use that as the primary identifier (like "Cubao Baptist Church")
+  let primaryName = place.name || "";
+  
+  // If the place type indicates a specific point of interest
+  if (place.type === 'amenity' || 
+      place.type === 'shop' || 
+      place.type === 'building' ||
+      place.type === 'leisure' ||
+      place.type === 'office' ||
+      place.type === 'education' ||
+      place.class === 'amenity' ||
+      place.class === 'building') {
+    
+    // For specific locations like churches, schools, etc.
+    let specificLocation = primaryName;
+    
+    // Add street address if available
+    if (addr.road || addr.street) {
+      const streetName = addr.road || addr.street;
+      const streetNumber = addr.house_number || '';
+      
+      if (streetNumber && streetName) {
+        specificLocation += `, ${streetNumber} ${streetName}`;
+      } else if (streetName) {
+        specificLocation += `, ${streetName}`;
+      }
+    }
+    
+    // Add neighborhood/district and city
+    const district = addr.suburb || addr.neighbourhood || addr.district || '';
+    const city = addr.city || addr.town || addr.village || addr.municipality || '';
+    
+    if (district && !specificLocation.includes(district)) {
+      specificLocation += `, ${district}`;
+    }
+    
+    if (city && !specificLocation.includes(city)) {
+      specificLocation += `, ${city}`;
+    }
+    
+    // Add region/province and country code
+    const region = addr.state || addr.province || '';
+    
+    if (region && !specificLocation.includes(region)) {
+      specificLocation += `, ${region}`;
+    }
+    
+    if (addr.country_code && addr.country_code.toUpperCase() === 'PH') {
+      specificLocation += ', PHL';
+    }
+    
+    return specificLocation;
+  } 
+  // For general locations (not specific POIs)
+  else {
+    let locationName = '';
+    
+    // For administrative units like cities, towns, etc.
+    if (addr.city || addr.town || addr.village || addr.municipality) {
+      locationName = addr.suburb || addr.neighbourhood || addr.district || primaryName;
+      const cityName = addr.city || addr.town || addr.village || addr.municipality;
+      
+      if (!locationName.includes(cityName)) {
+        locationName += `, ${cityName}`;
+      }
+    } else {
+      // If no city info, use the primary name
+      locationName = primaryName;
+    }
+    
+    // Add region and country
+    const region = addr.state || addr.province || '';
+    if (region && !locationName.includes(region)) {
+      locationName += `, ${region}`;
+    }
+    
+    if (addr.country_code && addr.country_code.toUpperCase() === 'PH') {
+      locationName += ', PHL';
+    }
+    
+    return locationName;
+  }
+};
+
+const fetchSuggestions = async (query) => {
+  if (!query.trim()) {
+    setSuggestions([]);
+    return;
+  }
+  
+  try {
+    // First search with standard parameters
+    const params = new URLSearchParams({
+      format: 'json',
+      q: query,
+      countrycodes: 'ph',
+      limit: 10,
+      addressdetails: 1,
+      'accept-language': 'en',
+      // Add these parameters to get more specific places
+      dedupe: 1,
+      namedetails: 1
+    });
+    
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+    const data = await response.json();
+    
+    // For longer queries, add an extended search focused on POIs
+    if (query.length >= 3) {
+      const extendedParams = new URLSearchParams({
+        format: 'json',
+        q: `${query}, Philippines`,
+        addressdetails: 1,
+        namedetails: 1,
+        limit: 10,
+        // Look specifically for amenities to get places like schools, churches, etc.
+        featuretype: 'amenity building shop office leisure education'
+      });
+      
+      const extendedResponse = await fetch(`https://nominatim.openstreetmap.org/search?${extendedParams}`);
+      const extendedData = await extendedResponse.json();
+      
+      // Combine results and filter duplicates
+      const combinedResults = [...data];
+      extendedData.forEach(newItem => {
+        if (!combinedResults.some(existingItem => existingItem.place_id === newItem.place_id)) {
+          combinedResults.push(newItem);
+        }
+      });
+
+      // Format the display names
+      const formattedResults = combinedResults.map(place => ({
+        ...place,
+        formatted_name: formatDisplayName(place)
+      }));
+      
+      // Filter out results without good location data and remove duplicates by name
+      const nameSet = new Set();
+      const validSuggestions = formattedResults.filter(item => {
+        if (!item.formatted_name || !item.lat || !item.lon) return false;
+        
+        // Prevent duplicate formatted names
+        if (nameSet.has(item.formatted_name)) return false;
+        nameSet.add(item.formatted_name);
+        
+        return true;
+      });
+      
+      // Sort by relevance but prioritize specific locations
+      validSuggestions.sort((a, b) => {
+        // Prioritize specific places first
+        const aIsSpecific = a.type === 'amenity' || a.class === 'amenity' || a.class === 'building';
+        const bIsSpecific = b.type === 'amenity' || b.class === 'amenity' || b.class === 'building';
+        
+        if (aIsSpecific && !bIsSpecific) return -1;
+        if (!aIsSpecific && bIsSpecific) return 1;
+        
+        // Then sort by importance
+        return (b.importance || 0.5) - (a.importance || 0.5);
+      });
+      
+      // Limit to reasonable number
+      setSuggestions(validSuggestions.slice(0, 10));
+    } else {
+      // Process just the initial results for short queries
+      const formattedResults = data.map(place => ({
+        ...place,
+        formatted_name: formatDisplayName(place)
+      }));
+      
+      // Remove duplicates
+      const nameSet = new Set();
+      const validSuggestions = formattedResults.filter(item => {
+        if (!item.formatted_name || !item.lat || !item.lon) return false;
+        
+        if (nameSet.has(item.formatted_name)) return false;
+        nameSet.add(item.formatted_name);
+        
+        return true;
+      });
+      
+      validSuggestions.sort((a, b) => (b.importance || 0.5) - (a.importance || 0.5));
+      setSuggestions(validSuggestions.slice(0, 10));
+    }
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+  }
+};
+
+// Handle input change with debounce for search suggestions
+const handleInputChange = (e) => {
+  const value = e.target.value;
+  setSearchQuery(value);
+
+  // Clear previous timeout
+  if (searchDebounceRef.current) {
+    clearTimeout(searchDebounceRef.current);
+  }
+
+  // Set new timeout for debounced search
+  searchDebounceRef.current = setTimeout(() => {
+    fetchSuggestions(value);
+  }, 300);
+};
   
   const handleScroll = () => {
     const scrollPosition = window.scrollY;
@@ -53,6 +269,23 @@ const Home = () => {
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      // Clear any pending timeouts when component unmounts
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, []);
+  
+  // Close suggestion box when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionBoxRef.current && !suggestionBoxRef.current.contains(event.target)) {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
   
@@ -78,11 +311,26 @@ const Home = () => {
     }, 500);
   };
 
+  const handleSuggestionClick = (place) => {
+    setSearchQuery(place.formatted_name || place.display_name);
+    setSuggestions([]);
+    
+    // Navigate to map page with the selected location
+    navigate('/map');
+      
+    // Allow time for the map component to load before triggering the search
+    setTimeout(() => {
+      if (window.searchLocationFunction) {
+        window.searchLocationFunction([parseFloat(place.lat), parseFloat(place.lon)]);
+      }
+    }, 500);
+  };
 
   const handleSearch = async () => {
     if (searchQuery.trim() === "") return;
     
     setIsSearching(true);
+    setSuggestions([]); // clear suggestions
     
     try {
       const response = await fetch(
@@ -156,15 +404,25 @@ const Home = () => {
     },
   ];
 
-  // Form state for contact form
-  const [formData, setFormData] = useState({
+   // Form state for contact form
+   const [formData, setFormData] = useState({
     name: '',
+    role: '',
     email: '',
-    location: '',
     message: ''
   });
+  
+  // Add formStatus state
+  const [formStatus, setFormStatus] = useState({
+    submitted: false,
+    error: false,
+    message: ''
+  });
+  
+  // Create the form reference
+  const form = useRef();
 
-  const handleInputChange = (e) => {
+  const handleFormInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -174,9 +432,39 @@ const Home = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    setFormStatus({ submitted: false, error: false, message: 'Sending message...' });
+    
+    // These parameters need to match your EmailJS service, template and form IDs
+    emailjs.sendForm(
+      'service_59wlp9r', // Your EmailJS service ID
+      'template_8ja97ce', // Your EmailJS template ID
+      form.current,
+      'N_-UDFSgu2f-tvEl0' // Add your EmailJS public key here
+    )
+    .then((result) => {
+      console.log('Email sent successfully:', result.text);
+      setFormStatus({
+        submitted: true,
+        error: false,
+        message: 'Message sent successfully! We will get back to you soon.'
+      });
+      // Reset form data
+      setFormData({
+        name: '',
+        role: '',
+        email: '',
+        message: ''
+      });
+    }, (error) => {
+      console.error('Failed to send email:', error.text);
+      setFormStatus({
+        submitted: true,
+        error: true,
+        message: 'Failed to send message. Please try again later.'
+      });
+    });
   };
+  
   
   return (
     <div className="home-container">
@@ -230,18 +518,18 @@ const Home = () => {
         </div>
       )}
     
-            {/* Hero Section */}
-            <div className="hero-section">
-              <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
-              <div className="overlay">
-              <div className="side-search-container">
-            <div className="side-search-wrapper">
+      {/* Hero Section */}
+      <div className="hero-section">
+        <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
+        <div className="overlay">
+          <div className="side-search-container">
+            <div className="side-search-wrapper" ref={suggestionBoxRef}>
               <input 
                 type="text" 
                 placeholder="Type a location" 
                 className="side-search-input"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
                 disabled={isSearching}
               />
@@ -256,6 +544,21 @@ const Home = () => {
                   <img src="/icons/search.png" alt="Search" />
                 )}
               </button>
+              
+              {/* Suggestions dropdown */}
+              {suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map((item, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => handleSuggestionClick(item)}
+                      className="suggestion-item"
+                    >
+                      {item.formatted_name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -318,16 +621,19 @@ const Home = () => {
           {/* Three column layout below */}
           <div className="about-cards-grid">
             <div className="about-card"> {/* Changed from feature-card to about-card */}
+              <img src="/icons/mission.png" alt="Logo" className="about-icon" />
               <h3 className="about-card-title">Our Mission</h3> {/* Changed classname */}
               <p className="about-card-content">To empower city planners, researchers, and decision-makers with cutting-edge tools that promote sustainable, eco-friendly, and climate-resilient urban development.</p> {/* Changed classname */}
             </div>
 
             <div className="about-card">
+              <img src="/icons/itmatters.png" alt="Logo" className="about-icon" />
               <h3 className="about-card-title">Why It Matters</h3>
               <p className="about-card-content">Urban areas face growing challenges due to climate change, poor planning, and limited green spaces. Green infrastructure improves air quality, reduces heat, and supports biodiversity. Our AI + GIS system helps identify where these improvements are most needed — fast, accurately, and at scale.</p>
             </div>
 
             <div className="about-card">
+              <img src="/icons/users.png" alt="Logo" className="about-icon" />
               <h3 className="about-card-title">Who Can Use It?</h3>
               <p className="about-card-content">Local Government Units – for city planning and zoning Researchers & Environmentalists – for spatial analysis and sustainability research Urban Planners & Architects – for integrating green elements in their designs</p>
             </div>
@@ -363,74 +669,84 @@ const Home = () => {
           </p>
 
           <div className="contact-container">
-            {/* Contact form */}
-            <div className="contact-form-container">
-              <form onSubmit={handleSubmit} className="contact-form">
-                <div className="form-group">
-                  <label htmlFor="name" className="form-label">
-                    Name<span className="required">*</span>
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
+          {/* Contact form */}
+          <div className="contact-form-container">
+            <form ref={form} onSubmit={handleSubmit} className="contact-form" id="contact-form">
+              <div className="form-group">
+                <label htmlFor="name" className="form-label">
+                  Name<span className="required">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleFormInputChange}
+                  className="form-input"
+                  required
+                />
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">
-                    Email<span className="required">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="role" className="form-label">
+                  Role<span className="required">*</span>
+                </label>
+                <input
+                  id="role"
+                  name="role" 
+                  type="text"
+                  value={formData.role}
+                  onChange={handleFormInputChange}
+                  className="form-input"
+                  required
+                />
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="location" className="form-label">
-                    Location<span className="required">*</span>
-                  </label>
-                  <input
-                    id="location"
-                    name="location"
-                    type="text"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">
+                  Email<span className="required">*</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleFormInputChange}
+                  className="form-input"
+                  required
+                />
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="message" className="form-label">
-                    Message <span className="optional">(optional)</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className="form-textarea"
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="message" className="form-label">
+                  Message <span className="optional">(optional)</span>
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleFormInputChange}
+                  className="form-textarea"
+                />
+              </div>
 
-                <div className="form-submit">
-                  <button type="submit" className="submit-button">
-                    Submit
-                  </button>
+              {formStatus.message && (
+                <div className={`form-status ${formStatus.error ? 'error' : 'success'}`}>
+                  {formStatus.message}
                 </div>
-              </form>
-            </div>
+              )}
+
+              <div className="form-submit">
+                <button 
+                  type="submit" 
+                  className="submit-button"
+                  disabled={formStatus.submitted && !formStatus.error}
+                >
+                  {formStatus.submitted && !formStatus.error ? 'Sent' : 'Submit'}
+                </button>
+              </div>
+            </form>
+          </div>
 
             {/* Contact info */}
             <div className="contact-info">
@@ -448,7 +764,7 @@ const Home = () => {
                   <span className="contact-item-icon">
                     <img src="/icons/mail.png" alt="Email" className="email-icon" />
                   </span>
-                  <p className="contact-item-text">ai-gis-support@gmail.com</p>
+                  <p className="contact-item-text">aidrivengis@gmail.com</p>
                 </div>
 
                 <div className="contact-item">
@@ -464,6 +780,9 @@ const Home = () => {
           </div>
         </div>  
       </div>
+      <div className="copyright">
+              <p>&copy; AI-DrivenGIS</p>
+            </div>
     </div>
   );
 };

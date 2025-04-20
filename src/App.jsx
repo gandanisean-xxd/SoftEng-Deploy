@@ -1,50 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, BrowserRouter } from "react-router-dom";
-import Sidebar from "./components/MainDashboard/Sidebar";
-import MapComponent from "./components/MainDashboard/MapComponent";
-import Home from "./components/Homepage/Home";
-import SeeResult from "./components/popups/SeeResult";
-import ResultPopup from "./components/popups/ResultPopup";
-import "./index.css";
-import ChatbotPopup from "./components/popups/ChatbotPopup0";
-import LoginRegister from "./components/Homepage/LoginRegister";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Sidebar from './components/MainDashboard/Sidebar';
+import MapComponent from './components/MainDashboard/MapComponent';
+import Home from './components/Homepage/Home';
+import SeeResult from './components/popups/SeeResult';
+import ResultPopup from './components/popups/ResultPopup';
+import './index.css';
+import ChatbotPopup from './components/popups/ChatbotPopup0';
 
 function App() {
   const [searchLocation, setSearchLocation] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [selectedBasemap, setSelectedBasemap] = useState("Streets");
+  const [selectedBasemap, setSelectedBasemap] = useState('Streets');
   const [locateTrigger, setLocateTrigger] = useState(0);
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
-  const [message, setMessage] = useState("");
-
 
   const handleLocate = () => {
-    setLocateTrigger(prev => prev + 1);
+    setLocateTrigger((prev) => prev + 1);
     setShowSeeResult(true);
   };
-
-    useEffect(() => {
-    fetch('http://localhost:5000/api/hello')
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('Fetched message:', data.message); // Log the message to the console
-        setMessage(data.message);
-      })
-      .catch((err) => console.error('Error fetching data:', err));
-  }, []);
-  
 
   // Expose the handleLocate function to the window object
   useEffect(() => {
     window.triggerLocateFunction = handleLocate;
-    
+
     // Expose search location function to window object
     window.searchLocationFunction = setSearchLocation;
-    
+
     // Clean up when component unmounts
     return () => {
       delete window.triggerLocateFunction;
@@ -76,21 +62,21 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
-            <Home 
-              showLoginPopup={showLoginPopup} 
-              toggleLoginPopup={toggleLoginPopup} 
+            <Home
+              showLoginPopup={showLoginPopup}
+              toggleLoginPopup={toggleLoginPopup}
             />
-          } 
+          }
         />
-        <Route path='/register' element={<LoginRegister />}/>
-        <Route path='/login' element={<LoginRegister />}/>
-        <Route 
-          path="/map" 
+        <Route
+          path="/map"
           element={
-            <div className={`app ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+            <div
+              className={`app ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}
+            >
               <Sidebar
                 onSearch={handleSearch}
                 onLocate={handleLocate}
@@ -100,8 +86,8 @@ function App() {
                 selectedBasemap={selectedBasemap}
               />
               <div className="main-content">
-                <MapComponent 
-                  searchLocation={searchLocation} 
+                <MapComponent
+                  searchLocation={searchLocation}
                   isSidebarCollapsed={isSidebarCollapsed}
                   selectedBasemap={selectedBasemap}
                   onLocate={locateTrigger}
@@ -109,14 +95,14 @@ function App() {
               </div>
 
               {showSeeResult && (
-                <SeeResult 
+                <SeeResult
                   onClose={() => setShowSeeResult(false)}
                   onViewResult={handleViewResult}
                   setSelectedHazards={setSelectedHazards}
                 />
               )}
 
-             {showResultPopup && (
+              {showResultPopup && (
                 <ResultPopup
                   onClose={() => setShowResultPopup(false)}
                   showChatbotPopup={showChatbotPopup}
@@ -126,7 +112,7 @@ function App() {
                 />
               )}
 
-             {showChatbotPopup && (
+              {showChatbotPopup && (
                 <ChatbotPopup
                   onClose={() => setShowChatbotPopup(false)}
                   showResultPopup={showResultPopup}
@@ -135,11 +121,11 @@ function App() {
                 />
               )}
             </div>
-          } 
+          }
         />
       </Routes>
     </Router>
-  );  
+  );
 }
 
 export default App;

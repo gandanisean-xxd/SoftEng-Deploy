@@ -49,8 +49,14 @@ const Sidebar = ({
   };
 
   const handleLogout = () => {
-    navigate("/");
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("userEmail");
+      navigate('/');
+    }
   };
+  
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

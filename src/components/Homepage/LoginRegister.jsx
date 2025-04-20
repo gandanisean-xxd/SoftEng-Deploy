@@ -1,11 +1,21 @@
 import React, { useState } from "react";
 import styles from "./LoginRegister.module.css";
 import ForgotPassword from "./ForgotPassword";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from "jwt-decode";
+
 
 const LoginRegister = ({ closeModal }) => {
   const [isActive, setIsActive] = useState(false);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('');  
+  const navigate = useNavigate();
   
   // Separate states for admin and regular login
   const [adminCredentials, setAdminCredentials] = useState({
@@ -14,15 +24,9 @@ const LoginRegister = ({ closeModal }) => {
   });
   
   const [userCredentials, setUserCredentials] = useState({
-    username: '',
-    password: ''
-  });
-
-  const [registerData, setRegisterData] = useState({
-    username: '',
+    email:'',
     password: '',
-    confirm_password: '',
-    role: 'Urban Planner' // Default role
+    role: ''
   });
 
   // Password visibility toggles
@@ -46,14 +50,42 @@ const LoginRegister = ({ closeModal }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Regular login:", userCredentials);
-    closeModal();
+    axios.post('http://localhost:5000/login', userCredentials)
+      .then(result => {
+        console.log(result);
+        if (result.data === "Success") {
+          localStorage.setItem("isLoggedIn", true);
+          localStorage.setItem("userEmail", userCredentials.email);
+          navigate('/map');
+        }
+      })
+      .catch(err => console.log("Login error:", err));
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
-    console.log("Register data:", registerData);
+  
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+  
+    const userData = {
+      email,
+      password,
+      role
+    };
+  
+    axios.post('http://localhost:5000/register', userData)
+      .then(result => {
+        console.log("Register result:", result.data);
+        alert("Registration successful!");
+        navigate('/');
+      })
+      .catch(err => console.log("Register error:", err));
   };
+  
+  
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
@@ -78,14 +110,6 @@ const LoginRegister = ({ closeModal }) => {
   const handleUserChange = (e) => {
     const { name, value } = e.target;
     setUserCredentials(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -119,12 +143,47 @@ const LoginRegister = ({ closeModal }) => {
           <form onSubmit={handleRegister}>
             <h1>Create Account</h1>
             <button type="button" className={styles.googleBtn}>
-              <img 
-                src="/icons/google.webp" 
-                alt="Google logo" 
-                className={styles.googleIcon}
-              />
-              Sign up with Google
+            <GoogleLogin
+                  onSuccess={credentialResponse => {
+                    const credentialResponseDecoded = jwtDecode(
+                    credentialResponse.credential
+                    );
+                    fetch("http://localhost:5000/auth/google", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify(credentialResponseDecoded)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                      console.log("User saved or found:", data);
+                    })
+                    .catch(err => {
+                      console.error("Error saving Google user:", err);
+                    });                    
+                    console.log(credentialResponseDecoded);
+                    navigate('/map');
+                  }}
+                  onError={() => {
+                    console.log('Google Sign Up failed');
+                  }}
+                  render={renderProps => (
+                  <button
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                    type="button"
+                    className={`${styles.googleBtn} ${styles.customGoogle}`}
+                  >
+                  <img 
+                    src="/icons/google.webp" 
+                    alt="Google logo" 
+                    className={styles.googleIcon}
+                  />
+                  Sign up with Google
+                </button>
+              )}
+            />
             </button>
             <div className={styles.divider}>
               <span>OR</span>
@@ -133,9 +192,9 @@ const LoginRegister = ({ closeModal }) => {
               type="email" 
               id="email" 
               name="email" 
+              value={email}
               placeholder="Email Address" 
-              value={registerData.email}
-              onChange={handleRegisterChange}
+              onChange={(e) => setEmail(e.target.value)}
               required 
             />
 
@@ -145,8 +204,8 @@ const LoginRegister = ({ closeModal }) => {
                 id="password" 
                 name="password" 
                 placeholder="Password" 
-                value={registerData.password}
-                onChange={handleRegisterChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required 
                 className={styles.largerDots}
               />
@@ -167,8 +226,8 @@ const LoginRegister = ({ closeModal }) => {
                 id="confirm_password" 
                 name="confirm_password" 
                 placeholder="Confirm Password" 
-                value={registerData.confirm_password}
-                onChange={handleRegisterChange}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required 
                 className={styles.largerDots}
               />
@@ -188,13 +247,13 @@ const LoginRegister = ({ closeModal }) => {
               <div className={styles.selectWrapper}>
                 <select 
                   name="role"
-                  value={registerData.role}
-                  onChange={handleRegisterChange}
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
                   className={styles.roleSelect}
                   required
                 >
-                  <option value="Urban Planner">Role</option>
-                  <option value="Urban Planner1">Urban Planner</option>
+                  <option value="">Select Role</option>
+                  <option value="Urban Planner">Urban Planner</option>
                   <option value="Student">Student</option>
                   <option value="Farmer">Farmer</option>
                   <option value="Others">Others</option>
@@ -216,13 +275,34 @@ const LoginRegister = ({ closeModal }) => {
             {!isAdminLogin && (
               <>
                 <button type="button" className={styles.googleBtn}>
+                <GoogleLogin
+                  onSuccess={credentialResponse => {
+                    const credentialResponseDecoded = jwtDecode(
+                    credentialResponse.credential
+                    );
+                    console.log(credentialResponseDecoded);
+                    navigate('/map');
+                  }}
+                  onError={() => {
+                    console.log('Google Sign Up failed');
+                  }}
+                  render={renderProps => (
+                  <button
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                    type="button"
+                    className={`${styles.googleBtn} ${styles.customGoogle}`}
+                  >
                   <img 
                     src="/icons/google.webp" 
                     alt="Google logo" 
                     className={styles.googleIcon}
                   />
-                  Sign in with Google
+                  Sign up with Google
                 </button>
+              )}
+            />
+            </button>
                 <div className={styles.divider}>
                   <span>OR</span>
                 </div>

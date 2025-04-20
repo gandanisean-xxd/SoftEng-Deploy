@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, BrowserRouter } from "react-router-dom";
 import Sidebar from "./components/MainDashboard/Sidebar";
 import MapComponent from "./components/MainDashboard/MapComponent";
 import Home from "./components/Homepage/Home";
@@ -7,6 +7,7 @@ import SeeResult from "./components/popups/SeeResult";
 import ResultPopup from "./components/popups/ResultPopup";
 import "./index.css";
 import ChatbotPopup from "./components/popups/ChatbotPopup0";
+import LoginRegister from "./components/Homepage/LoginRegister";
 
 function App() {
   const [searchLocation, setSearchLocation] = useState(null);
@@ -18,11 +19,24 @@ function App() {
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
+  const [message, setMessage] = useState("");
+
 
   const handleLocate = () => {
     setLocateTrigger(prev => prev + 1);
     setShowSeeResult(true);
   };
+
+    useEffect(() => {
+    fetch('http://localhost:5000/api/hello')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('Fetched message:', data.message); // Log the message to the console
+        setMessage(data.message);
+      })
+      .catch((err) => console.error('Error fetching data:', err));
+  }, []);
+  
 
   // Expose the handleLocate function to the window object
   useEffect(() => {
@@ -71,6 +85,8 @@ function App() {
             />
           } 
         />
+        <Route path='/register' element={<LoginRegister />}/>
+        <Route path='/login' element={<LoginRegister />}/>
         <Route 
           path="/map" 
           element={

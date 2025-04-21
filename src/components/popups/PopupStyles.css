@@ -183,9 +183,7 @@
 }
 
 /* Form Sections */
-.profile-popup .my-profile-section,
-.profile-popup .change-password-section {
-  margin-left: 45px;
+.profile-popup .my-profile-section{
   padding: 32px;
 }
 

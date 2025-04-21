@@ -115,6 +115,10 @@ body{
     margin: 15px 0 10px;
 }
 
+.container a:hover{
+    text-decoration: underline;
+}
+
 .container button:not(.googleBtn, .adminBtn0, .togglePassword ) {
     background-color: #41AB5D;
     color: #fff;
@@ -295,16 +299,15 @@ input::placeholder {
   gap: 10px;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  border: 1px solid #ccc;
-  border-radius: 30px;
+  border-radius: 5px;
   padding: 10px 15px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
-  height: 50px;
-  width: 100%;
-  max-width: 230px;
+  height: 35px;
+  width: auto;
+  max-width: 150px;
 }
 
 .googleBtn:hover {
@@ -347,8 +350,6 @@ input::placeholder {
   letter-spacing: 0.5px;
 }
 
-
-/* Modify these styles in your LoginRegister.module.css file */
 
 /* Make the forgot password container an overlay */
 .forgotPasswordContainer {
@@ -397,7 +398,7 @@ input::placeholder {
   text-transform: uppercase;
   margin-top: 15px;
   cursor: pointer;
-  width: 100%;
+  width: 50%;
   transition: all 0.3s ease;
 }
 
@@ -418,6 +419,7 @@ input::placeholder {
 }
 
 .backIcon {
+  filter: var(--close-filter);
   width: 20px;
   height: 20px;
   opacity: 0.7;
@@ -483,6 +485,53 @@ input::placeholder {
   color: var(--text-primary);
 }
 
+
+/* Success message styling */
+.successMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.successIcon {
+  margin-bottom: 15px;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.successMessage h2 {
+  color: #41AB5D;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.successMessage p {
+  margin-bottom: 5px;
+}
+
+.redirectMessage {
+  font-style: italic;
+  font-size: 0.9em !important;
+  opacity: 0.7 !important;
+  margin-top: 15px !important;
+}
+
+
 /* Semi-transparent overlay behind the popup */
 .modalOverlay {
   position: fixed;
@@ -531,3 +580,5 @@ input::placeholder {
   height: 16px;
   filter: var(--dropdown-arrow-filter); /* Make the icon white */
 }
+
+

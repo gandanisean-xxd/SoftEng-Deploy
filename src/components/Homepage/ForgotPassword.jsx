@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import styles from "./LoginRegister.module.css";
 
 const ForgotPassword = ({ closeModal, goBackToLogin }) => {
-  const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
+  const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password, 4: Success
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [passwords, setPasswords] = useState({
     newPassword: "",
     confirmPassword: ""
@@ -47,7 +48,16 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
       return;
     }
     console.log("Resetting password", { email, otp, newPassword: passwords.newPassword });
-    goBackToLogin(); // Go back to login instead of closing modal
+    
+    // Simulate API call success (replace with actual API call)
+    // Show success message instead of immediately returning to login
+    setResetSuccess(true);
+    setStep(4);
+    
+    // Automatically return to login after 3 seconds
+    setTimeout(() => {
+      goBackToLogin();
+    }, 3000);
   };
 
   const handlePasswordChange = (e) => {
@@ -169,6 +179,22 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
             
             <button type="submit">Reset Password</button>
           </form>
+        )}
+
+        {step === 4 && (
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>
+              <svg viewBox="0 0 24 24" width="48" height="48">
+                <path 
+                  fill="#41AB5D" 
+                  d="M12 0a12 12 0 1012 12A12.014 12.014 0 0012 0zm6.927 8.2l-6.845 9.289a1.011 1.011 0 01-1.43.188l-4.888-3.908a1 1 0 111.25-1.562l4.076 3.261 6.227-8.451a1 1 0 111.61 1.183z"
+                />
+              </svg>
+            </div>
+            <h2>Success!</h2>
+            <p>Your password has been reset successfully.</p>
+            <p className={styles.redirectMessage}>You will be redirected to login...</p>
+          </div>
         )}
       </div>
     </div>

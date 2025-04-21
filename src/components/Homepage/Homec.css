@@ -558,7 +558,7 @@
 .about-section {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  width: 210vh;
+  width: 200vh;
   position: relative;
   left: 50%;
   right: 50%;
@@ -568,7 +568,7 @@
 }
 
 .about-content-container {
-  max-width: 1200px;
+  max-width: 1150px;
   margin: -30px auto;
   padding: 0 2rem;
 }
@@ -685,8 +685,7 @@
 /* Features Section */
 .features-section {
   padding: 5rem 2rem;
-  background: 
-    linear-gradient(135deg, var(--bg-primary) 0%, rgba(65, 171, 93, 0.1) 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(65, 171, 93, 0.1) 100%);
   background-blend-mode: overlay;
   position: relative;
   overflow: hidden;
@@ -916,15 +915,13 @@
 }
 
 .form-status.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: none;
+  color: #1e993a;
 }
 
 .form-status.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: none;
+  color: #bb2a38;
 }
 
 .contact-section {

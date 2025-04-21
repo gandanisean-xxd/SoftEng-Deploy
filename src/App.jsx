@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/MainDashboard/Sidebar';
-import MapComponent from './components/MainDashboard/MapComponent';
-import Home from './components/Homepage/Home';
-import SeeResult from './components/popups/SeeResult';
-import ResultPopup from './components/popups/ResultPopup';
-import './index.css';
-import ChatbotPopup from './components/popups/ChatbotPopup0';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Sidebar from "./components/MainDashboard/Sidebar";
+import MapComponent from "./components/MainDashboard/MapComponent";
+import Home from "./components/Homepage/Home";
+import SeeResult from "./components/popups/SeeResult";
+import ResultPopup from "./components/popups/ResultPopup";
+import AdminDashboard from "./components/Admin/AdminDashboard"; // Import the new component
+import "./index.css";
+import ChatbotPopup from "./components/popups/ChatbotPopup0";
+
 
 function App() {
   const [searchLocation, setSearchLocation] = useState(null);
@@ -122,6 +124,11 @@ function App() {
               )}
             </div>
           }
+        />
+        {/* Add Admin Dashboard Route */}
+        <Route 
+          path="/admin-dashboard/*" 
+          element={<AdminDashboard />} 
         />
       </Routes>
     </Router>

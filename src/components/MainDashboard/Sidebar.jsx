@@ -232,22 +232,35 @@ const Sidebar = ({
           )}
 
           {/* Useful Links Section */}
-          {!isCollapsed && (
-            <h3 className="sidebar-section-label">USEFUL LINKS</h3>
-          )}
+          {!isCollapsed && <h3 className="sidebar-section-label">USEFUL LINKS</h3>}
 
           {/* Useful Links */}
-          <li data-tooltip="PAGASA">
+          <li
+            data-tooltip="QCU"
+            onClick={() =>
+              window.open(
+                "https://qcu.edu.ph/?fbclid=IwY2xjawJqGfhleHRuA2FlbQIxMAABHlQrpclt2omBojSeDImG_tAXeoX4643Oz8WlTt0C9kCvoCzi1SYwV5OgnRZx_aem_5l8tLSQIhv7rVRESot0QPQ",
+                "_blank"
+              )
+          }
+            style={{ cursor: "pointer" }}
+          >
+            <img src="/icons/qcu.webp" alt="QCU" />
+            {!isCollapsed && <span>QCU</span>}
+          </li>
+
+          <li
+            data-tooltip="PAGASA"
+            onClick={() =>
+              window.open(
+                "https://www.facebook.com/PAGASA.DOST.GOV.PH/",
+                "_blank"
+              )
+          }
+            style={{ cursor: "pointer" }}
+          >
             <img src="/icons/pagasa.png" alt="PAGASA" />
             {!isCollapsed && <span>PAGASA</span>}
-          </li>
-          <li data-tooltip="DENR">
-            <img src="/icons/denr.png" alt="DENR" />
-            {!isCollapsed && <span>DENR</span>}
-          </li>
-          <li data-tooltip="NASA">
-            <img src="/icons/nasalogo.png" alt="NASA" />
-            {!isCollapsed && <span>NASA</span>}
           </li>
 
           {/* Theme toggle - updated to use context */}

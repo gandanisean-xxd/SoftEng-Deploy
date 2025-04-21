@@ -2,7 +2,40 @@
 /* ==================== */
 /* SIDEBAR STYLES */
 /* ==================== */
+/* ==================== */
+/* CUSTOM SCROLLBAR STYLES */
+/* ==================== */
+::-webkit-scrollbar {
+  width: 8px;               /* Thinner scrollbar */
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffffff;      /* White background as requested */
+  border-radius: 10px;      /* Rounded corners for the track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #41AB5D;      /* Green color matching your app theme */
+  border-radius: 10px;      /* Rounded corners for the thumb */
+  border: 2px solid #ffffff; /* Creates a nice inset effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d9957;      /* Slightly darker green on hover for feedback */
+}
+
+  
+
+/* Make the scrollbar a bit shorter for aesthetic appeal */
+.sidebar::-webkit-scrollbar-thumb {
+  min-height: 40px;        /* Ensures minimum height of the thumb */
+  max-height: 10px;       /* Limits maximum height for aesthetic appeal */
+}
+
 .sidebar {
+  scrollbar-width: thin;    /* For Firefox */
+  scrollbar-color: #41AB5D #ffffff; /* For Firefox: thumb and track */
   width: 275px;
   padding: 0px;
   height: 100vh;
@@ -53,7 +86,7 @@
 .sidebar-title {
   color: #3bc43f;
   font-style: italic;
-  font-size: 24px;
+  font-size: 23px;
   font-weight: bold;
   white-space: nowrap;     /* Fine-tune vertical alignment */
 }

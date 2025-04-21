@@ -1,21 +1,21 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./LoginRegister.module.css";
 import ForgotPassword from "./ForgotPassword";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 
 
 const LoginRegister = ({ closeModal }) => {
+  const navigate = useNavigate(); // Add this for navigation
   const [isActive, setIsActive] = useState(false);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('');  
-  const navigate = useNavigate();
+  const [role, setRole] = useState(''); 
   
   // Separate states for admin and regular login
   const [adminCredentials, setAdminCredentials] = useState({
@@ -90,6 +90,15 @@ const LoginRegister = ({ closeModal }) => {
   const handleAdminLogin = (e) => {
     e.preventDefault();
     console.log("Admin login:", adminCredentials);
+    
+    // Check admin credentials (replace with actual authentication logic)
+    if (adminCredentials.username && adminCredentials.password) {
+      // Navigate to admin dashboard on successful login
+      navigate("/admin-dashboard");
+    } else {
+      // Show error message (you can add a state for this)
+      alert("Invalid admin credentials");
+    }
   };
 
   const toggleAdminMode = () => {

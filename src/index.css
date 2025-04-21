@@ -216,6 +216,7 @@ body {
   --panel-button-active-bg: white;
   --table-row-hover: #eeeeee;
   --dropdown-arrow-filter: none;
+  --close-filter: brightness(0) invert(0);
   --search-placeholder-opacity: 0.7;
   --googleBtn-hover: #f0eeee;
   --sidebar-ul-dropdown-bg: #daf3d4;
@@ -239,6 +240,7 @@ body {
   --panel-button-active-bg: var(--modal-bg);
   --table-row-hover: rgba(116, 196, 118, 0.1);
   --dropdown-arrow-filter: brightness(0) invert(1);
+  --close-filter: none;
   --search-placeholder-opacity: 0.9; 
   --googleBtn-hover: #383535;
   --sidebar-ul-dropdown-bg: #496949;

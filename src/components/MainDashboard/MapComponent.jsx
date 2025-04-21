@@ -77,6 +77,7 @@ const MapComponent = ({
   const [markers, setMarkers] = useState([]); // Add this line to track multiple markers
   const [markerPosition, setMarkerPosition] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [selectedLocationState, setSelectedLocationState] = useState(null);
   const [showInstructions, setShowInstructions] = useState(true);
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -91,6 +92,7 @@ const MapComponent = ({
   const handleLocationSelect = (marker) => {
     setShowInstructions(false);
     setShowSeeResult(true);
+    setSelectedLocationState(marker.locationName); // Store the selected location name
 
     let progress = 0;
     const interval = setInterval(() => {
@@ -210,7 +212,6 @@ const MapComponent = ({
           attribution={baseLayers[selectedBasemap].attribution}
           subdomains={baseLayers[selectedBasemap].subdomains}
         />
-
         {selectedBasemap === 'Satellite Imagery' && (
           <TileLayer
             url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
@@ -218,7 +219,6 @@ const MapComponent = ({
             pane="overlayPane"
           />
         )}
-
         {showSeeResult && (
           <div className="processing-popup-overlay">
             <div className="processing-popup">
@@ -236,17 +236,21 @@ const MapComponent = ({
             </div>
           </div>
         )}
-
+        // Replace the existing ResultPopup component
         {showResultPopup && (
           <ResultPopup
-            onClose={() => setShowResultPopup(false)}
+            selectedLocation={selectedLocationState}
+            selectedHazards={selectedHazards} // Using the existing selectedHazards state
             showChatbotPopup={showChatbotPopup}
             setShowChatbotPopup={setShowChatbotPopup}
             setShowResultPopup={setShowResultPopup}
-            selectedHazards={selectedHazards}
+            darkMode={false} // You can add state for this if needed
+            onClose={() => {
+              setShowResultPopup(false);
+              setProgress(0);
+            }}
           />
         )}
-
         {showChatbotPopup && (
           <ChatbotPopup
             onClose={() => setShowChatbotPopup(false)}
@@ -258,7 +262,6 @@ const MapComponent = ({
         )}
         <MapEvents onDoubleClick={handleMapDoubleClick} />
         <MapTools />
-
         {/* Render all markers */}
         {markers.map((marker) => (
           <Marker key={marker.id} position={marker.position}>
@@ -293,7 +296,6 @@ const MapComponent = ({
             </Popup>
           </Marker>
         ))}
-
         {/* Render the current location marker if available */}
         {markerPosition && (
           <Marker
@@ -341,7 +343,6 @@ const MapComponent = ({
             </Popup>
           </Marker>
         )}
-
         {/* Marker for locations */}
         {/* Marker for the user's current location */}
         {/* {markerPosition && (

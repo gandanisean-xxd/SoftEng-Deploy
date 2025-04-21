@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import UserModel from './User.js';
+import bcrypt from 'bcryptjs';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,27 +14,59 @@ app.use(express.json());
 mongoose.connect("mongodb://localhost:27017/dbtagle");
 
 app.post('/login', (req, res) => {
-  const {email, password} = req.body;
-  UserModel.findOne({email: email})
-  .then(users => {
-    if (users) {
-      if(users.password === password) {
-        res.json("Success")
-      }else {
-        res.json("Password incorrect!")
-      }
-    } else {
-      res.json("This user does not exist!")
-    }
-  })
-})
+  const { email, password } = req.body;
 
-app.post('/register', (req, res) => {
-    console.log('Request body:', req.body); // 🔍 DEBUG THIS
-    UserModel.create(req.body)
-      .then(user => res.json(user))
-      .catch(err => res.json(err));
-  });
+  UserModel.findOne({ email })
+    .then(user => {
+      if (user) {
+        // Compare the entered password with the hashed password stored in the database
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+          if (err) {
+            return res.status(500).json({ success: false, message: 'Error checking password' });
+          }
+
+          if (isMatch) {
+            res.json({
+              success: true,
+              email: user.email,
+              username: user.email.split('@')[0], // Get username from email
+              role: user.role
+            });
+          } else {
+            res.json({ success: false, message: 'Password incorrect!' });
+          }
+        });
+      } else {
+        res.json({ success: false, message: 'This user does not exist!' });
+      }
+    })
+    .catch(err => {
+      console.error('Error during login:', err);
+      res.status(500).json({ success: false, message: 'Server error' });
+    });
+});
+
+
+app.post('/register', async (req, res) => {
+  const { email, password, role } = req.body;
+  
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);  // 10 is the salt rounds
+
+  const userData = {
+    email,
+    password: hashedPassword,  // Store the hashed password
+    role
+  };
+
+  try {
+    const newUser = await UserModel.create(userData);
+    res.json(newUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Error registering user', error: err });
+  }
+});
+
   
   app.post('/auth/google', async (req, res) => {
     const { email, name, picture, sub } = req.body;

@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import emailjs from "@emailjs/browser";
 import styles from "./LoginRegister.module.css";
 
 const ForgotPassword = ({ closeModal, goBackToLogin }) => {
   const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password, 4: Success
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
+  const timerRef = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [passwords, setPasswords] = useState({
     newPassword: "",
     confirmPassword: ""
   });
-  
-  // Password visibility toggles
   const [showPassword, setShowPassword] = useState({
     newPassword: false,
     confirmPassword: false
   });
+  const [otpExpiryTime, setOtpExpiryTime] = useState(null); // OTP expiry time
+  const [remainingTime, setRemainingTime] = useState(null);  // Countdown for expiry
 
   const togglePasswordVisibility = (field) => {
     setShowPassword(prev => ({
@@ -25,40 +28,128 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
     }));
   };
 
-  const handleSendOTP = (e) => {
-    e.preventDefault();
-    // TODO: API call to send OTP to email
-    console.log("Sending OTP to:", email);
-    setOtpSent(true);
-    setStep(2);
+  const startCountdown = (expiryTime) => {
+    if (timerRef.current) clearInterval(timerRef.current); // clear previous timer
+  
+    timerRef.current = setInterval(() => {
+      const remaining = Math.max(0, expiryTime - Date.now());
+      setRemainingTime(remaining);
+  
+      if (remaining === 0) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        alert("OTP has expired. Please request a new one.");
+      }
+    }, 1000);
+  };
+  
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60000);
+    const seconds = Math.floor((time % 60000) / 1000);
+    return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
+  const handleSendOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    // Check if email exists in the database
+    try {
+      const response = await fetch('http://localhost:5000/api/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      
+      const result = await response.json();
+  
+      if (result.exists) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        setGeneratedOtp(otp);
+        const Time = Date.now() + 5 * 60 * 1000;
+        setOtpExpiryTime(Time);
+
+        const readableTime = new Date(Time).toLocaleTimeString();
+  
+        const templateParams = {
+          user_email: email,
+          passcode: otp,
+          time: readableTime, 
+        };
+  
+        try {
+          await emailjs.send("service_iysc2g7", "template_zywl0ik", templateParams, "c96TY5rqu6knfGW4j");
+          alert("OTP sent!");
+          startCountdown(Time);
+          setOtpSent(true);
+          setStep(2);
+        } catch (error) {
+          console.error("Failed to send OTP", error);
+          alert("Failed to send OTP. Please try again.");
+        }
+      } else {
+        alert("Email not found. Please check your email address.");
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+      alert("Error checking email. Please try again.");
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+  
   const handleVerifyOTP = (e) => {
     e.preventDefault();
-    // TODO: API call to verify OTP
-    console.log("Verifying OTP:", otp);
+
+    if (remainingTime === 0) {
+      alert("OTP has expired. Please request a new one.");
+      return;
+    }
+
+    if (otp !== generatedOtp) {
+      alert("Invalid OTP. Please try again.");
+      return;
+    }
+
+    alert("OTP verified successfully!");
     setStep(3);
   };
 
-  const handleResetPassword = (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
-    // TODO: API call to reset password
+  
     if (passwords.newPassword !== passwords.confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
-    console.log("Resetting password", { email, otp, newPassword: passwords.newPassword });
-    
-    // Simulate API call success (replace with actual API call)
-    // Show success message instead of immediately returning to login
-    setResetSuccess(true);
-    setStep(4);
-    
-    // Automatically return to login after 3 seconds
-    setTimeout(() => {
-      goBackToLogin();
-    }, 3000);
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword: passwords.newPassword }),
+      });
+  
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
+      const result = await response.json();
+  
+      if (result.message === 'Password reset successfully!') {
+        alert("Your password has been reset successfully.");
+        goBackToLogin();
+      } else {
+        alert("Failed to reset password. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      alert("Error resetting password. Please try again.");
+    }
   };
+  
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -70,7 +161,6 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
 
   return (
     <div className={styles.modalOverlay} onClick={(e) => {
-      // Close when clicking outside the popup
       if (e.target.className === styles.modalOverlay) {
         goBackToLogin();
       }
@@ -96,7 +186,13 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
               onChange={(e) => setEmail(e.target.value)}
               required 
             />
-            <button type="submit">Send OTP</button>
+            <button type="submit" disabled={loading}>
+            {loading ? (
+            <div className={styles.loader}></div> // spinner here
+            ) : (
+            "Send OTP"
+            )}
+          </button>
           </form>
         )}
         
@@ -115,14 +211,14 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
               maxLength={6}
               className={styles.otpInput}
             />
+            {remainingTime !== null && remainingTime > 0 && (
+              <div>OTP expires in: {formatTime(remainingTime)}</div>
+            )}
             <button type="submit">Verify OTP</button>
             <button 
               type="button" 
               className={styles.resendBtn}
-              onClick={() => {
-                console.log("Resending OTP to:", email);
-                // TODO: API call to resend OTP
-              }}
+              onClick={handleSendOTP}
             >
               Resend OTP
             </button>
@@ -154,7 +250,7 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
                 }
               </button>
             </div>
-            
+
             <div className={styles.passwordWrapper}>
               <input 
                 type={showPassword.confirmPassword ? "text" : "password"}
@@ -176,7 +272,7 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
                 }
               </button>
             </div>
-            
+
             <button type="submit">Reset Password</button>
           </form>
         )}

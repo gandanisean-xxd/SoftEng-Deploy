@@ -1,38 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./PopupStyles.css";
 
 const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHistoryPopup, setShowProfilePopup }) => {
-  const [activeTab, setActiveTab] = useState("myProfile");
-
-  const [showPassword, setShowPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false
+  const [userData, setUserData] = useState({
+    email: "",
+    role: ""
   });
-  
-  const togglePasswordVisibility = (field) => {
-    setShowPassword(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
 
+  // Load user info from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+  
+    console.log("🔍 Raw user data from localStorage:", stored);
+  
+    if (stored && stored !== "undefined") {
+      try {
+        const parsedUser = JSON.parse(stored);
+  
+        console.log("✅ Parsed user:", parsedUser);
+  
+        const username = parsedUser.email.split('@')[0];
+  
+        setUserData({
+          email: parsedUser.email,
+          username: username,
+          role: parsedUser.role
+        });
+      } catch (error) {
+        console.error("❌ Failed to parse user from localStorage:", error);
+      }
+    }
+  }, []);
+  
+  
   return (
     <div className="profile-popup-overlay">
       <div className="profile-popup">
-        {/* Panel */}
+
+        {/* Top Panel */}
         <div className="profile-panel" style={{ backgroundColor: "#41AB5D" }}>
           <div className="panel-left">
-            <button
-              className={true ? "active" : ""} // Always active since we're in profile
-              onClick={() => { setShowProfilePopup(true); setShowSubmissionHistoryPopup(false); }}
-            >
+            <button className="active" onClick={() => {
+              setShowProfilePopup(true);
+              setShowSubmissionHistoryPopup(false);
+            }}>
               <img src="/icons/profile.png" alt="Profile" />
             </button>
-            <button
-              className={showSubmissionHistoryPopup ? "active" : ""}
-              onClick={() => { setShowSubmissionHistoryPopup(true); setShowProfilePopup(false); }}
-            >
+            <button className={showSubmissionHistoryPopup ? "active" : ""} onClick={() => {
+              setShowSubmissionHistoryPopup(true);
+              setShowProfilePopup(false);
+            }}>
               <img src="/icons/result.png" alt="Submission History" />
             </button>
           </div>
@@ -44,52 +61,43 @@ const ProfilePopup = ({ onClose, showSubmissionHistoryPopup, setShowSubmissionHi
           </div>
         </div>
 
-        {activeTab === "myProfile" && (
+        {/* Profile Body */}
         <div className="profile-popup1">
-          {/* Background overlays */}
           <div className="background-layer" />
           <div className="image-overlay" />
           <div className="top-fade-overlay" />
           <div className="right-geo" />
           <div className="left-geo" />
-
-          {/* Profile content */}
           <div className="profile-content">
             <div className="profile-info">
+
               <div className="info-card">
-                <div className="icon">
-                  <img src="/icons/profile.png" alt="User Icon" />
-                </div>
+                <div className="icon"><img src="/icons/profile.png" alt="User Icon" /></div>
                 <div>
                   <div className="label">Username</div>
-                  <div className="value">John Doe</div>
+                  <div className="value">{userData.username || "N/A"}</div>
                 </div>
               </div>
 
               <div className="info-card">
-                <div className="icon">
-                  <img src="/icons/email.png" alt="Email Icon" />
-                </div>
+                <div className="icon"><img src="/icons/email.png" alt="Email Icon" /></div>
                 <div>
                   <div className="label">Email</div>
-                  <div className="value">johndoe@example.com</div>
+                  <div className="value">{userData.email || "N/A"}</div>
                 </div>
               </div>
 
               <div className="info-card">
-                <div className="icon">
-                  <img src="/icons/role.png" alt="Role Icon" />
-                </div>
+                <div className="icon"><img src="/icons/role.png" alt="Role Icon" /></div>
                 <div>
                   <div className="label">Role</div>
-                  <div className="value">Urban Planner</div>
+                  <div className="value">{userData.role || "N/A"}</div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
-      )}
-
 
       </div>
     </div>

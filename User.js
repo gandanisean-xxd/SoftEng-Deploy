@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-    email: String,
-    password: String,
-    role: String,
-    googleId: String, 
-    name: String,     
-    picture: String  
-})
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, required: true },
+  googleId: { type: String },  // For Google login
+  name: { type: String },
+  picture: { type: String }
+});
 
-const UserModel = mongoose.model("users", UserSchema)
+const UserModel = mongoose.model('User', UserSchema);
 
 export default UserModel;

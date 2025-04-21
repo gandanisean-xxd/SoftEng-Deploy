@@ -433,13 +433,21 @@ const handleInputChange = (e) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormStatus({ submitted: false, error: false, message: 'Sending message...' });
-    
-    // These parameters need to match your EmailJS service, template and form IDs
-    emailjs.sendForm(
-      'service_59wlp9r', // Your EmailJS service ID
-      'template_8ja97ce', // Your EmailJS template ID
-      form.current,
-      'N_-UDFSgu2f-tvEl0' // Add your EmailJS public key here
+  
+    // Prepare the template variables for email content
+    const templateParams = {
+      name: formData.name,
+      role: formData.role,
+      email: formData.email,
+      message: formData.message
+    };
+  
+    // Send the email to the user
+    emailjs.send(
+      'service_iysc2g7', // Your EmailJS service ID
+      'template_lynhqib', // Your EmailJS template ID
+      templateParams, // Pass the templateParams directly
+      'c96TY5rqu6knfGW4j' // Your EmailJS public key
     )
     .then((result) => {
       console.log('Email sent successfully:', result.text);
@@ -464,6 +472,7 @@ const handleInputChange = (e) => {
       });
     });
   };
+  
   
   
   return (

@@ -48,19 +48,30 @@ const LoginRegister = ({ closeModal }) => {
     setIsActive(!isActive);
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    axios.post('http://localhost:5000/login', userCredentials)
-      .then(result => {
-        console.log(result);
-        if (result.data === "Success") {
-          localStorage.setItem("isLoggedIn", true);
-          localStorage.setItem("userEmail", userCredentials.email);
-          navigate('/map');
-        }
-      })
-      .catch(err => console.log("Login error:", err));
-  };
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await axios.post("http://localhost:5000/login", userCredentials);
+
+    if (res.data.success) {
+      // Save user info (email, role, etc.)
+      localStorage.setItem("user", JSON.stringify({
+        email: res.data.email,
+        role: res.data.role
+      }));
+      console.log("From localStorage:", JSON.parse(localStorage.getItem("user")));
+      alert("Login successful!");
+      navigate("/map"); // or reload: window.location.reload();
+    } else {
+      alert(res.data.message || "Login failed");
+    }
+  } catch (err) {
+    alert("Error logging in");
+    console.error("Login error:", err);
+  }
+};
+
 
   const handleRegister = (e) => {
     e.preventDefault();

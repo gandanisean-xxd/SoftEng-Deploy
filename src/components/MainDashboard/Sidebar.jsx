@@ -56,8 +56,10 @@ const Sidebar = ({
   };
 
   const handleLogout = () => {
-    navigate('/');
+    localStorage.removeItem("user"); // Clear saved user info
+    navigate('/'); // Or navigate to login page
   };
+  
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

@@ -12,18 +12,30 @@ const AdminDashboard = () => {
 
   // Mock data - Replace with actual API calls in production
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      setUsers([
-        { id: 1, username: "user1@example.com", role: "Urban Planner", status: "Active", lastLogin: "2025-04-15", password: "$2b$10$abcdefghijklmnopqrs" },
-        { id: 2, username: "user2@example.com", role: "Student", status: "Active", lastLogin: "2025-04-18", password: "$2b$10$uvwxyzabcdefghijklm" },
-        { id: 3, username: "user3@example.com", role: "Farmer", status: "Inactive", lastLogin: "2025-03-30", password: "$2b$10$nopqrstuvwxyzabcde" },
-        { id: 4, username: "user4@example.com", role: "Others", status: "Active", lastLogin: "2025-04-19", password: "$2b$10$fghijklmnopqrsabcd" },
-        { id: 5, username: "user5@example.com", role: "Urban Planner", status: "Suspended", lastLogin: "2025-04-02", password: "$2b$10$tuvwxyzabcdefghijk" },
-      ]);
-      setIsLoading(false);
-    }, 1000);
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/users');
+        const data = await response.json();
+        // Add IDs manually if needed (MongoDB uses _id)
+        const formattedUsers = data.map((user, index) => ({
+          _id: user._id,
+          id: index + 1,
+          username: user.email,
+          role: user.role,
+          status: user.status || 'Active',
+          lastLogin: user.lastLogin || 'N/A'
+        }));
+        setUsers(formattedUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchUsers();
   }, []);
+  
 
   const handleLogout = () => {
     // Implement logout logic here
@@ -36,21 +48,55 @@ const AdminDashboard = () => {
     user.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const changeUserStatus = (userId, newStatus) => {
-    setUsers(users.map(user =>
-      user.id === userId ? { ...user, status: newStatus } : user
-    ));
+  const changeUserStatus = async (userId, newStatus) => {
+    console.log("Frontend sending userId:", userId); // <== LOG THIS
+    console.log("Frontend sending newStatus:", newStatus);
+  
+    try {
+      const response = await fetch('http://localhost:5000/users/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newStatus }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("Status updated");
+        setUsers(users.map(user => 
+          user._id === userId ? { ...user, status: newStatus } : user
+        ));
+      } else {
+        console.error('Failed to update status:', data.message);
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+    }
   };
 
   const confirmDeleteUser = (userId) => {
     setDeleteConfirmation({ show: true, userId });
   };
 
-  const deleteUser = (userId) => {
-    setUsers(users.filter(user => user.id !== userId));
-    setDeleteConfirmation({ show: false, userId: null });
-    // In a real application, you would also make an API call to delete the user from the database.
+  const deleteUser = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/users/${userId}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        setUsers(users.filter(user => user._id !== userId));
+        setDeleteConfirmation({ show: false, userId: null });
+        console.log(`User ${userId} deleted`);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to delete user:', errorData.message);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
   };
+  
 
   const cancelDelete = () => {
     setDeleteConfirmation({ show: false, userId: null });
@@ -140,14 +186,13 @@ const AdminDashboard = () => {
                         <th>Email</th>
                         <th>Role</th>
                         <th>Status</th>
-                        <th>Last Login</th>
-                        <th>Password</th> {/* Added Password Column */}
+                        <th>Last Login</th> 
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredUsers.map(user => (
-                        <tr key={user.id}>
+                        <tr key={user._id}>
                           <td>{user.id}</td>
                           <td>{user.username}</td>
                           <td>{user.role}</td>
@@ -156,14 +201,21 @@ const AdminDashboard = () => {
                               {user.status}
                             </span>
                           </td>
-                          <td>{user.lastLogin}</td>
-                          <td>{user.password}</td> {/* Display Hashed Password */}
+                          <td>{new Date(user.lastLogin).toLocaleString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true
+                        })}</td>
                           <td className={styles.actions}>
                             <div className={styles.actionButtons}>
                               {user.status !== "Active" && (
                                 <button
                                   className={`${styles.actionBtn} ${styles.activateBtn}`}
-                                  onClick={() => changeUserStatus(user.id, "Active")}
+                                  onClick={() => changeUserStatus(user._id, "Active")}
                                 >
                                   Activate
                                 </button>
@@ -171,7 +223,7 @@ const AdminDashboard = () => {
                               {user.status !== "Suspended" && (
                                 <button
                                   className={`${styles.actionBtn} ${styles.suspendBtn}`}
-                                  onClick={() => changeUserStatus(user.id, "Suspended")}
+                                  onClick={() => changeUserStatus(user._id, "Suspended")}
                                 >
                                   Suspend
                                 </button>
@@ -179,14 +231,14 @@ const AdminDashboard = () => {
                               {user.status !== "Inactive" && (
                                 <button
                                   className={`${styles.actionBtn} ${styles.deactivateBtn}`}
-                                  onClick={() => changeUserStatus(user.id, "Inactive")}
+                                  onClick={() => changeUserStatus(user._id, "Inactive")}
                                 >
                                   Deactivate
                                 </button>
                               )}
                               <button
                                 className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                                onClick={() => confirmDeleteUser(user.id)}
+                                onClick={() => confirmDeleteUser(user._id)}
                               >
                                 <img src="/icons/close.png" alt="Delete" className={styles.deleteIcon} />
                               </button>

@@ -148,37 +148,26 @@ const LoginRegister = ({ closeModal }) => {
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
-    setAdminLoginError(''); // Clear previous errors
-
+  
     try {
-      // Replace with actual admin authentication logic
-      if (adminCredentials.username && adminCredentials.password) {
-        // For demo purposes - in real app, you'd verify credentials with server
-        if (adminCredentials.username === "admin" && adminCredentials.password === "password") {
-          // Store admin login info
-          localStorage.setItem("user", JSON.stringify({
-            email: adminCredentials.username,
-            role: "admin"
-          }));
+      console.log("Admin credentials:", adminCredentials); // Check the data before sending
 
-          // Show success popup
-          setSuccessMessage("Admin login successful!");
-          setShowSuccessPopup(true);
-
-          // Navigate to admin dashboard after dismissing popup
-          setTimeout(() => {
-            navigate("/admin-dashboard");
-            closeModal(true); // Pass true to indicate successful login
-          }, 2000);
-        } else {
-          setAdminLoginError("Invalid admin credentials");
-        }
+      const res = await axios.post("http://localhost:5000/admin-login", adminCredentials);
+  
+      if (res.data.success) {
+        localStorage.setItem("admin", JSON.stringify({
+          username: res.data.username,
+          password: res.data.password
+        }));
+  
+        alert("Admin login successful!");
+        navigate("/admin-dashboard");
       } else {
-        setAdminLoginError("Please enter both username and password");
+        alert(res.data.message || "Admin login failed");
       }
-    } catch (error) {
-      setAdminLoginError("Error logging in");
-      console.error("Admin login error:", error);
+    } catch (err) {
+      console.error("Admin login error:", err);
+      alert("Incorrect Credentials!");
     }
   };
 
@@ -420,36 +409,60 @@ const LoginRegister = ({ closeModal }) => {
             {!isAdminLogin && (
               <>
                 <button type="button" className={styles.googleBtn}>
-                  <GoogleLogin
-                    onSuccess={credentialResponse => {
-                      handleGoogleSuccess(credentialResponse);
-                    }}
-                    onError={() => {
-                      setLoginError('Google Sign In failed');
-                    }}
-                    render={renderProps => (
-                      <button
-                        onClick={renderProps.onClick}
-                        disabled={renderProps.disabled}
-                        type="button"
-                        className={`${styles.googleBtn} ${styles.customGoogle}`}
-                      >
-                        <img
-                          src="/icons/google.webp"
-                          alt="Google logo"
-                          className={styles.googleIcon}
-                        />
-                        Sign in with Google
-                      </button>
-                    )}
+                <GoogleLogin
+              onSuccess={credentialResponse => {
+                const credentialResponseDecoded = jwtDecode(credentialResponse.credential);
+
+                // Send the decoded Google user info to your backend
+                fetch("http://localhost:5000/auth/google", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(credentialResponseDecoded)
+                })
+                .then(res => res.json())
+                .then(data => {
+                  console.log("✅ Google user saved or found:", data);
+
+                  // Save returned email and role to localStorage
+                  localStorage.setItem("user", JSON.stringify({
+                    email: data.email,
+                    role: data.role
+                  }));
+
+                  // Navigate to map after storing user
+                  navigate("/map");
+                })
+                .catch(err => {
+                  console.error("❌ Error handling Google login:", err);
+                });
+              }}
+              onError={() => {
+                console.log("❌ Google Sign Up failed");
+              }}
+              render={renderProps => (
+                <button
+                  onClick={renderProps.onClick}
+                  disabled={renderProps.disabled}
+                  type="button"
+                  className={`${styles.googleBtn} ${styles.customGoogle}`}
+                >
+                  <img 
+                    src="/icons/google.webp" 
+                    alt="Google logo" 
+                    className={styles.googleIcon}
                   />
+                  Sign up with Google
                 </button>
+              )}
+            />
+            </button>
                 <div className={styles.divider}>
                   <span>OR</span>
                 </div>
               </>
             )}
-
             {isAdminLogin ? (
               <>
                 <input

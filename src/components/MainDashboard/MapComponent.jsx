@@ -6,6 +6,8 @@ import 'leaflet-ruler';
 import 'leaflet-compass';
 import ResultPopup from '../popups/ResultPopup';
 import ChatbotPopup from '../popups/ChatbotPopup0';
+import SubmissionHistoryPopup from '../popups/SubmissionHistoryPopup';
+
 
 // Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -82,6 +84,7 @@ const MapComponent = ({
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([
     'Flooding',
@@ -260,6 +263,17 @@ const MapComponent = ({
             selectedHazards={selectedHazards}
           />
         )}
+        {showSubmissionHistoryPopup && (
+              <SubmissionHistoryPopup
+                onClose={() => setShowSubmissionHistoryPopup(false)}
+                showProfilePopup={showProfilePopup}
+                setShowProfilePopup={setShowProfilePopup}
+                setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+                setShowResultPopup={setShowResultPopup}
+                selectedHazards={selectedHazards} // Example hazards
+                selectedLocation={selectedLocationState} // Use the correct prop name // Example location
+              />
+        )}          
         <MapEvents onDoubleClick={handleMapDoubleClick} />
         <MapTools />
         {/* Render all markers */}

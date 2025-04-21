@@ -1,8 +1,4 @@
-import React from 'react';
-import './PopupStyles.css';
-import ChatbotPopup from './ChatbotPopup0';
-import ResultPopup from './ResultPopup';
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
 
 const SubmissionHistoryPopup = ({
   onClose,
@@ -10,24 +6,40 @@ const SubmissionHistoryPopup = ({
   setShowProfilePopup,
   setShowSubmissionHistoryPopup,
   selectedHazards,
+  selectedLocation, // Update this to match the correct prop name
 }) => {
-  const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [submissions, setSubmissions] = useState([]);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
 
-  const submissions = [
-    { id: 1, location: 'Quezon City...', hazards: ['Flooding', 'Rainfall'] },
-    {
-      id: 2,
-      location: 'Makati City...',
-      hazards: ['Flooding', 'Rainfall', 'Heat Index'],
-    },
-    {
-      id: 3,
-      location: 'Cebu City...',
-      hazards: ['Flooding', 'Rainfall', 'Heat Index'],
-    },
-  ];
+  useEffect(() => {
+    console.log('selectedLocation in SubmissionHistoryPopup:', selectedLocation);
+    console.log('selectedHazards in SubmissionHistoryPopup:', selectedHazards);
+
+    const fetchSubmissions = async () => {
+      if (!selectedLocation || !selectedHazards || selectedHazards.length === 0) {
+        console.error('Missing selectedLocation or selectedHazards');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/submissions?location=${selectedLocation}&hazards=${selectedHazards.join(',')}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setSubmissions(data);
+      } catch (error) {
+        console.error('Error fetching submissions:', error);
+      }
+    };
+
+    fetchSubmissions();
+  }, [selectedLocation, selectedHazards]);
 
   return (
     <div className="profile-popup-overlay">
@@ -44,10 +56,7 @@ const SubmissionHistoryPopup = ({
             >
               <img src="/icons/profile.png" alt="Profile" />
             </button>
-            <button
-              className={true ? 'active' : ''} // Always active since we're in submission history
-              onClick={() => {}}
-            >
+            <button className="active">
               <img src="/icons/result.png" alt="Submission History" />
             </button>
           </div>
@@ -70,70 +79,35 @@ const SubmissionHistoryPopup = ({
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Quezon City, Philippines, Barangay Commonwealth</td>
-                <td>Flooding, Rainfall</td>
-                <td>
-                  <div className="submission-buttons">
-                    <button
-                      className="view-result-button"
-                      onClick={() => setShowResultPopup(true)}
-                    >
-                      View Result
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Makati City, Philippines, Barangay 505</td>
-                <td>Flooding, Rainfall, Heat Index</td>
-                <td>
-                  <div className="submission-buttons">
-                    <button
-                      className="view-result-button"
-                      onClick={() => setShowResultPopup(true)}
-                    >
-                      View Result
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Cebu City, Philippines, Barangay 102</td>
-                <td>Flooding, Rainfall, Heat Index</td>
-                <td>
-                  <div className="submission-buttons">
-                    <button
-                      className="view-result-button"
-                      onClick={() => setShowResultPopup(true)}
-                    >
-                      View Result
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              {submissions.map((submission) => (
+                <tr key={submission._id}>
+                  <td>{submission.location}</td>
+                  <td>{submission.hazards.join(', ')}</td>
+                  <td>
+                    <div className="submission-buttons">
+                      <button
+                        className="view-result-button"
+                        onClick={() => {
+                          setActiveSubmission(submission);
+                          setShowResultPopup(true);
+                        }}
+                      >
+                        View Result
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
-      {showChatbotPopup && (
-        <ChatbotPopup
-          onClose={() => setShowChatbotPopup(false)}
-          showResultPopup={showResultPopup}
-          setShowResultPopup={setShowResultPopup}
-          setShowChatbotPopup={setShowChatbotPopup}
-          darkMode={false} // or true if needed
-        />
-      )}
 
-      {showResultPopup && (
+      {showResultPopup && activeSubmission && (
         <ResultPopup
           onClose={() => setShowResultPopup(false)}
-          showChatbotPopup={showChatbotPopup}
-          setShowChatbotPopup={setShowChatbotPopup}
-          setShowResultPopup={setShowResultPopup}
+          selectedLocation={selectedLocation} // Pass the correct prop
           selectedHazards={selectedHazards}
-          darkMode={false} // or true if needed
         />
       )}
     </div>

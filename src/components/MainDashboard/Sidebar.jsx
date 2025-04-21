@@ -70,12 +70,14 @@ const Sidebar = ({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Clear saved user info
-    setProfileButtonLabel('Profile'); // Reset the label
-    navigate('/'); // Or navigate to login page
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (confirmLogout) {
+      localStorage.removeItem("user"); 
+      setProfileButtonLabel('Profile');
+      navigate('/'); // Navigate to login or home page
+    }
   };
-
-
+  
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
     updateSidebarState(!isCollapsed);

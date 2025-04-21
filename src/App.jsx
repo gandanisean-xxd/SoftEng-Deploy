@@ -8,6 +8,7 @@ import ResultPopup from "./components/popups/ResultPopup";
 import AdminDashboard from "./components/Admin/AdminDashboard"; // Import the new component
 import "./index.css";
 import ChatbotPopup from "./components/popups/ChatbotPopup0";
+import SubmissionHistoryPopup from "./components/popups/SubmissionHistoryPopup";
 
 
 function App() {
@@ -19,9 +20,12 @@ function App() {
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  
 
   // Check for login status on app mount
   useEffect(() => {
@@ -73,6 +77,7 @@ function App() {
 
   const handleSearch = (location) => {
     setSearchLocation(location);
+    setSelectedLocation(location); // Update the location
   };
 
   const handleClearSearch = () => {
@@ -173,6 +178,17 @@ function App() {
                   setShowChatbotPopup={setShowChatbotPopup}
                 />
               )}
+              {showSubmissionHistoryPopup && (
+              <SubmissionHistoryPopup
+                onClose={() => setShowSubmissionHistoryPopup(false)}
+                showProfilePopup={showProfilePopup}
+                setShowProfilePopup={setShowProfilePopup}
+                setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+                setShowResultPopup={setShowResultPopup}
+                selectedHazards={selectedHazards}
+                selectedLocation={selectedLocation} // Example hazards// Use the correct prop name // Example location
+              />
+              )}          
             </div>
           }
         />

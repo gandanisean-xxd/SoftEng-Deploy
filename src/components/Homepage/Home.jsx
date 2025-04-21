@@ -566,7 +566,7 @@ const handleInputChange = (e) => {
           <div className="home-logo-container">
             <img src="/icons/logo.png" alt="Logo" className="home-logo" />
             <div className="home-title-container">
-              <h1 className="home-main-title">AI-Driven GIS</h1>
+              <h1 className="home-main-title">EcoUrban</h1>
               <p className="home-subtitle">Shaping Sustainable Urban Landscapes</p>
             </div>
           </div>

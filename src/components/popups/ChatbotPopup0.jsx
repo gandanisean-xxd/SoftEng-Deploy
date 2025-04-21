@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./PopupStyles.css";
+import "./PopupStyles.css"; // Make sure to create this CSS file for styles
 
 const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup, darkMode }) => {
   const getGreeting = () => {
@@ -28,38 +28,49 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
     const userMessage = { sender: "user", text: newMessage };
     setMessages(prevMessages => [...prevMessages, userMessage]);
 
-    // Check for greeting responses
-    const greetingResponses = {
-      "hi": "Hello! 👋 How can I assist you today?",
-      "hello": "Hi there! 😊 What would you like to know?",
-      "hey": "Hey! 🙌 Feel free to ask me anything.",
-      "greetings": "Greetings! 🌟 I'm here to help.",
-      "welcome": "Welcome! 🎉 What can I do for you today?"
-    };
-
     const userInputLower = newMessage.toLowerCase();
-    if (greetingResponses[userInputLower]) {
-      const botResponse = greetingResponses[userInputLower];
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botResponse }]);
-      setNewMessage(""); // Clear input immediately
-      return; // Exit the function early
+
+    // Check if the user is asking for weather
+    if (userInputLower.includes("weather")) {
+      const location = newMessage.replace(/.*weather in /i, "").trim(); // Extract location
+      setLoading(true);
+
+      try {
+        const response = await axios.get('http://localhost:5000/weather', {
+          params: { location: location }
+        });
+        const weatherData = response.data;
+
+        // Check if the data is valid before accessing it
+        if (weatherData.temperature !== undefined && weatherData.conditions) {
+          const weatherResponse = `The current weather in ${weatherData.location} is ${weatherData.temperature.toFixed(1)}°C with ${weatherData.conditions}.`;
+          setMessages(prevMessages => [...prevMessages, { sender: "bot", text: weatherResponse }]);
+        } else {
+          setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, I couldn't retrieve the weather data." }]);
+        }
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, I couldn't retrieve the weather data." }]);
+      } finally {
+        setLoading(false);
+      }
+
+      setNewMessage(""); // Clear input
+      return;
     }
 
-    // Set loading state
+    // Set loading state for chat responses
     setLoading(true);
 
+    // Send message to Flask server for chat responses
     try {
-      // Send message to Flask server
       const response = await axios.post('http://localhost:5000/chat', { message: newMessage });
       const botMessage = response.data.response;
-
-      // Add bot response to chat
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, something went wrong." }]);
     } finally {
-      // Reset loading state
       setLoading(false);
     }
 

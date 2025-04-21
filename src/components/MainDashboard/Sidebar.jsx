@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 import ChatbotPopup from '../popups/ChatbotPopup0';
@@ -18,7 +18,6 @@ const Sidebar = ({
   selectedBasemap,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  // Remove the local isDarkTheme state since we're using context now
   const [showReferenceMapDropdown, setShowReferenceMapDropdown] =
     useState(false);
   const [showHazardsDropdown, setShowHazardsDropdown] = useState(false);
@@ -32,9 +31,24 @@ const Sidebar = ({
   const [activeTab, setActiveTab] = useState('myProfile');
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [progress, setProgress] = useState(0);
-
+  const [profileButtonLabel, setProfileButtonLabel] = useState('Profile'); // Default label
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        // Assuming your user object has 'username' or you want to extract it from 'email'
+        setProfileButtonLabel(user.username || user.email.split('@')[0]);
+      } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+      }
+    } else {
+      setProfileButtonLabel('Profile'); // Revert to default if no user is logged in
+    }
+  }, []); // Empty dependency array ensures this runs only once after the initial render
 
   const toggleProfileDropdown = () => {
     setShowProfileDropdown(!showProfileDropdown);
@@ -57,9 +71,10 @@ const Sidebar = ({
 
   const handleLogout = () => {
     localStorage.removeItem("user"); // Clear saved user info
+    setProfileButtonLabel('Profile'); // Reset the label
     navigate('/'); // Or navigate to login page
   };
-  
+
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -244,7 +259,7 @@ const Sidebar = ({
                 "https://qcu.edu.ph/?fbclid=IwY2xjawJqGfhleHRuA2FlbQIxMAABHlQrpclt2omBojSeDImG_tAXeoX4643Oz8WlTt0C9kCvoCzi1SYwV5OgnRZx_aem_5l8tLSQIhv7rVRESot0QPQ",
                 "_blank"
               )
-          }
+            }
             style={{ cursor: "pointer" }}
           >
             <img src="/icons/qcu.webp" alt="QCU" />
@@ -258,7 +273,7 @@ const Sidebar = ({
                 "https://www.facebook.com/PAGASA.DOST.GOV.PH/",
                 "_blank"
               )
-          }
+            }
             style={{ cursor: "pointer" }}
           >
             <img src="/icons/pagasa.png" alt="PAGASA" />
@@ -313,7 +328,7 @@ const Sidebar = ({
           </button>
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <img src="/icons/profile.png" alt="Profile" />
-            <span>Profile</span>
+            <span>{profileButtonLabel}</span> {/* Use the state for the label */}
             <img
               src="/icons/dropdown0.png"
               alt="Expand"

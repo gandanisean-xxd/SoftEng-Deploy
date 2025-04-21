@@ -92,16 +92,16 @@ body{
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
     position: relative;
     overflow: hidden;
-    width: 768px;
+    width: 780px;
     max-width: 100%;
-    min-height: 480px;
+    min-height: 500px;
 }
 
 .container p{
     font-size: 14px;
     line-height: 20px;
     letter-spacing: 0.3px;
-    margin: 20px 0;
+    margin: 5px 0;
 }
 
 .container span{
@@ -154,7 +154,7 @@ body{
     border: var(--result-panel-border);
     background-color: var(--input-bg);
     color: var(--text-primary);
-    margin: 8px 0;
+    margin: 5px 0;
     padding: 10px 15px;
     font-size: 14px;
     border-radius: 8px;
@@ -496,7 +496,9 @@ input::placeholder {
 }
 
 .successIcon {
-  margin-bottom: 15px;
+  height: 35px;
+  width: 35px;
+  margin-bottom: 10px;
   animation: scaleIn 0.5s ease-out;
 }
 
@@ -595,4 +597,69 @@ input::placeholder {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+
+/* Add these styles to your LoginRegister.module.css file */
+
+.errorMessage {
+  color: #ff3333;
+  font-size: 0.85rem;
+  text-align: left;
+  width: 100%;
+  padding-left: 5px;
+}
+
+.successPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.successPopup {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  width: 320px;
+  color: var(--text-primary);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.successHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.successIcon {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+}
+
+.successButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.successButton:hover {
+  background-color: #3e8e41;
 }

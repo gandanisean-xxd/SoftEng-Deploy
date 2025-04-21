@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginRegister from "./LoginRegister";
@@ -11,84 +12,98 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Add this state for login status
+  const [userInfo, setUserInfo] = useState(null); // Add this to store user info
   const searchDebounceRef = useRef(null);
   const suggestionBoxRef = useRef(null);
   const navigate = useNavigate();
-  
+
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
   const featuresRef = useRef(null);
   const contactRef = useRef(null);
-  
+
+  // New state for logout confirmation popup
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+  // Check login status on component mount
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsLoggedIn(true);
+      setUserInfo(JSON.parse(user));
+    }
+  }, []);
+
  // Improved display name formatting to show specific locations
 const formatDisplayName = (place) => {
   if (!place) return "";
 
   const addr = place.address || {};
-  
+
   // If the place has a name that's different from the raw location name
   // use that as the primary identifier (like "Cubao Baptist Church")
   let primaryName = place.name || "";
-  
+
   // If the place type indicates a specific point of interest
-  if (place.type === 'amenity' || 
-      place.type === 'shop' || 
+  if (place.type === 'amenity' ||
+      place.type === 'shop' ||
       place.type === 'building' ||
       place.type === 'leisure' ||
       place.type === 'office' ||
       place.type === 'education' ||
       place.class === 'amenity' ||
       place.class === 'building') {
-    
+
     // For specific locations like churches, schools, etc.
     let specificLocation = primaryName;
-    
+
     // Add street address if available
     if (addr.road || addr.street) {
       const streetName = addr.road || addr.street;
       const streetNumber = addr.house_number || '';
-      
+
       if (streetNumber && streetName) {
         specificLocation += `, ${streetNumber} ${streetName}`;
       } else if (streetName) {
         specificLocation += `, ${streetName}`;
       }
     }
-    
+
     // Add neighborhood/district and city
     const district = addr.suburb || addr.neighbourhood || addr.district || '';
     const city = addr.city || addr.town || addr.village || addr.municipality || '';
-    
+
     if (district && !specificLocation.includes(district)) {
       specificLocation += `, ${district}`;
     }
-    
+
     if (city && !specificLocation.includes(city)) {
       specificLocation += `, ${city}`;
     }
-    
+
     // Add region/province and country code
     const region = addr.state || addr.province || '';
-    
+
     if (region && !specificLocation.includes(region)) {
       specificLocation += `, ${region}`;
     }
-    
+
     if (addr.country_code && addr.country_code.toUpperCase() === 'PH') {
       specificLocation += ', PHL';
     }
-    
+
     return specificLocation;
-  } 
+  }
   // For general locations (not specific POIs)
   else {
     let locationName = '';
-    
+
     // For administrative units like cities, towns, etc.
     if (addr.city || addr.town || addr.village || addr.municipality) {
       locationName = addr.suburb || addr.neighbourhood || addr.district || primaryName;
       const cityName = addr.city || addr.town || addr.village || addr.municipality;
-      
+
       if (!locationName.includes(cityName)) {
         locationName += `, ${cityName}`;
       }
@@ -96,17 +111,17 @@ const formatDisplayName = (place) => {
       // If no city info, use the primary name
       locationName = primaryName;
     }
-    
+
     // Add region and country
     const region = addr.state || addr.province || '';
     if (region && !locationName.includes(region)) {
       locationName += `, ${region}`;
     }
-    
+
     if (addr.country_code && addr.country_code.toUpperCase() === 'PH') {
       locationName += ', PHL';
     }
-    
+
     return locationName;
   }
 };
@@ -116,7 +131,7 @@ const fetchSuggestions = async (query) => {
     setSuggestions([]);
     return;
   }
-  
+
   try {
     // First search with standard parameters
     const params = new URLSearchParams({
@@ -130,10 +145,10 @@ const fetchSuggestions = async (query) => {
       dedupe: 1,
       namedetails: 1
     });
-    
+
     const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
     const data = await response.json();
-    
+
     // For longer queries, add an extended search focused on POIs
     if (query.length >= 3) {
       const extendedParams = new URLSearchParams({
@@ -145,10 +160,10 @@ const fetchSuggestions = async (query) => {
         // Look specifically for amenities to get places like schools, churches, etc.
         featuretype: 'amenity building shop office leisure education'
       });
-      
+
       const extendedResponse = await fetch(`https://nominatim.openstreetmap.org/search?${extendedParams}`);
       const extendedData = await extendedResponse.json();
-      
+
       // Combine results and filter duplicates
       const combinedResults = [...data];
       extendedData.forEach(newItem => {
@@ -162,32 +177,32 @@ const fetchSuggestions = async (query) => {
         ...place,
         formatted_name: formatDisplayName(place)
       }));
-      
+
       // Filter out results without good location data and remove duplicates by name
       const nameSet = new Set();
       const validSuggestions = formattedResults.filter(item => {
         if (!item.formatted_name || !item.lat || !item.lon) return false;
-        
+
         // Prevent duplicate formatted names
         if (nameSet.has(item.formatted_name)) return false;
         nameSet.add(item.formatted_name);
-        
+
         return true;
       });
-      
+
       // Sort by relevance but prioritize specific locations
       validSuggestions.sort((a, b) => {
         // Prioritize specific places first
         const aIsSpecific = a.type === 'amenity' || a.class === 'amenity' || a.class === 'building';
         const bIsSpecific = b.type === 'amenity' || b.class === 'amenity' || b.class === 'building';
-        
+
         if (aIsSpecific && !bIsSpecific) return -1;
         if (!aIsSpecific && bIsSpecific) return 1;
-        
+
         // Then sort by importance
         return (b.importance || 0.5) - (a.importance || 0.5);
       });
-      
+
       // Limit to reasonable number
       setSuggestions(validSuggestions.slice(0, 10));
     } else {
@@ -196,18 +211,18 @@ const fetchSuggestions = async (query) => {
         ...place,
         formatted_name: formatDisplayName(place)
       }));
-      
+
       // Remove duplicates
       const nameSet = new Set();
       const validSuggestions = formattedResults.filter(item => {
         if (!item.formatted_name || !item.lat || !item.lon) return false;
-        
+
         if (nameSet.has(item.formatted_name)) return false;
         nameSet.add(item.formatted_name);
-        
+
         return true;
       });
-      
+
       validSuggestions.sort((a, b) => (b.importance || 0.5) - (a.importance || 0.5));
       setSuggestions(validSuggestions.slice(0, 10));
     }
@@ -231,23 +246,23 @@ const handleInputChange = (e) => {
     fetchSuggestions(value);
   }, 300);
 };
-  
+
   const handleScroll = () => {
     const scrollPosition = window.scrollY;
     const windowHeight = window.innerHeight;
     const viewportMiddle = scrollPosition + (windowHeight / 2);
-    
+
     // Get the positions of each section
     if (aboutRef.current && featuresRef.current && contactRef.current) {
       const aboutPosition = aboutRef.current.getBoundingClientRect().top + scrollPosition;
       const featuresPosition = featuresRef.current.getBoundingClientRect().top + scrollPosition;
       const contactPosition = contactRef.current.getBoundingClientRect().top + scrollPosition;
-      
+
       // Determine the visible section based on their actual positions
       const aboutHeight = aboutRef.current.offsetHeight;
       const featuresHeight = featuresRef.current.offsetHeight;
       const contactHeight = contactRef.current.offsetHeight;
-      
+
       // Check which section contains the middle of the viewport
       if (viewportMiddle >= contactPosition && viewportMiddle <= contactPosition + contactHeight) {
         setActiveSection('contact');
@@ -258,14 +273,14 @@ const handleInputChange = (e) => {
       }
     }
   };
-  
+
   // Add scroll event listener
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
-    
+
     // Initial check
     handleScroll();
-    
+
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -275,7 +290,7 @@ const handleInputChange = (e) => {
       }
     };
   }, []);
-  
+
   // Close suggestion box when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -288,20 +303,51 @@ const handleInputChange = (e) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const scrollToSection = (ref, section) => {
     setActiveSection(section);
     ref.current.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleLoginClick = () => {
-    setShowLoginRegister(true);
+    if (isLoggedIn) {
+      // Show logout confirmation
+      setShowLogoutPopup(true);
+    } else {
+      // Show login modal
+      setShowLoginRegister(true);
+    }
   };
 
-  const handleCloseModal = () => {
-    setShowLoginRegister(false);
+  const handleLogoutConfirm = () => {
+    // Handle actual logout
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setUserInfo(null);
+    setShowLogoutPopup(false);
+    // Show logout success message (optional, can be a small notification)
+    alert("You have been logged out successfully");
   };
-  
+
+  const handleLogoutCancel = () => {
+    // Cancel logout
+    setShowLogoutPopup(false);
+  };
+
+  const handleCloseModal = (loggedInStatus = false) => {
+    setShowLoginRegister(false);
+
+    // Check if user logged in from the modal
+    if (loggedInStatus) {
+      setIsLoggedIn(true);
+      // Get user info from localStorage
+      const user = localStorage.getItem("user");
+      if (user) {
+        setUserInfo(JSON.parse(user));
+      }
+    }
+  };
+
   const handleLocationClick = () => {
     navigate('/map');
     setTimeout(() => {
@@ -314,10 +360,10 @@ const handleInputChange = (e) => {
   const handleSuggestionClick = (place) => {
     setSearchQuery(place.formatted_name || place.display_name);
     setSuggestions([]);
-    
+
     // Navigate to map page with the selected location
     navigate('/map');
-      
+
     // Allow time for the map component to load before triggering the search
     setTimeout(() => {
       if (window.searchLocationFunction) {
@@ -328,10 +374,10 @@ const handleInputChange = (e) => {
 
   const handleSearch = async () => {
     if (searchQuery.trim() === "") return;
-    
+
     setIsSearching(true);
     setSuggestions([]); // clear suggestions
-    
+
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}` +
@@ -339,14 +385,14 @@ const handleInputChange = (e) => {
         `&viewbox=116.95,4.6,126.6,18.2` +
         `&bounded=1`
       );
-      
+
       const data = await response.json();
-      
+
       if (data.length > 0) {
         const { lat, lon } = data[0];
         // Navigate to map page
         navigate('/map');
-        
+
         // Allow time for the map component to load before triggering the search
         setTimeout(() => {
           if (window.searchLocationFunction) {
@@ -404,21 +450,21 @@ const handleInputChange = (e) => {
     },
   ];
 
-   // Form state for contact form
-   const [formData, setFormData] = useState({
+    // Form state for contact form
+    const [formData, setFormData] = useState({
     name: '',
     role: '',
     email: '',
     message: ''
   });
-  
+
   // Add formStatus state
   const [formStatus, setFormStatus] = useState({
     submitted: false,
     error: false,
     message: ''
   });
-  
+
   // Create the form reference
   const form = useRef();
 
@@ -433,7 +479,7 @@ const handleInputChange = (e) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormStatus({ submitted: false, error: false, message: 'Sending message...' });
-  
+
     // Prepare the template variables for email content
     const templateParams = {
       name: formData.name,
@@ -441,7 +487,7 @@ const handleInputChange = (e) => {
       email: formData.email,
       message: formData.message
     };
-  
+
     // Send the email to the user
     emailjs.send(
       'service_iysc2g7', // Your EmailJS service ID
@@ -463,6 +509,7 @@ const handleInputChange = (e) => {
         email: '',
         message: ''
       });
+
     }, (error) => {
       console.error('Failed to send email:', error.text);
       setFormStatus({
@@ -472,12 +519,48 @@ const handleInputChange = (e) => {
       });
     });
   };
-  
-  
-  
+
+
   return (
     <div className="home-container">
-      {/* Header Section - Updated with navigation */}
+{/* Logout Confirmation Popup */}
+{showLogoutPopup && (
+  <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+    <div className="modal-content" style={{ 
+      width: '370px', 
+      color: 'var(--text-primary)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center'
+    }}>
+      <p>Are you sure you want to logout?</p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-around', 
+        marginTop: '10px' // Reduced from 20px to 10px for better fit
+      }}>
+        <button onClick={handleLogoutConfirm} style={{ 
+          backgroundColor: '#d32f2f', 
+          color: 'white', 
+          border: 'none', 
+          padding: '10px 20px', 
+          borderRadius: '5px', 
+          cursor: 'pointer' 
+        }}>Yes, Logout</button>
+        <button onClick={handleLogoutCancel} style={{ 
+          backgroundColor: '#4caf50', 
+          color: 'white', 
+          border: 'none', 
+          padding: '10px 20px', 
+          borderRadius: '5px', 
+          cursor: 'pointer' 
+        }}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
+
+      {/* Header Section - Updated login button text */}
       <header className={`home-header ${headerScrolled ? 'scrolled' : ''}`}>
         <div className="header-content">
           <div className="home-logo-container">
@@ -487,62 +570,66 @@ const handleInputChange = (e) => {
               <p className="home-subtitle">Shaping Sustainable Urban Landscapes</p>
             </div>
           </div>
-          
+
           <div className="header-navigation">
-            <button 
-              onClick={() => scrollToSection(aboutRef, 'about')} 
+            <button
+              onClick={() => scrollToSection(aboutRef, 'about')}
               className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}
             >
               About
             </button>
-            <button 
-              onClick={() => scrollToSection(featuresRef, 'features')} 
+            <button
+              onClick={() => scrollToSection(featuresRef, 'features')}
               className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
             >
               Features
             </button>
-            <button 
-              onClick={() => scrollToSection(contactRef, 'contact')} 
+            <button
+              onClick={() => scrollToSection(contactRef, 'contact')}
               className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}
             >
               Contact
             </button>
             <button className="home-login-button" onClick={handleLoginClick}>
-              <img src="/icons/login.png" alt="Login" className="home-login-icon" />
-              Login
+              <img
+                src={isLoggedIn ? "/icons/login.png" : "/icons/login.png"}
+                alt={isLoggedIn ? "Logout" : "Login"}
+                className="home-login-icon"
+              />
+              {isLoggedIn ? "Logout" : "Login"}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Login/Register Modal */}
+      {/* Login/Register Modal with updated props */}
       {showLoginRegister && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button className="close-button" onClick={handleCloseModal}>
+            <button className="close-button" onClick={() => handleCloseModal(false)}>
               &times;
             </button>
-            <LoginRegister />
+            <LoginRegister closeModal={handleCloseModal} />
           </div>
         </div>
       )}
-    
+
       {/* Hero Section */}
       <div className="hero-section">
         <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
         <div className="overlay">
           <div className="side-search-container">
             <div className="side-search-wrapper" ref={suggestionBoxRef}>
-              <input 
-                type="text" 
-                placeholder="Type a location" 
+              <input
+                type="text"
+                placeholder="Type a location"
                 className="side-search-input"
                 value={searchQuery}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
                 disabled={isSearching}
               />
-              <button 
+              <button
                 className="side-search-button"
                 onClick={handleSearch}
                 disabled={isSearching}
@@ -553,7 +640,7 @@ const handleInputChange = (e) => {
                   <img src="/icons/search.png" alt="Search" />
                 )}
               </button>
-              
+
               {/* Suggestions dropdown */}
               {suggestions.length > 0 && (
                 <ul className="suggestions-list">
@@ -572,7 +659,7 @@ const handleInputChange = (e) => {
           </div>
 
           <div className="buttons-container">
-            <button 
+            <button
               className="location-button"
               data-tooltip="Get your real-time location and navigate easily"
               onClick={handleLocationClick}
@@ -580,8 +667,8 @@ const handleInputChange = (e) => {
               <img src="/icons/currentlocation1.png" alt="Current Location" />
               Current Location
             </button>
-            <button 
-              className="mapview-button" 
+            <button
+              className="mapview-button"
               onClick={() => navigate("/map")}
               data-tooltip="See More Features"
             >
@@ -654,7 +741,7 @@ const handleInputChange = (e) => {
         <div ref={featuresRef} className="features-section">
           <div className="features-container">
             <h2 className="features-title">FEATURES</h2>
-            
+
             <div className="features-grid">
               {features.map((feature, index) => (
                 <div key={index} className="feature-card">
@@ -678,97 +765,97 @@ const handleInputChange = (e) => {
           </p>
 
           <div className="contact-container">
-          {/* Contact form */}
-          <div className="contact-form-container">
-            <form ref={form} onSubmit={handleSubmit} className="contact-form" id="contact-form">
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">
-                  Name<span className="required">*</span>
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleFormInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="role" className="form-label">
-                  Role<span className="required">*</span>
-                </label>
-                <input
-                  id="role"
-                  name="role" 
-                  type="text"
-                  value={formData.role}
-                  onChange={handleFormInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">
-                  Email<span className="required">*</span>
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleFormInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">
-                  Message <span className="optional">(optional)</span>
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleFormInputChange}
-                  className="form-textarea"
-                />
-              </div>
-
-              {formStatus.message && (
-                <div className={`form-status ${formStatus.error ? 'error' : 'success'}`}>
-                  {formStatus.message}
+            {/* Contact form */}
+            <div className="contact-form-container">
+              <form ref={form} onSubmit={handleSubmit} className="contact-form" id="contact-form">
+                <div className="form-group">
+                  <label htmlFor="name" className="form-label">
+                    Name<span className="required">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleFormInputChange}
+                    className="form-input"
+                    required
+                  />
                 </div>
-              )}
 
-              <div className="form-submit">
-                <button 
-                  type="submit" 
-                  className="submit-button"
-                  disabled={formStatus.submitted && !formStatus.error}
-                >
-                  {formStatus.submitted && !formStatus.error ? 'Sent' : 'Submit'}
-                </button>
-              </div>
-            </form>
-          </div>
+                <div className="form-group">
+                  <label htmlFor="role" className="form-label">
+                    Role<span className="required">*</span>
+                  </label>
+                  <input
+                    id="role"
+                    name="role"
+                    type="text"
+                    value={formData.role}
+                    onChange={handleFormInputChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">
+                    Email<span className="required">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleFormInputChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="message" className="form-label">
+                    Message <span className="optional">(optional)</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleFormInputChange}
+                    className="form-textarea"
+                  />
+                </div>
+
+                {formStatus.message && (
+                  <div className={`form-status ${formStatus.error ? 'error' : 'success'}`}>
+                    {formStatus.message}
+                  </div>
+                )}
+
+                <div className="form-submit">
+                  <button
+                    type="submit"
+                    className="submit-button"
+                    disabled={formStatus.submitted && !formStatus.error}
+                  >
+                    {formStatus.submitted && !formStatus.error ? 'Sent' : 'Submit'}
+                  </button>
+                </div>
+              </form>
+            </div>
 
             {/* Contact info */}
             <div className="contact-info">
               <div className="contact-details">
                 <h3 className="contact-info-title">Get in Touch</h3>
-                
+
                 <div className="contact-item">
                   <span className="contact-item-icon">
                     <img src="/icons/phone.png" alt="Logo" className="phone-icon" />
                   </span>
                   <p className="contact-item-text">123-456-789</p>
                 </div>
-                
+
                 <div className="contact-item">
                   <span className="contact-item-icon">
                     <img src="/icons/mail.png" alt="Email" className="email-icon" />
@@ -787,11 +874,11 @@ const handleInputChange = (e) => {
               </div>
             </div>
           </div>
-        </div>  
+        </div>
       </div>
       <div className="copyright">
-              <p>&copy; AI-DrivenGIS</p>
-            </div>
+        <p>&copy; AI-DrivenGIS</p>
+      </div>
     </div>
   );
 };

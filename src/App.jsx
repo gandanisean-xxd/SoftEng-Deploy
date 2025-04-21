@@ -20,6 +20,24 @@ function App() {
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
+  // Check for login status on app mount
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsLoggedIn(true);
+      setUserInfo(JSON.parse(user));
+    }
+  }, []);
+
+  // Function to handle logout across the app
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setUserInfo(null);
+  };
 
   const handleLocate = () => {
     setLocateTrigger((prev) => prev + 1);
@@ -33,10 +51,23 @@ function App() {
     // Expose search location function to window object
     window.searchLocationFunction = setSearchLocation;
 
+    // Expose login state functions
+    window.loginUser = (user) => {
+      setIsLoggedIn(true);
+      setUserInfo(user);
+      localStorage.setItem("user", JSON.stringify(user));
+    };
+    
+    window.logoutUser = () => {
+      handleLogout();
+    };
+
     // Clean up when component unmounts
     return () => {
       delete window.triggerLocateFunction;
       delete window.searchLocationFunction;
+      delete window.loginUser;
+      delete window.logoutUser;
     };
   }, []);
 
@@ -49,7 +80,20 @@ function App() {
   };
 
   const toggleLoginPopup = () => {
-    setShowLoginPopup(!showLoginPopup);
+    if (isLoggedIn) {
+      // Handle logout
+      handleLogout();
+      alert("You have been logged out successfully");
+    } else {
+      // Show login popup
+      setShowLoginPopup(!showLoginPopup);
+    }
+  };
+
+  const handleLoginSuccess = (user) => {
+    setIsLoggedIn(true);
+    setUserInfo(user);
+    setShowLoginPopup(false);
   };
 
   const handleBasemapChange = (basemap) => {
@@ -70,6 +114,10 @@ function App() {
             <Home
               showLoginPopup={showLoginPopup}
               toggleLoginPopup={toggleLoginPopup}
+              onLoginSuccess={handleLoginSuccess}
+              isLoggedIn={isLoggedIn}
+              handleLogout={handleLogout}
+              userInfo={userInfo}
             />
           }
         />
@@ -86,6 +134,9 @@ function App() {
                 updateSidebarState={setIsSidebarCollapsed}
                 onBasemapChange={handleBasemapChange}
                 selectedBasemap={selectedBasemap}
+                isLoggedIn={isLoggedIn}
+                userInfo={userInfo}
+                handleLogout={handleLogout}
               />
               <div className="main-content">
                 <MapComponent
@@ -128,7 +179,7 @@ function App() {
         {/* Add Admin Dashboard Route */}
         <Route 
           path="/admin-dashboard/*" 
-          element={<AdminDashboard />} 
+          element={<AdminDashboard isLoggedIn={isLoggedIn} userInfo={userInfo} handleLogout={handleLogout} />} 
         />
       </Routes>
     </Router>

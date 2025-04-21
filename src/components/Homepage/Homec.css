@@ -132,6 +132,57 @@
   margin: 0;
 }
 
+
+/* Style for the logout icon */
+.home-login-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  filter: brightness(0) invert(1); /* White color for the icon */
+}
+
+/* Animation for login/logout transition */
+.home-login-button {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Different style when logged in */
+.home-login-button.logged-in {
+  background-color: #f44336; /* Red for logout */
+}
+
+/* Hover effect for logout */
+.home-login-button.logged-in:hover {
+  background-color: #d32f2f; /* Darker red */
+}
+
+/* Tooltip for user info when logged in */
+.user-info-tooltip {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.user-info-tooltip p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.user-info-tooltip .user-email {
+  font-weight: bold;
+}
+
+.user-info-tooltip .user-role {
+  color: #555;
+  font-style: italic;
+}
+
 .home-login-button {
   background-color: #41AB5D;
   color: white;
@@ -423,7 +474,7 @@
   position: relative;
   width: 768px;
   max-width: 90%;
-  min-height: 480px;
+  min-height: 150px;
   overflow: hidden;
 }
 

@@ -8,21 +8,30 @@ import { jwtDecode } from "jwt-decode";
 
 
 const LoginRegister = ({ closeModal }) => {
-  const navigate = useNavigate(); // Add this for navigation
+  const navigate = useNavigate();
   const [isActive, setIsActive] = useState(false);
   const [isAdminLogin, setIsAdminLogin] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState(''); 
-  
+  const [role, setRole] = useState('');
+
+  // Error states
+  const [loginError, setLoginError] = useState('');
+  const [registerError, setRegisterError] = useState('');
+  const [adminLoginError, setAdminLoginError] = useState('');
+
+  // Success message state
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
   // Separate states for admin and regular login
   const [adminCredentials, setAdminCredentials] = useState({
     username: '',
     password: ''
   });
-  
+
   const [userCredentials, setUserCredentials] = useState({
     email:'',
     password: '',
@@ -37,6 +46,18 @@ const LoginRegister = ({ closeModal }) => {
     confirmPassword: false
   });
 
+  // State for the Admin button label
+  const [adminButtonLabel, setAdminButtonLabel] = useState('Admin');
+  // State for the Toggle Container content
+  const [toggleContainerContent, setToggleContainerContent] = useState({
+    leftTitle: 'Welcome!',
+    leftDescription: 'Enter your personal details to use all of site features',
+    leftButtonText: 'Sign In',
+    rightTitle: 'Hey!',
+    rightDescription: 'Register with your personal details to use all of site features',
+    rightButtonText: 'Sign Up'
+  });
+
   const togglePasswordVisibility = (field) => {
     setShowPassword(prev => ({
       ...prev,
@@ -46,77 +67,150 @@ const LoginRegister = ({ closeModal }) => {
 
   const toggleForm = () => {
     setIsActive(!isActive);
+    // Clear error messages when switching forms
+    setLoginError('');
+    setRegisterError('');
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-
-  try {
-    const res = await axios.post("http://localhost:5000/login", userCredentials);
-
-    if (res.data.success) {
-      // Save user info (email, role, etc.)
-      localStorage.setItem("user", JSON.stringify({
-        email: res.data.email,
-        role: res.data.role
-      }));
-      console.log("From localStorage:", JSON.parse(localStorage.getItem("user")));
-      alert("Login successful!");
-      navigate("/map"); // or reload: window.location.reload();
-    } else {
-      alert(res.data.message || "Login failed");
-    }
-  } catch (err) {
-    alert("Error logging in");
-    console.error("Login error:", err);
-  }
-};
-
-
-  const handleRegister = (e) => {
     e.preventDefault();
-  
+    setLoginError(''); // Clear previous errors
+
+    try {
+      const res = await axios.post("http://localhost:5000/login", userCredentials);
+
+      if (res.data.success) {
+        // Save user info (email, role, etc.)
+        localStorage.setItem("user", JSON.stringify({
+          email: res.data.email,
+          role: res.data.role
+        }));
+
+        // Show success popup instead of alert
+        setSuccessMessage("Login successful!");
+        setShowSuccessPopup(true);
+
+        // Clear form fields
+        setUserCredentials({
+          email: '',
+          password: '',
+          role: ''
+        });
+
+        // Close the modal with login status after a delay
+        setTimeout(() => {
+          closeModal(true); // Pass true to indicate successful login
+        }, 2000);
+      } else {
+        setLoginError(res.data.message || "Invalid email or password");
+      }
+    } catch (err) {
+      setLoginError("Invalid email or password");
+      console.error("Login error:", err);
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setRegisterError(''); // Clear previous errors
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setRegisterError("Passwords do not match!");
       return;
     }
-  
+
     const userData = {
       email,
       password,
       role
     };
-  
-    axios.post('http://localhost:5000/register', userData)
-      .then(result => {
-        console.log("Register result:", result.data);
-        alert("Registration successful!");
-        navigate('/');
-      })
-      .catch(err => console.log("Register error:", err));
-  };
-  
-  
 
-  const handleAdminLogin = (e) => {
+    try {
+      const result = await axios.post('http://localhost:5000/register', userData);
+      console.log("Register result:", result.data);
+
+      // Show success popup
+      setSuccessMessage("Registration successful!");
+      setShowSuccessPopup(true);
+
+      // Clear form
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setRole('');
+
+      // We don't auto-login after registration
+    } catch (err) {
+      console.log("Register error:", err);
+      setRegisterError(err.response?.data?.message || "Registration failed. Please try again.");
+    }
+  };
+
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
-    console.log("Admin login:", adminCredentials);
-    
-    // Check admin credentials (replace with actual authentication logic)
-    if (adminCredentials.username && adminCredentials.password) {
-      // Navigate to admin dashboard on successful login
-      navigate("/admin-dashboard");
-    } else {
-      // Show error message (you can add a state for this)
-      alert("Invalid admin credentials");
+    setAdminLoginError(''); // Clear previous errors
+
+    try {
+      // Replace with actual admin authentication logic
+      if (adminCredentials.username && adminCredentials.password) {
+        // For demo purposes - in real app, you'd verify credentials with server
+        if (adminCredentials.username === "admin" && adminCredentials.password === "password") {
+          // Store admin login info
+          localStorage.setItem("user", JSON.stringify({
+            email: adminCredentials.username,
+            role: "admin"
+          }));
+
+          // Show success popup
+          setSuccessMessage("Admin login successful!");
+          setShowSuccessPopup(true);
+
+          // Navigate to admin dashboard after dismissing popup
+          setTimeout(() => {
+            navigate("/admin-dashboard");
+            closeModal(true); // Pass true to indicate successful login
+          }, 2000);
+        } else {
+          setAdminLoginError("Invalid admin credentials");
+        }
+      } else {
+        setAdminLoginError("Please enter both username and password");
+      }
+    } catch (error) {
+      setAdminLoginError("Error logging in");
+      console.error("Admin login error:", error);
     }
   };
 
   const toggleAdminMode = () => {
     setIsAdminLogin(!isAdminLogin);
-    // Clear inputs when switching modes
+    // Clear inputs and errors when switching modes
     setAdminCredentials({ username: '', password: '' });
-    setUserCredentials({ username: '', password: '' });
+    setUserCredentials({ email: '', password: '', role: '' });
+    setLoginError('');
+    setAdminLoginError('');
+    // Toggle the label of the Admin button
+    setAdminButtonLabel(prevLabel => prevLabel === 'Admin' ? 'User' : 'Admin');
+    // Update Toggle Container content for Admin mode
+    setToggleContainerContent(prevContent => ({
+      leftTitle: 'Admin Access',
+      leftDescription: 'Enter your admin credentials to proceed',
+      leftButtonText: 'Sign In',
+      rightTitle: 'Not an Admin?',
+      rightDescription: 'Switch back to user login',
+      rightButtonText: 'Switch to User'
+    }));
+    // If switching back to user mode, revert the toggle container content
+    if (isAdminLogin) {
+      setToggleContainerContent({
+        leftTitle: 'Welcome!',
+        leftDescription: 'Enter your personal details to use all of site features',
+        leftButtonText: 'Sign In',
+        rightTitle: 'Hey!',
+        rightDescription: 'Register with your personal details to use all of site features',
+        rightButtonText: 'Sign Up'
+      });
+    }
   };
 
   const handleAdminChange = (e) => {
@@ -143,146 +237,177 @@ const LoginRegister = ({ closeModal }) => {
     setShowForgotPassword(false);
   };
 
+  const closeSuccessPopup = () => {
+    setShowSuccessPopup(false);
+
+    // Check if we have a logged in user
+    const user = localStorage.getItem("user");
+    if (user) {
+      closeModal(true); // Close with login status = true
+    }
+  };
+
+  const handleGoogleSuccess = (credentialResponse) => {
+    const credentialResponseDecoded = jwtDecode(credentialResponse.credential);
+
+    fetch("http://localhost:5000/auth/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(credentialResponseDecoded)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("User saved or found:", data);
+
+      // Store user data in localStorage
+      localStorage.setItem("user", JSON.stringify({
+        email: credentialResponseDecoded.email,
+        name: credentialResponseDecoded.name,
+        role: "user" // Default role for Google sign-in
+      }));
+
+      // Show success message
+      setSuccessMessage("Google sign-in successful!");
+      setShowSuccessPopup(true);
+
+      // Close modal with login status after delay
+      setTimeout(() => {
+        closeModal(true); // Pass true to indicate successful login
+      }, 2000);
+    })
+    .catch(err => {
+      console.error("Error saving Google user:", err);
+      setLoginError("Google sign-in failed");
+    });
+  };
+
   return (
     <>
       <div className={`${styles.container} ${isActive ? styles.active : ""}`} id="container">
-      <button 
-        className={styles.adminBtn0}
-        onClick={toggleAdminMode}
-      >
-        <img 
-          src="/icons/profile.png"
-          alt="Admin login" 
-          className={styles.adminIcon0}
-        />
-        <span className={styles.adminLabel}>Admin</span>
-      </button>
+        <button
+          className={styles.adminBtn0}
+          onClick={toggleAdminMode}
+        >
+          <img
+            src="/icons/profile.png"
+            alt={adminButtonLabel === 'Admin' ? "Admin login" : "User login"}
+            className={styles.adminIcon0}
+          />
+          <span className={styles.adminLabel}>{adminButtonLabel}</span>
+        </button>
 
         {/* Sign Up Form */}
         <div className={`${styles.formContainer} ${styles.signUp}`}>
           <form onSubmit={handleRegister}>
             <h1>Create Account</h1>
             <button type="button" className={styles.googleBtn}>
-            <GoogleLogin
-                  onSuccess={credentialResponse => {
-                    const credentialResponseDecoded = jwtDecode(
-                    credentialResponse.credential
-                    );
-                    fetch("http://localhost:5000/auth/google", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json"
-                      },
-                      body: JSON.stringify(credentialResponseDecoded)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                      console.log("User saved or found:", data);
-                    })
-                    .catch(err => {
-                      console.error("Error saving Google user:", err);
-                    });                    
-                    console.log(credentialResponseDecoded);
-                    navigate('/map');
-                  }}
-                  onError={() => {
-                    console.log('Google Sign Up failed');
-                  }}
-                  render={renderProps => (
+              <GoogleLogin
+                onSuccess={credentialResponse => {
+                  handleGoogleSuccess(credentialResponse);
+                }}
+                onError={() => {
+                  setRegisterError('Google Sign Up failed');
+                }}
+                render={renderProps => (
                   <button
                     onClick={renderProps.onClick}
                     disabled={renderProps.disabled}
                     type="button"
                     className={`${styles.googleBtn} ${styles.customGoogle}`}
                   >
-                  <img 
-                    src="/icons/google.webp" 
-                    alt="Google logo" 
-                    className={styles.googleIcon}
-                  />
-                  Sign up with Google
-                </button>
-              )}
-            />
+                    <img
+                      src="/icons/google.webp"
+                      alt="Google logo"
+                      className={styles.googleIcon}
+                    />
+                    Sign up with Google
+                  </button>
+                )}
+              />
             </button>
             <div className={styles.divider}>
               <span>OR</span>
             </div>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
+            <input
+              type="email"
+              id="email"
+              name="email"
               value={email}
-              placeholder="Email Address" 
+              placeholder="Email Address"
               onChange={(e) => setEmail(e.target.value)}
-              required 
+              required
             />
 
             <div className={styles.passwordWrapper}>
-              <input 
-                type={showPassword.registerPassword ? "text" : "password"} 
-                id="password" 
-                name="password" 
-                placeholder="Password" 
+              <input
+                type={showPassword.registerPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required 
+                required
                 className={styles.largerDots}
               />
-              <button 
-                type="button" 
-                className={styles.togglePassword} 
+              <button
+                type="button"
+                className={styles.togglePassword}
                 onClick={() => togglePasswordVisibility('registerPassword')}
               >
-                {showPassword.registerPassword ? 
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> : 
+                {showPassword.registerPassword ?
+                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
                   <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
                 }
               </button>
             </div>
             <div className={styles.passwordWrapper}>
-              <input 
-                type={showPassword.confirmPassword ? "text" : "password"} 
-                id="confirm_password" 
-                name="confirm_password" 
-                placeholder="Confirm Password" 
+              <input
+                type={showPassword.confirmPassword ? "text" : "password"}
+                id="confirm_password"
+                name="confirm_password"
+                placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                required 
+                required
                 className={styles.largerDots}
               />
-              <button 
-                type="button" 
-                className={styles.togglePassword} 
+              <button
+                type="button"
+                className={styles.togglePassword}
                 onClick={() => togglePasswordVisibility('confirmPassword')}
               >
-                {showPassword.confirmPassword ? 
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> : 
+                {showPassword.confirmPassword ?
+                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
                   <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
                 }
               </button>
             </div>
-            
+
             {/* New Role Dropdown */}
-              <div className={styles.selectWrapper}>
-                <select 
-                  name="role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className={styles.roleSelect}
-                  required
-                >
-                  <option value="">Select Role</option>
-                  <option value="Urban Planner">Urban Planner</option>
-                  <option value="Student">Student</option>
-                  <option value="Farmer">Farmer</option>
-                  <option value="Others">Others</option>
-                </select>
-                <div className={styles.dropdownIcon}>
-                  <img src="/icons/dropdown0.png" alt="Dropdown arrow" />
-                </div>
+            <div className={styles.selectWrapper}>
+              <select
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className={styles.roleSelect}
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="Urban Planner">Urban Planner</option>
+                <option value="Student">Student</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Others">Others</option>
+              </select>
+              <div className={styles.dropdownIcon}>
+                <img src="/icons/dropdown0.png" alt="Dropdown arrow" />
               </div>
-            
+            </div>
+
+            {/* Registration error message */}
+            {registerError && <p className={styles.errorMessage}>{registerError}</p>}
+
             <button type="submit">Sign Up</button>
           </form>
         </div>
@@ -291,38 +416,34 @@ const LoginRegister = ({ closeModal }) => {
         <div className={`${styles.formContainer} ${styles.signIn}`}>
           <form onSubmit={isAdminLogin ? handleAdminLogin : handleLogin}>
             <h1>{isAdminLogin ? "Sign In as Admin" : "Sign In"}</h1>
-            
+
             {!isAdminLogin && (
               <>
                 <button type="button" className={styles.googleBtn}>
-                <GoogleLogin
-                  onSuccess={credentialResponse => {
-                    const credentialResponseDecoded = jwtDecode(
-                    credentialResponse.credential
-                    );
-                    console.log(credentialResponseDecoded);
-                    navigate('/map');
-                  }}
-                  onError={() => {
-                    console.log('Google Sign Up failed');
-                  }}
-                  render={renderProps => (
-                  <button
-                    onClick={renderProps.onClick}
-                    disabled={renderProps.disabled}
-                    type="button"
-                    className={`${styles.googleBtn} ${styles.customGoogle}`}
-                  >
-                  <img 
-                    src="/icons/google.webp" 
-                    alt="Google logo" 
-                    className={styles.googleIcon}
+                  <GoogleLogin
+                    onSuccess={credentialResponse => {
+                      handleGoogleSuccess(credentialResponse);
+                    }}
+                    onError={() => {
+                      setLoginError('Google Sign In failed');
+                    }}
+                    render={renderProps => (
+                      <button
+                        onClick={renderProps.onClick}
+                        disabled={renderProps.disabled}
+                        type="button"
+                        className={`${styles.googleBtn} ${styles.customGoogle}`}
+                      >
+                        <img
+                          src="/icons/google.webp"
+                          alt="Google logo"
+                          className={styles.googleIcon}
+                        />
+                        Sign in with Google
+                      </button>
+                    )}
                   />
-                  Sign up with Google
                 </button>
-              )}
-            />
-            </button>
                 <div className={styles.divider}>
                   <span>OR</span>
                 </div>
@@ -330,48 +451,53 @@ const LoginRegister = ({ closeModal }) => {
             )}
 
             {isAdminLogin ? (
-              <input 
-                type="text"
-                name="username"
-                value={adminCredentials.username}
-                onChange={handleAdminChange}
-                placeholder="Admin Username"
-                required 
-              />
+              <>
+                <input
+                  type="text"
+                  name="username"
+                  value={adminCredentials.username}
+                  onChange={handleAdminChange}
+                  placeholder="Admin Username"
+                  required
+                />
+                {adminLoginError && <p className={styles.errorMessage}>{adminLoginError}</p>}
+              </>
             ) : (
-              <input 
-                type="email"
-                name="email"
-                value={userCredentials.email}
-                onChange={handleUserChange}
-                placeholder="Email Address"
-                required 
-              />
+              <>
+                <input
+                  type="email"
+                  name="email"
+                  value={userCredentials.email}
+                  onChange={handleUserChange}
+                  placeholder="Email Address"
+                  required
+                />
+                {loginError && <p className={styles.errorMessage}>{loginError}</p>}
+              </>
             )}
 
-
             <div className={styles.passwordWrapper}>
-              <input 
+              <input
                 type={isAdminLogin ? (showPassword.adminPassword ? "text" : "password") : (showPassword.userPassword ? "text" : "password")}
                 name="password"
                 value={isAdminLogin ? adminCredentials.password : userCredentials.password}
                 onChange={isAdminLogin ? handleAdminChange : handleUserChange}
                 placeholder={isAdminLogin ? "Admin Password" : "Password"}
-                required 
+                required
                 className={styles.largerDots}
               />
-              <button 
-                type="button" 
-                className={styles.togglePassword} 
+              <button
+                type="button"
+                className={styles.togglePassword}
                 onClick={() => togglePasswordVisibility(isAdminLogin ? 'adminPassword' : 'userPassword')}
               >
-                {(isAdminLogin ? showPassword.adminPassword : showPassword.userPassword) ? 
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> : 
+                {(isAdminLogin ? showPassword.adminPassword : showPassword.userPassword) ?
+                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
                   <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
                 }
               </button>
             </div>
-            
+
             {!isAdminLogin && (
               <a href="#" onClick={(e) => {
                 e.preventDefault();
@@ -380,7 +506,7 @@ const LoginRegister = ({ closeModal }) => {
                 Forgot your password?
               </a>
             )}
-            
+
             <button type="submit">
               {isAdminLogin ? "Sign In" : "Sign In"}
             </button>
@@ -391,28 +517,57 @@ const LoginRegister = ({ closeModal }) => {
         <div className={styles.toggleContainer}>
           <div className={styles.toggle}>
             <div className={`${styles.togglePanel} ${styles.toggleLeft}`}>
-              <h1>Welcome!</h1>
-              <p>Enter your personal details to use all of site features</p>
+              <h1>{toggleContainerContent.leftTitle}</h1>
+              <p>{toggleContainerContent.leftDescription}</p>
               <button className={styles.hidden} id="login" onClick={toggleForm}>
-                Sign In
+                {toggleContainerContent.leftButtonText}
               </button>
             </div>
             <div className={`${styles.togglePanel} ${styles.toggleRight}`}>
-              <h1>Hey!</h1>
-              <p>Register with your personal details to use all of site features</p>
-              <button className={styles.hidden} id="register" onClick={toggleForm}>
-                Sign Up
+              <h1>{toggleContainerContent.rightTitle}</h1>
+              <p>{toggleContainerContent.rightDescription}</p>
+              <button className={styles.hidden} id="register" onClick={() => {
+                if (isAdminLogin) {
+                  toggleAdminMode(); // Switch back to user mode
+                  setIsActive(false); // Show the sign-in side
+                } else {
+                  toggleForm(); // Normal toggle between sign in and sign up
+                }
+              }}>
+                {toggleContainerContent.rightButtonText}
               </button>
             </div>
           </div>
         </div>
       </div>
-      
+
+       {/* Success Popup */}
+       {showSuccessPopup && (
+          <div className={styles.successPopupOverlay}>
+            <div className={styles.successPopup}>
+              <div className={styles.successHeader}>
+                <img src="/icons/success.png" alt="Success" className={styles.successIcon} />
+                <h2>Success!</h2>
+              </div>
+              <p>{successMessage}</p>
+              <button onClick={closeSuccessPopup} className={styles.successButton}>OK</button>
+            </div>
+          </div>
+        )}
+
+        {/* Render Forgot Password as overlay */}
+        {showForgotPassword && (
+          <ForgotPassword
+            closeModal={closeModal}
+            goBackToLogin={handleBackToLogin}
+          />
+        )}
+
       {/* Render Forgot Password as overlay */}
       {showForgotPassword && (
-        <ForgotPassword 
-          closeModal={closeModal} 
-          goBackToLogin={handleBackToLogin} 
+        <ForgotPassword
+          closeModal={closeModal}
+          goBackToLogin={handleBackToLogin}
         />
       )}
     </>

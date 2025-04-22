@@ -47,12 +47,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000; /* Ensure it's above the sidebar */
 }
 
 /* ==================== */
 /* BASE POPUP STYLES */
 /* ==================== */
+/* Fix the profile-popup to have proper height constraints */
 .profile-popup {
   background-color: var(--modal-bg);
   color: var(--text-primary);
@@ -61,6 +62,9 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
+  width: 700px;
+  height: 550px;
+  max-height: 90vh; /* Prevent it from being too tall on smaller screens */
 }
 
 /* Panel Styles - Shared Across All Popups */
@@ -558,31 +562,41 @@
   padding: 20px;
 }
 
+.result-bottom-panel {
+  padding: 15px 40px;
+  background-color: var(--modal-bg);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative; /* Keep it in the flow but allow z-index */
+  z-index: 5; /* Ensure it stays above content when scrolling */
+}
+
+/* Make sure the top panel stays at the top */
 .result-top-panel {
-  background-color: none;
-  color: #000;
+  background-color: transparent;
+  color: var(--text-primary);
   text-align: center;
-  padding: 12px;
+  padding: 0px;
   font-size: 18px;
   font-weight: bold;
   border-radius: 5px;
-  margin-top: 10px;
-  margin-bottom: 0px;
-  margin-left: 80px;
+  margin: 5px auto 0;
   width: 550px;
+  position: relative; /* Keep it in the flow but allow z-index */
+  z-index: 5; /* Ensure it stays above content when scrolling */
 }
 
+/* Fix the result-content to properly scroll within its container */
 .result-content {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin: 0 auto; /* center horizontally */
-  padding: 0 40px; /* 40px left & right padding */
-  max-width: 100%;
-  overflow-y: auto;
+  margin: 0 auto;
+  padding: 0 40px;
   width: 100%;
   box-sizing: border-box;
-  max-height: 60vh;
+  overflow-y: auto; /* This enables scrolling */
+  flex: 1; /* Take remaining space in the flex container */
+  max-height: calc(100% - 170px); /* Account for header and footer areas */
 }
 
 .result-content-panel {

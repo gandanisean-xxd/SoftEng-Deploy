@@ -131,7 +131,7 @@ const Sidebar = ({
               className="sidebar-logo"
             />
             {!isCollapsed && (
-              <span className="sidebar-title">AI-Driven GIS</span>
+              <span className="sidebar-title">EcoUrban</span>
             )}
           </div>
         </header>

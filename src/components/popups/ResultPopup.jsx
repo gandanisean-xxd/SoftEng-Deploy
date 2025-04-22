@@ -552,6 +552,7 @@ const ResultPopup = ({
         <div className="result-top-panel">
           <div className="assessment-title">ASSESSMENT RESULTS</div>
           <div className="date-picker-container">
+            <p>Pick a Date</p>
             <DatePicker
               selected={selectedDate}
               onChange={handleDateChange}
@@ -624,17 +625,19 @@ const ResultPopup = ({
         <div className="result-bottom-panel">
           {weatherData.hasData && dynamicHazards.length > 0 ? (
             <PDFDownloadLink
-              document={
-                <MyDocument
-                  data={dynamicHazards}
-                  locationName={locationDetails.name}
-                  weatherData={weatherData}
-                  selectedDate={selectedDate}
-                />
-              }
-              fileName="Assessment_Results.pdf"
-              className="view-report-button"
-            >
+            document={
+              <MyDocument
+                data={dynamicHazards}
+                locationName={locationDetails.name}
+                weatherData={weatherData}
+                selectedDate={selectedDate}
+              />
+            }
+            fileName="Assessment_Results.pdf"
+            className="view-report-button"
+            style={{ color: 'white' }}
+          >
+          
               {({ blob, url, loading, error }) =>
                 loading
                   ? 'Generating PDF...'

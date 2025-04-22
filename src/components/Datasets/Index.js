@@ -978,11 +978,11 @@ export const cityMappings = {
 // Export default weather data structure
 export const DEFAULT_WEATHER = {
   temp: 0,
-  feelslike: 0,
-  humidity: 0,
   precip: 0,
   precipprob: 0,
   cloudcover: 0,
   windspeed: 0,
-  datetime: null,
+  feelslike: 0,
+  humidity: 0,
 };
+

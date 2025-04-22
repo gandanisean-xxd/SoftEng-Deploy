@@ -8,12 +8,15 @@ import {
   StyleSheet,
   PDFDownloadLink,
 } from '@react-pdf/renderer';
-// Update these imports to match the exact filenames
-import bacolodData from '../Datasets/Bacolod.json';
-import bayuganData from '../Datasets/Bayugan.json';
-import butuanData from '../Datasets/Butuan.json';
-import cabadbaranData from '../Datasets/Cabadbaran.json';
-import bisligData from '../Datasets/Bislig.json';
+import { weatherDatasets, DEFAULT_WEATHER, cityMappings } from '../Datasets/Index.js';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+console.log('Available datasets:', {
+  totalCities: Object.keys(weatherDatasets).length,
+  sampleCities: Object.keys(weatherDatasets).slice(0, 5),
+  cityMappingsCount: Object.keys(cityMappings).length
+});
 
 const pdfStyles = StyleSheet.create({
   page: {
@@ -70,37 +73,123 @@ const pdfStyles = StyleSheet.create({
     padding: 20,
     color: '#666',
   },
+  date: {
+    fontSize: 12,
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#666',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    right: 30,
+    fontSize: 10,
+    textAlign: 'center',
+    color: '#666',
+  },
+  tableHeader: {
+    backgroundColor: '#f0f0f0',
+    fontWeight: 'bold',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+    borderBottom: 1,
+    borderBottomColor: '#ccc',
+    paddingBottom: 5,
+  }
 });
 
-const MyDocument = ({ data = [], locationName = '' }) => {
-  const filteredData = data.filter((hazard) => hazard && hazard.name);
+const MyDocument = ({ data = [], locationName = '', weatherData = {}, selectedDate }) => {
+  const formattedDate = selectedDate ? selectedDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }) : 'N/A';
 
   return (
     <Document>
       <Page style={pdfStyles.page}>
-        <Text style={pdfStyles.title}>Weather & Hazard Report</Text>
+        <Text style={pdfStyles.title}>Weather & Hazard Assessment Report</Text>
         <Text style={pdfStyles.subtitle}>{locationName}</Text>
+        <Text style={pdfStyles.date}>Date: {formattedDate}</Text>
+
+        {/* Weather Summary Section */}
         <View style={pdfStyles.section}>
-          <Text style={pdfStyles.sectionTitle}>Assessment Results</Text>
-          {filteredData.length > 0 ? (
+          <Text style={pdfStyles.sectionTitle}>Weather Summary</Text>
+          <View style={pdfStyles.table}>
+            <View style={[pdfStyles.tableRow, pdfStyles.tableHeader]}>
+              <Text style={pdfStyles.tableCell}>Metric</Text>
+              <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>Value</Text>
+            </View>
+            {weatherData.hasData && weatherData.days?.[0] && (
+              <>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Temperature</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].temp}°C
+                  </Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Feels Like</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].feelslike}°C
+                  </Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Humidity</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].humidity}%
+                  </Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Precipitation</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].precip} mm
+                  </Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Cloud Cover</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].cloudcover}%
+                  </Text>
+                </View>
+                <View style={pdfStyles.tableRow}>
+                  <Text style={pdfStyles.tableCell}>Wind Speed</Text>
+                  <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                    {weatherData.days[0].windspeed} km/h
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* Hazard Assessment Section */}
+        <View style={pdfStyles.section}>
+          <Text style={pdfStyles.sectionTitle}>Hazard Assessment</Text>
+          {data.length > 0 ? (
             <View style={pdfStyles.table}>
               <View style={[pdfStyles.tableRow, pdfStyles.tableHeader]}>
-                <Text style={pdfStyles.tableCell}>Hazard</Text>
-                <Text style={pdfStyles.tableCell}>Description</Text>
+                <Text style={pdfStyles.tableCell}>Hazard Type</Text>
+                <Text style={pdfStyles.tableCell}>Risk Level</Text>
                 <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
-                  AI Recommendation
+                  Recommendation
                 </Text>
               </View>
-              {filteredData.map((hazard, index) => (
+              {data.map((hazard, index) => (
                 <View style={pdfStyles.tableRow} key={index}>
                   <Text style={pdfStyles.tableCell}>
-                    {hazard.name || 'N/A'}
+                    {hazard.name}
                   </Text>
                   <Text style={pdfStyles.tableCell}>
-                    {hazard.description || 'N/A'}
+                    {hazard.weather?.risk || 'N/A'}
                   </Text>
                   <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
-                    {hazard.recommendation || 'N/A'}
+                    {hazard.recommendation}
                   </Text>
                 </View>
               ))}
@@ -109,31 +198,18 @@ const MyDocument = ({ data = [], locationName = '' }) => {
             <Text style={pdfStyles.noData}>No hazards selected</Text>
           )}
         </View>
+
+        {/* Footer */}
+        <Text style={pdfStyles.footer}>
+          Generated on: {new Date().toLocaleString()}
+        </Text>
       </Page>
     </Document>
   );
 };
 
-const DEFAULT_WEATHER = {
-  temp: 0,
-  precip: 0,
-  precipprob: 0,
-  cloudcover: 0,
-  windspeed: 0,
-  feelslike: 0,
-  humidity: 0,
-};
-
-const weatherDatasets = {
-  bacolod: bacolodData,
-  bayugan: bayuganData,
-  butuan: butuanData,
-  bislig: bisligData,
-  cabadbaran: cabadbaranData,
-  // Add other datasets here as needed
-};
-
-const getWeatherData = async (location) => {
+  // Update the getWeatherData function
+const getWeatherData = async (location, selectedDate) => {
   if (!location || location === 'No location selected') {
     console.log('No location provided');
     return {
@@ -145,30 +221,27 @@ const getWeatherData = async (location) => {
 
   try {
     const locationLower = location.toLowerCase();
-    const cityMappings = {
-      bacolod: ['bacolod', 'bacolod-1', 'bacolod city', 'negros'],
-      bayugan: ['bayugan', 'bayugan city', 'agusan del sur'],
-      butuan: [
-        'butuan',
-        'butuan city',
-        'caraga',
-        'j. c. aquino',
-        'datu silongan',
-        'agusan del norte',
-      ],
-      bislig: ['bislig'],
-      cabadbaran: ['cabadbaran', 'cabadbaran city', 'agusan del norte'],
-      //Add more mappings here (3rd STEP)
-    };
-
-    // Improved matching logic
+    
+    // Format the selected date to match dataset format
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+    
+    // Get the month and determine which dataset to use
+    const month = selectedDate.getMonth() + 1;
+    const period = month <= 2 ? 'janfeb' : 
+                  month <= 4 ? 'marapril' :
+                  month <= 6 ? 'mayjune' :
+                  month <= 8 ? 'julyaug' :
+                  month <= 10 ? 'sepoct' : 'novdec';
+    
+    // Find matching city
     let matchedCity = null;
     let bestMatchScore = 0;
 
     for (const [city, variations] of Object.entries(cityMappings)) {
+      if (!city.startsWith(period)) continue;
+      
       for (const variant of variations) {
         if (locationLower.includes(variant)) {
-          // Calculate match score based on variant length
           const matchScore = variant.length;
           if (matchScore > bestMatchScore) {
             bestMatchScore = matchScore;
@@ -178,18 +251,24 @@ const getWeatherData = async (location) => {
       }
     }
 
+    console.log('Period:', period);
     console.log('Location string:', locationLower);
     console.log('Matched city:', matchedCity);
+    console.log('Selected date:', formattedDate);
 
     if (!matchedCity || !weatherDatasets[matchedCity]) {
-      console.log('Available cities:', Object.keys(weatherDatasets));
-      throw new Error('No dataset available for this location');
+      throw new Error('No dataset available for this location and period');
     }
 
     const weatherDataRaw = weatherDatasets[matchedCity];
-    console.log('Loaded weather data for:', matchedCity);
+    
+    // Find the specific day in the dataset that matches the selected date
+    const selectedDayData = weatherDataRaw.days.find(day => 
+      day.datetime === formattedDate
+    ) || weatherDataRaw.days[0];
 
-    const currentDay = weatherDataRaw.days[0];
+    console.log('Found day data:', selectedDayData);
+
     return {
       hasData: true,
       resolvedAddress: location,
@@ -197,13 +276,14 @@ const getWeatherData = async (location) => {
       longitude: weatherDataRaw.longitude,
       days: [
         {
-          temp: currentDay.temp || 0,
-          feelslike: currentDay.feelslike || 0,
-          humidity: currentDay.humidity || 0,
-          precip: currentDay.precip || 0,
-          precipprob: currentDay.precipprob || 0,
-          cloudcover: currentDay.cloudcover || 0,
-          windspeed: currentDay.windspeed || 0,
+          temp: selectedDayData.temp || 0,
+          feelslike: selectedDayData.feelslike || 0,
+          humidity: selectedDayData.humidity || 0,
+          precip: selectedDayData.precip || 0,
+          precipprob: selectedDayData.precipprob || 0,
+          cloudcover: selectedDayData.cloudcover || 0,
+          windspeed: selectedDayData.windspeed || 0,
+          datetime: selectedDayData.datetime
         },
       ],
     };
@@ -215,6 +295,27 @@ const getWeatherData = async (location) => {
       days: [DEFAULT_WEATHER],
     };
   }
+};
+
+// Replace the existing getDateRange function
+const getDateRange = () => {
+  const today = new Date();
+  
+  // Calculate the start date (5 years back from today)
+  const startDate = new Date();
+  startDate.setFullYear(today.getFullYear() - 5);
+  
+  // Calculate the end date (available dataset until 2025)
+  const endDate = new Date('2025-12-31');
+  
+  // If today is beyond our dataset's end date, use the last available date
+  const defaultDate = today > endDate ? endDate : today;
+  
+  return {
+    minDate: startDate,
+    maxDate: endDate,
+    defaultDate: defaultDate
+  };
 };
 
 // 🔗 Main Popup
@@ -241,12 +342,23 @@ const ResultPopup = ({
   // Replace the existing location constant
   const location = selectedLocation?.trim() || 'No location selected';
 
+  // Update the date state with better initialization
+  const dateRange = React.useMemo(() => getDateRange(), []);
+  const [selectedDate, setSelectedDate] = React.useState(dateRange.defaultDate);
+
+  // Add a date change handler
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    console.log('Selected date:', date);
+    // This will trigger the useEffect that loads weather data
+  };
+
   // Load weather data when location changes
   React.useEffect(() => {
     const loadWeatherData = async () => {
       if (selectedLocation && selectedLocation !== 'No location selected') {
-        console.log('Loading weather data for:', selectedLocation);
-        const data = await getWeatherData(selectedLocation);
+        console.log('Loading weather data for:', selectedLocation, 'Date:', selectedDate);
+        const data = await getWeatherData(selectedLocation, selectedDate);
         console.log('Loaded data:', data);
         setWeatherData(data);
       } else {
@@ -259,7 +371,7 @@ const ResultPopup = ({
       }
     };
     loadWeatherData();
-  }, [selectedLocation]);
+  }, [selectedLocation, selectedDate]);
 
   console.log('Selected Location:', location); // Debug log
   console.log('Weather Data:', weatherData); // Debug log
@@ -439,10 +551,30 @@ const ResultPopup = ({
         {/* Top Panel with Location */}
         <div className="result-top-panel">
           <div className="assessment-title">ASSESSMENT RESULTS</div>
-          <div className="location-name">{selectedLocation}</div>
+          <div className="date-picker-container">
+            <DatePicker
+              selected={selectedDate}
+              onChange={handleDateChange}
+              dateFormat="MMMM d, yyyy"
+              minDate={dateRange.minDate}
+              maxDate={dateRange.maxDate}
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              className={`date-picker ${darkMode ? 'dark-mode' : ''}`}
+              placeholderText="Select a date"
+              todayButton="Today"
+            />
+          </div>
         </div>
         {/* Content Panels */}
         <div className="result-content">
+        <div className="location-name">
+          <h2>{locationDetails.name}</h2>
+          {locationDetails.coordinates && (
+            <p>{locationDetails.coordinates}</p>
+          )}
+        </div>
           {!weatherData.hasData ? (
             <div className="result-content-panel no-data">
               <h3>No Data Available</h3>
@@ -496,6 +628,8 @@ const ResultPopup = ({
                 <MyDocument
                   data={dynamicHazards}
                   locationName={locationDetails.name}
+                  weatherData={weatherData}
+                  selectedDate={selectedDate}
                 />
               }
               fileName="Assessment_Results.pdf"

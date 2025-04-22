@@ -8,6 +8,7 @@ import SubmissionHistoryPopup from '../popups/SubmissionHistoryPopup';
 import SearchBar from './SearchBar';
 import { useTheme } from '../../Context/ThemeContext';
 
+
 const allHazards = ['Flooding', 'Rainfall', 'Heat Index'];
 const Sidebar = ({
   onSearch,
@@ -34,6 +35,7 @@ const Sidebar = ({
   const [profileButtonLabel, setProfileButtonLabel] = useState('Profile'); // Default label
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
+  const [selectedLocation, setSelectedLocation] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -49,6 +51,10 @@ const Sidebar = ({
       setProfileButtonLabel('Profile'); // Revert to default if no user is logged in
     }
   }, []); // Empty dependency array ensures this runs only once after the initial render
+
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
+  };
 
   const toggleProfileDropdown = () => {
     setShowProfileDropdown(!showProfileDropdown);
@@ -145,6 +151,7 @@ const Sidebar = ({
           <SearchBar
             onSearch={(location) => {
               onSearch(location);
+              handleLocationChange(location); // Add this line
             }}
             onClearSearch={onClearSearch}
             isCollapsed={isCollapsed}
@@ -367,14 +374,15 @@ const Sidebar = ({
 
       {/* Popup Components */}
       {showSubmissionHistoryPopup && (
-        <SubmissionHistoryPopup
-          onClose={() => setShowSubmissionHistoryPopup(false)}
-          showProfilePopup={showProfilePopup}
-          setShowProfilePopup={setShowProfilePopup}
-          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-          selectedHazards={selectedHazards}
-        />
-      )}
+  <SubmissionHistoryPopup
+    onClose={() => setShowSubmissionHistoryPopup(false)}
+    showProfilePopup={showProfilePopup}
+    setShowProfilePopup={setShowProfilePopup}
+    setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+    selectedHazards={selectedHazards}
+    selectedLocation={selectedLocation} // Make sure this prop is passed
+  />
+)}
 
       {showProfilePopup && (
         <ProfilePopup

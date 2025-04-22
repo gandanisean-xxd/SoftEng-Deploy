@@ -1,25 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./PopupStyles.css"; // Make sure to create this CSS file for styles
 
 const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup, darkMode }) => {
+  const chatContentRef = useRef(null);
+
   const getGreeting = () => {
     const greetings = [
-      "Hello! 👋 I'm your virtual assistant. How can I help you today?",
+      "Hello! 👋 How can I help you today?",
       "Hi there! 😊 What would you like to know?",
-      "Greetings! 🌟 I'm here to assist you. What can I do for you?",
+      "Greetings! 🌟 I'm here to assist you.",
       "Hey! 🙌 Feel free to ask me anything.",
-      "Welcome! 🎉 What can I do for you today?"
+      "Welcome! 🎉 How can I assist you?"
     ];
     return greetings[Math.floor(Math.random() * greetings.length)];
   };
 
   const [messages, setMessages] = useState([
-    { sender: "bot", text: getGreeting() },
-    { sender: "bot", text: "Feel free to ask me anything about our services, or just say hi!" }
+    { sender: "bot", text: getGreeting() }
   ]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false); // Loading state
+
+  useEffect(() => {
+    // Scroll to the bottom of the chat content on message update
+    if (chatContentRef.current) {
+      chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
@@ -27,6 +35,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
     // Add user message to chat
     const userMessage = { sender: "user", text: newMessage };
     setMessages(prevMessages => [...prevMessages, userMessage]);
+    setNewMessage(""); // Clear input immediately
 
     const userInputLower = newMessage.toLowerCase();
 
@@ -36,16 +45,18 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       setLoading(true);
 
       try {
-        const response = await axios.get('http://localhost:5000/weather', {
+        const response = await axios.get('http://localhost:10000/weather', {
           params: { location: location }
         });
         const weatherData = response.data;
 
-        // Check if the data is valid before accessing it
-        if (weatherData.temperature !== undefined && weatherData.conditions) {
-          const weatherResponse = `The current weather in ${weatherData.location} is ${weatherData.temperature.toFixed(1)}°C with ${weatherData.conditions}.`;
+        if (weatherData && weatherData.temperature !== undefined && weatherData.conditions && weatherData.location) {
+          const weatherResponse = `Weather in ${weatherData.location}: ${weatherData.temperature.toFixed(1)}°C, ${weatherData.conditions}.`;
           setMessages(prevMessages => [...prevMessages, { sender: "bot", text: weatherResponse }]);
-        } else {
+        } else if (weatherData && weatherData.error) {
+          setMessages(prevMessages => [...prevMessages, { sender: "bot", text: `Sorry, could not get weather for that location. ${weatherData.error}` }]);
+        }
+        else {
           setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, I couldn't retrieve the weather data." }]);
         }
       } catch (error) {
@@ -54,8 +65,6 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       } finally {
         setLoading(false);
       }
-
-      setNewMessage(""); // Clear input
       return;
     }
 
@@ -64,7 +73,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
 
     // Send message to Flask server for chat responses
     try {
-      const response = await axios.post('http://localhost:5000/chat', { message: newMessage });
+      const response = await axios.post('http://localhost:10000/chat', { message: newMessage });
       const botMessage = response.data.response;
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {
@@ -73,9 +82,6 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
     } finally {
       setLoading(false);
     }
-
-    // Clear the input textbox
-    setNewMessage("");
   };
 
   return (
@@ -107,7 +113,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
           CHATBOT
         </div>
 
-        <div className="chat-content">
+        <div className="chat-content" ref={chatContentRef}>
           {messages.map((msg, index) => (
             <div key={index} className={`chat-message ${msg.sender}`}>
               {msg.sender === "bot" && <img src="/icons/chatbot.png" alt="Bot" className="chat-icon" />}

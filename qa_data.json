@@ -1,6 +1,5 @@
 {
-  "faqs": 
-  [
+  "faqs": [
     {
       "question": "Which places in the Philippines have the least amount of green spaces?",
       "answer": "Some highly urbanized areas in the Philippines, such as Metro Manila, have the least amount of green spaces."
@@ -69,12 +68,8 @@
       "question": "",
       "answer": ""
     }
-    
   ],
-
-
-  "about": 
-  [
+  "about": [
     {
       "question": "Who are you?",
       "answer": "My name is Malia, your AI assistant!"
@@ -166,12 +161,17 @@
     {
       "question": "",
       "answer": ""
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
     }
-
   ],
-
-  "vague": 
-  [
+  "vague": [
     {
       "question": "What?",
       "answer": "Please be more specific in asking questions."

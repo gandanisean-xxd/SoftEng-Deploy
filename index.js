@@ -224,38 +224,68 @@ app.get('/users', async (req, res) => {
   });
 
 // Save a new submission
-app.post('/submissions', async (req, res) => {
-  const { location, hazards, result } = req.body;
-
-  try {
-    const newSubmission = new SubmissionModel({ location, hazards, result });
-    await newSubmission.save();
-    res.status(201).json(newSubmission);
-  } catch (error) {
-    console.error('Error saving submission:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// Fetch submissions based on search criteria
 app.get('/submissions', async (req, res) => {
-  const { location, hazards } = req.query;
-
-  if (!location || !hazards) {
-    return res.status(400).json({ message: 'Missing location or hazards' });
-  }
-
   try {
-    const query = {
-      location: { $regex: location, $options: 'i' }, // Case-insensitive search
-      hazards: { $all: hazards.split(',') }, // Match all selected hazards
-    };
+    const { location, hazards } = req.query;
+    console.log('GET /submissions query:', { location, hazards });
 
-    const submissions = await SubmissionModel.find(query);
+    if (!location) {
+      return res.status(400).json({ error: 'Location is required' });
+    }
+
+    // Clean up location format
+    const cleanLocation = location.trim().replace(/,+$/, '');
+
+    // Build query
+    const query = { location: cleanLocation };
+
+    // Only add hazards filter if hazards are provided
+    if (hazards) {
+      const hazardArray = hazards.split(',').map(h => h.trim());
+      query.hazards = { $elemMatch: { $in: hazardArray } };
+    }
+
+    console.log('MongoDB query:', query);
+
+    const submissions = await SubmissionModel.find(query)
+      .sort({ timestamp: -1 });
+
+    console.log('Found submissions:', submissions);
     res.json(submissions);
+
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: error.message });
+  }
+});
+// POST submissions route
+app.post('/submissions', async (req, res) => {
+  try {
+    console.log('Received submission request:', req.body);
+    const { location, hazards } = req.body;
+
+    if (!location || !hazards || !Array.isArray(hazards)) {
+      return res.status(400).json({
+        error: 'Invalid submission data',
+        received: { location, hazards }
+      });
+    }
+
+    const submission = new SubmissionModel({
+      location: location.trim(),
+      hazards: hazards
+    });
+
+    const savedSubmission = await submission.save();
+    console.log('Saved submission:', savedSubmission);
+    res.status(201).json(savedSubmission);
+
+  } catch (error) {
+    console.error('Error saving submission:', error);
+    res.status(500).json({
+      error: 'Failed to save submission',
+      details: error.message
+    });
   }
 });
   

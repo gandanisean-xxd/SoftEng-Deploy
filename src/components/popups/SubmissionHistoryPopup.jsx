@@ -1,45 +1,131 @@
 import React, { useState, useEffect } from "react";
+import ResultPopup from "./ResultPopup"; // Add this line
+
+
 
 const SubmissionHistoryPopup = ({
   onClose,
   showProfilePopup,
   setShowProfilePopup,
   setShowSubmissionHistoryPopup,
-  selectedHazards,
-  selectedLocation, // Update this to match the correct prop name
+  selectedHazards = [],
+  selectedLocation = "",
 }) => {
   const [submissions, setSubmissions] = useState([]);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(selectedLocation);
 
-  useEffect(() => {
-    console.log('selectedLocation in SubmissionHistoryPopup:', selectedLocation);
-    console.log('selectedHazards in SubmissionHistoryPopup:', selectedHazards);
+  const saveSubmission = async (location, hazards) => {
+    if (!location || !hazards?.length) {
+      console.log('Missing location or hazards');
+      return;
+    }
 
-    const fetchSubmissions = async () => {
-      if (!selectedLocation || !selectedHazards || selectedHazards.length === 0) {
-        console.error('Missing selectedLocation or selectedHazards');
-        return;
+    try {
+      const response = await fetch('http://localhost:5000/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          location: location,
+          hazards: hazards,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      try {
-        const response = await fetch(
-          `http://localhost:5000/submissions?location=${selectedLocation}&hazards=${selectedHazards.join(',')}`
-        );
+      const savedSubmission = await response.json();
+      console.log('Submission saved:', savedSubmission);
+      setSubmissions(prev => [...prev, savedSubmission]);
 
+    } catch (error) {
+      console.error('Error saving submission:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedLocation) {
+      setCurrentLocation(selectedLocation);
+      saveSubmission(selectedLocation, selectedHazards);
+    }
+  }, [selectedLocation, selectedHazards]);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      // Check if we have both location and hazards before making the request
+      if (!currentLocation || !selectedHazards?.length) {
+        console.log('Missing location or hazards');
+        setSubmissions([]); // Clear submissions if no data
+        return;
+      }
+  
+      try {
+        // Format location coordinates
+        const [lat, lng] = currentLocation.includes(',')
+          ? currentLocation.split(',').map(coord => coord.trim())
+          : [currentLocation.slice(0, 9), currentLocation.slice(9)];
+  
+        const formattedLocation = `${lat},${lng}`;
+        
+        console.log('Fetching submissions for:', formattedLocation);
+        console.log('Selected hazards:', selectedHazards);
+  
+        const response = await fetch(
+          `http://localhost:5000/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
+        );
+  
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-        setSubmissions(data);
+        console.log('Received data:', data);
+  
+        // Filter and format the submissions
+        const formattedSubmissions = data.map(submission => ({
+          ...submission,
+          location: formattedLocation // Ensure consistent location format
+        }));
+  
+        setSubmissions(formattedSubmissions);
+        
+        console.log('Updated submissions:', formattedSubmissions);
+  
       } catch (error) {
         console.error('Error fetching submissions:', error);
+        setSubmissions([]); // Clear submissions on error
       }
     };
-
+  
     fetchSubmissions();
-  }, [selectedLocation, selectedHazards]);
+  }, [currentLocation, selectedHazards]);
+
+  
+
+  const formatLocationDisplay = (location) => {
+    if (!location) return '';
+    const [lat, lng] = location.includes(',') 
+      ? location.split(',')
+      : [location.slice(0, 9), location.slice(9)];
+    return `${lat}, ${lng}`;
+  };
+
+  const handleViewResult = (submission) => {
+    setActiveSubmission({
+      ...submission,
+      location: submission.location,
+      hazards: submission.hazards,
+      timestamp: submission.timestamp
+    });
+    setShowResultPopup(true);
+  };
+
+
 
   return (
     <div className="profile-popup-overlay">
@@ -68,7 +154,6 @@ const SubmissionHistoryPopup = ({
           </div>
         </div>
 
-        {/* Content */}
         <div className="my-profile-section">
           <table className="submission-history-table">
             <thead>
@@ -78,27 +163,32 @@ const SubmissionHistoryPopup = ({
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              {submissions.map((submission) => (
-                <tr key={submission._id}>
-                  <td>{submission.location}</td>
-                  <td>{submission.hazards.join(', ')}</td>
-                  <td>
-                    <div className="submission-buttons">
-                      <button
-                        className="view-result-button"
-                        onClick={() => {
-                          setActiveSubmission(submission);
-                          setShowResultPopup(true);
-                        }}
-                      >
-                        View Result
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+           <tbody>
+        {submissions && submissions.length > 0 ? (
+          submissions.map((submission) => (
+            <tr key={submission._id}>
+              <td>{submission.location || 'Unknown location'}</td>
+              <td>{submission.hazards?.join(', ') || 'No hazards'}</td>
+              <td>
+                <div className="submission-buttons">
+                  <button
+                    className="view-result-button"
+                    onClick={() => handleViewResult(submission)}
+                  >
+                    View Result
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="3" style={{ textAlign: 'center' }}>
+              No submissions found.
+            </td>
+          </tr>
+        )}
+      </tbody>
           </table>
         </div>
       </div>
@@ -106,8 +196,9 @@ const SubmissionHistoryPopup = ({
       {showResultPopup && activeSubmission && (
         <ResultPopup
           onClose={() => setShowResultPopup(false)}
-          selectedLocation={selectedLocation} // Pass the correct prop
+          selectedLocation={currentLocation}
           selectedHazards={selectedHazards}
+          submission={activeSubmission}
         />
       )}
     </div>

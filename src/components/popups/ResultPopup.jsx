@@ -12,6 +12,18 @@ import { weatherDatasets, DEFAULT_WEATHER, cityMappings } from '../Datasets/Inde
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+const formatLocation = (location) => {
+  if (!location) return 'No location selected';
+  
+  // Handle array location format
+  if (Array.isArray(location)) {
+    return location.join(',').trim();
+  }
+  
+  // Handle string location
+  return typeof location === 'string' ? location.trim() : 'Invalid location format';
+};
+
 console.log('Available datasets:', {
   totalCities: Object.keys(weatherDatasets).length,
   sampleCities: Object.keys(weatherDatasets).slice(0, 5),
@@ -328,6 +340,22 @@ const ResultPopup = ({
   selectedHazards = [],
   selectedLocation,
 }) => {
+
+  const [weatherData, setWeatherData] = React.useState({
+    hasData: false,
+    days: [DEFAULT_WEATHER],
+    resolvedAddress: formatLocation(selectedLocation)
+  });
+
+  const locationDetails = React.useMemo(() => {
+    const name = formatLocation(selectedLocation);
+    const coordinates = weatherData?.latitude && weatherData?.longitude
+      ? `${weatherData.latitude.toFixed(4)}°N, ${weatherData.longitude.toFixed(4)}°E`
+      : '';
+    
+    return { name, coordinates };
+  }, [selectedLocation, weatherData]);
+
   console.log('ResultPopup received props:', {
     selectedLocation,
     selectedHazards,
@@ -335,12 +363,11 @@ const ResultPopup = ({
     darkMode,
   });
 
-  const [weatherData, setWeatherData] = React.useState({
-    hasData: false,
-    days: [DEFAULT_WEATHER],
-  });
-  // Replace the existing location constant
-  const location = selectedLocation?.trim() || 'No location selected';
+  const location = Array.isArray(selectedLocation) 
+  ? selectedLocation.join(',').trim()
+  : typeof selectedLocation === 'string'
+    ? selectedLocation.trim()
+    : 'No location selected';
 
   // Update the date state with better initialization
   const dateRange = React.useMemo(() => getDateRange(), []);
@@ -354,44 +381,34 @@ const ResultPopup = ({
   };
 
   // Load weather data when location changes
-  React.useEffect(() => {
-    const loadWeatherData = async () => {
-      if (selectedLocation && selectedLocation !== 'No location selected') {
-        console.log('Loading weather data for:', selectedLocation, 'Date:', selectedDate);
-        const data = await getWeatherData(selectedLocation, selectedDate);
-        console.log('Loaded data:', data);
-        setWeatherData(data);
-      } else {
-        console.log('No valid location provided');
-        setWeatherData({
-          hasData: false,
-          days: [DEFAULT_WEATHER],
-          resolvedAddress: 'No location selected',
-        });
-      }
-    };
-    loadWeatherData();
-  }, [selectedLocation, selectedDate]);
+ React.useEffect(() => {
+  const loadWeatherData = async () => {
+    const formattedLocation = Array.isArray(selectedLocation) 
+      ? selectedLocation.join(',').trim()
+      : typeof selectedLocation === 'string'
+        ? selectedLocation.trim()
+        : null;
+
+    if (formattedLocation) {
+      console.log('Loading weather data for:', formattedLocation, 'Date:', selectedDate);
+      const data = await getWeatherData(formattedLocation, selectedDate);
+      console.log('Loaded data:', data);
+      setWeatherData(data);
+    } else {
+      console.log('No valid location provided');
+      setWeatherData({
+        hasData: false,
+        days: [DEFAULT_WEATHER],
+        resolvedAddress: 'No location selected'
+      });
+    }
+  };
+  loadWeatherData();
+}, [selectedLocation, selectedDate]);
 
   console.log('Selected Location:', location); // Debug log
   console.log('Weather Data:', weatherData); // Debug log
 
-  // Get location details
-  const locationDetails = React.useMemo(
-    () => ({
-      name:
-        weatherData?.resolvedAddress ||
-        selectedLocation ||
-        'No location selected',
-      coordinates:
-        weatherData?.latitude && weatherData?.longitude
-          ? `${weatherData.latitude.toFixed(
-              4
-            )}°N, ${weatherData.longitude.toFixed(4)}°E`
-          : '',
-    }),
-    [weatherData, selectedLocation]
-  );
   const allHazards = [
     {
       name: 'Flooding',

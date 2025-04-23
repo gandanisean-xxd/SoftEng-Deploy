@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import styles from "./LoginRegister.module.css";
 
@@ -18,8 +18,31 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
     newPassword: false,
     confirmPassword: false
   });
-  const [otpExpiryTime, setOtpExpiryTime] = useState(null); // OTP expiry time
-  const [remainingTime, setRemainingTime] = useState(null);  // Countdown for expiry
+  const [otpExpiryTime, setOtpExpiryTime] = useState(null);
+  const [remainingTime, setRemainingTime] = useState(null);
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" });
+  const [passwordFocus, setPasswordFocus] = useState(false);
+  
+  // Password validation states
+  const [passwordStrength, setPasswordStrength] = useState({
+    strength: 0,
+    text: "",
+    class: ""
+  });
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
+
+  // Clear timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
   const togglePasswordVisibility = (field) => {
     setShowPassword(prev => ({
@@ -38,7 +61,7 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
       if (remaining === 0) {
         clearInterval(timerRef.current);
         timerRef.current = null;
-        alert("OTP has expired. Please request a new one.");
+        showPopup("OTP has expired. Please request a new one.", "error");
       }
     }, 1000);
   };
@@ -49,8 +72,44 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
+  const showPopup = (message, type = "info") => {
+    setPopup({ show: true, message, type });
+    setTimeout(() => {
+      setPopup({ show: false, message: "", type: "" });
+    }, 4000);
+  };
+
+  const validatePassword = (password) => {
+    const requirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[^A-Za-z0-9]/.test(password)
+    };
+    
+    setPasswordRequirements(requirements);
+    
+    // Calculate password strength
+    const passedChecks = Object.values(requirements).filter(Boolean).length;
+    
+    if (passedChecks <= 2) {
+      setPasswordStrength({ strength: 1, text: "Weak", class: "weak" });
+    } else if (passedChecks <= 4) {
+      setPasswordStrength({ strength: 2, text: "Medium", class: "medium" });
+    } else {
+      setPasswordStrength({ strength: 3, text: "Strong", class: "strong" });
+    }
+    
+    return requirements;
+  };
+
   const handleSendOTP = async (e) => {
     e.preventDefault();
+    if (!email) {
+      showPopup("Please enter your email address", "error");
+      return;
+    }
     setLoading(true);
     
     // Check if email exists in the database
@@ -66,10 +125,10 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
       if (result.exists) {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedOtp(otp);
-        const Time = Date.now() + 5 * 60 * 1000;
-        setOtpExpiryTime(Time);
+        const expiryTime = Date.now() + 5 * 60 * 1000;
+        setOtpExpiryTime(expiryTime);
 
-        const readableTime = new Date(Time).toLocaleTimeString();
+        const readableTime = new Date(expiryTime).toLocaleTimeString();
   
         const templateParams = {
           user_email: email,
@@ -79,20 +138,20 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
   
         try {
           await emailjs.send("service_iysc2g7", "template_zywl0ik", templateParams, "c96TY5rqu6knfGW4j");
-          alert("OTP sent!");
-          startCountdown(Time);
+          showPopup("OTP sent to your email", "success");
+          startCountdown(expiryTime);
           setOtpSent(true);
           setStep(2);
         } catch (error) {
           console.error("Failed to send OTP", error);
-          alert("Failed to send OTP. Please try again.");
+          showPopup("Failed to send OTP. Please try again.", "error");
         }
       } else {
-        alert("Email not found. Please check your email address.");
+        showPopup("Email not found. Please check your email address.", "error");
       }
     } catch (error) {
       console.error("Error checking email:", error);
-      alert("Error checking email. Please try again.");
+      showPopup("Error checking email. Please try again.", "error");
     }
     finally {
       setLoading(false);
@@ -103,32 +162,58 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
     e.preventDefault();
 
     if (remainingTime === 0) {
-      alert("OTP has expired. Please request a new one.");
+      showPopup("OTP has expired. Please request a new one.", "error");
       return;
     }
 
     if (otp !== generatedOtp) {
-      alert("Invalid OTP. Please try again.");
+      showPopup("Invalid OTP. Please try again.", "error");
       return;
     }
 
-    alert("OTP verified successfully!");
+    showPopup("OTP verified successfully!", "success");
     setStep(3);
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswords(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    if (name === "newPassword") {
+      validatePassword(value);
+    }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
   
+    // Validate password requirements
+    const requirements = validatePassword(passwords.newPassword);
+    const allRequirementsMet = Object.values(requirements).every(Boolean);
+    
+    if (!allRequirementsMet) {
+      showPopup("Password doesn't meet all requirements", "error");
+      return;
+    }
+    
     if (passwords.newPassword !== passwords.confirmPassword) {
-      alert("Passwords don't match!");
+      showPopup("Passwords don't match!", "error");
       return;
     }
   
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:5000/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, newPassword: passwords.newPassword }),
+        body: JSON.stringify({ 
+          email, 
+          newPassword: passwords.newPassword,
+          confirmPassword: passwords.confirmPassword 
+        }),
       });
   
       if (timerRef.current) {
@@ -138,25 +223,20 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
 
       const result = await response.json();
   
-      if (result.message === 'Password reset successfully!') {
-        alert("Your password has been reset successfully.");
-        goBackToLogin();
+      if (response.ok && result.message === 'Password reset successfully!') {
+        showPopup("Your password has been reset successfully.", "success");
+        setTimeout(() => {
+          goBackToLogin();
+        }, 2000);
       } else {
-        alert("Failed to reset password. Please try again.");
+        showPopup(result.message || "Failed to reset password. Please try again.", "error");
       }
     } catch (error) {
       console.error("Error resetting password:", error);
-      alert("Error resetting password. Please try again.");
+      showPopup("Error resetting password. Please try again.", "error");
+    } finally {
+      setLoading(false);
     }
-  };
-  
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswords(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
   return (
@@ -186,13 +266,13 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
               onChange={(e) => setEmail(e.target.value)}
               required 
             />
-            <button type="submit" disabled={loading}>
-            {loading ? (
-            <div className={styles.loader}></div> // spinner here
-            ) : (
-            "Send OTP"
-            )}
-          </button>
+            <button type="submit" disabled={loading || !email}>
+              {loading ? (
+                <div className={styles.loader}></div>
+              ) : (
+                "Send OTP"
+              )}
+            </button>
           </form>
         )}
         
@@ -212,15 +292,16 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
               className={styles.otpInput}
             />
             {remainingTime !== null && remainingTime > 0 && (
-              <div>OTP expires in: {formatTime(remainingTime)}</div>
+              <div className={styles.otpTimer}>OTP expires in: {formatTime(remainingTime)}</div>
             )}
-            <button type="submit">Verify OTP</button>
+            <button type="submit" disabled={!otp || otp.length < 6}>Verify OTP</button>
             <button 
               type="button" 
               className={styles.resendBtn}
               onClick={handleSendOTP}
+              disabled={loading}
             >
-              Resend OTP
+              {loading ? "Sending..." : "Resend OTP"}
             </button>
           </form>
         )}
@@ -236,6 +317,8 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
                 placeholder="New Password"
                 value={passwords.newPassword}
                 onChange={handlePasswordChange}
+                onFocus={() => setPasswordFocus(true)}
+                onBlur={() => setPasswordFocus(false)}
                 required 
                 className={styles.largerDots}
               />
@@ -251,6 +334,29 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
               </button>
             </div>
 
+            {passwordFocus && (
+              <div className={styles.passwordRequirements}>
+                <p>Password must have:</p>
+                <ul>
+                  <li className={passwordRequirements.length ? styles.valid : styles.invalid}>
+                    At least 8 characters
+                  </li>
+                  <li className={passwordRequirements.uppercase ? styles.valid : styles.invalid}>
+                    At least one uppercase letter (A-Z)
+                  </li>
+                  <li className={passwordRequirements.lowercase ? styles.valid : styles.invalid}>
+                    At least one lowercase letter (a-z)
+                  </li>
+                  <li className={passwordRequirements.number ? styles.valid : styles.invalid}>
+                    At least one number (0-9)
+                  </li>
+                  <li className={passwordRequirements.special ? styles.valid : styles.invalid}>
+                    One special character (e.g., !@#$%^&*)
+                  </li>
+                </ul>
+              </div>
+            )}
+
             <div className={styles.passwordWrapper}>
               <input 
                 type={showPassword.confirmPassword ? "text" : "password"}
@@ -259,7 +365,11 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
                 value={passwords.confirmPassword}
                 onChange={handlePasswordChange}
                 required 
-                className={styles.largerDots}
+                className={`${styles.largerDots} ${
+                  passwords.confirmPassword && 
+                  passwords.newPassword !== passwords.confirmPassword ? 
+                  styles.errorInput : ""
+                }`}
               />
               <button 
                 type="button" 
@@ -272,9 +382,34 @@ const ForgotPassword = ({ closeModal, goBackToLogin }) => {
                 }
               </button>
             </div>
+            
+            {passwords.confirmPassword && passwords.newPassword !== passwords.confirmPassword && (
+              <div className={styles.errorText}>Passwords don't match</div>
+            )}
 
-            <button type="submit">Reset Password</button>
+            {passwordStrength.text && (
+              <div className={styles.strengthBarContainer}>
+                <div className={`${styles.strengthBar} ${styles[passwordStrength.class]}`}>
+                  {passwordStrength.text}
+                </div>
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              disabled={loading || !passwords.newPassword || !passwords.confirmPassword || 
+                       passwords.newPassword !== passwords.confirmPassword ||
+                       passwordStrength.strength < 2}
+            >
+              {loading ? <div className={styles.loader}></div> : "Reset Password"}
+            </button>
           </form>
+        )}
+
+        {popup.show && (
+          <div className={`${styles.popupMessage} ${styles[popup.type]}`}>
+            {popup.message}
+          </div>
         )}
       </div>
     </div>

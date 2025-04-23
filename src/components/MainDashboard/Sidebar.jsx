@@ -34,6 +34,9 @@ const Sidebar = ({
   const [profileButtonLabel, setProfileButtonLabel] = useState('Profile'); // Default label
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -70,13 +73,26 @@ const Sidebar = ({
   };
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to log out?");
-    if (confirmLogout) {
-      localStorage.removeItem("user"); 
-      setProfileButtonLabel('Profile');
-      navigate('/'); // Navigate to login or home page
-    }
+    setShowLogoutPopup(true); // Show confirmation popup
   };
+
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem("user");
+    setProfileButtonLabel('Profile');
+    setShowLogoutPopup(false);
+    setShowLogoutSuccess(true);
+  
+    setTimeout(() => {
+      setShowLogoutSuccess(false);
+      navigate('/'); // Go to login/home after popup disappears
+    }, 2000);
+  };
+  
+  const handleLogoutCancel = () => {
+    setShowLogoutPopup(false);
+  };
+  
+  
   
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -359,6 +375,64 @@ const Sidebar = ({
               <div className="dropdown-item" onClick={handleLogout}>
                 <img src="/icons/logout.png" alt="Logout" />
                 <span>Logout</span>
+              </div>
+            </div>
+          )}
+
+          {showLogoutPopup && (
+            <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <div className="modal-content" style={{ 
+                width: '370px', 
+                color: 'var(--text-primary)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center'
+              }}>
+                <p style={{
+                  fontSize: '18px',
+                  textAlign: 'center',
+                  marginBottom: '10px' // Reduced from 20px to 10px for better fit
+                }}>Are you sure you want to logout?</p>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-around', 
+                  marginTop: '10px' // Reduced from 20px to 10px for better fit
+                }}>
+                  <button onClick={handleLogoutConfirm} style={{ 
+                    backgroundColor: '#d32f2f', 
+                    color: 'white', 
+                    border: 'none', 
+                    padding: '10px 20px', 
+                    borderRadius: '5px', 
+                    cursor: 'pointer' 
+                  }}>Yes, Logout</button>
+                  <button onClick={handleLogoutCancel} style={{ 
+                    backgroundColor: '#4caf50', 
+                    color: 'white', 
+                    border: 'none', 
+                    padding: '10px 20px', 
+                    borderRadius: '5px', 
+                    cursor: 'pointer' 
+                  }}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showLogoutSuccess && (
+            <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
+              <div className="modal-content" style={{ 
+                width: '300px',
+                padding: '20px',
+                textAlign: 'center',
+                backgroundColor: 'white',
+                color: '#41AB5D',
+                borderRadius: '8px',
+                boxShadow: '0px 4px 10px rgba(0,0,0,0.3)'
+              }}>
+                <img src="/icons/logout.png" alt="Logout Success" className="logout-icon" style={{ width: '50px', height: '50px' }} />
+                <h2 style={{ fontSize: '20px', margin: '10px 0' }}>Logout Successful</h2>
+                <p>You have been logged out successfully.</p>
               </div>
             </div>
           )}

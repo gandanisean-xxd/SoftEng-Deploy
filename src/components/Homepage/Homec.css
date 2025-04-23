@@ -609,7 +609,7 @@
 .about-section {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  width: 210vh;
+  width: 200vh;
   position: relative;
   left: 50%;
   right: 50%;

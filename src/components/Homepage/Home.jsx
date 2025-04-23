@@ -16,6 +16,7 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState(null); // Add this to store user info
   const searchDebounceRef = useRef(null);
   const suggestionBoxRef = useRef(null);
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const navigate = useNavigate();
 
   // Refs for scrolling to sections
@@ -320,14 +321,18 @@ const handleInputChange = (e) => {
   };
 
   const handleLogoutConfirm = () => {
-    // Handle actual logout
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     setUserInfo(null);
     setShowLogoutPopup(false);
-    // Show logout success message (optional, can be a small notification)
-    alert("You have been logged out successfully");
+  
+    // Show popup instead of alert
+    setShowLogoutSuccess(true);
+    setTimeout(() => {
+      setShowLogoutSuccess(false);
+    }, 3000); // Hides popup after 3 seconds
   };
+  
 
   const handleLogoutCancel = () => {
     // Cancel logout
@@ -523,42 +528,61 @@ const handleInputChange = (e) => {
 
   return (
     <div className="home-container">
-{/* Logout Confirmation Popup */}
-{showLogoutPopup && (
-  <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-    <div className="modal-content" style={{ 
-      width: '370px', 
-      color: 'var(--text-primary)',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center'
-    }}>
-      <p>Are you sure you want to logout?</p>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-around', 
-        marginTop: '10px' // Reduced from 20px to 10px for better fit
-      }}>
-        <button onClick={handleLogoutConfirm} style={{ 
-          backgroundColor: '#d32f2f', 
-          color: 'white', 
-          border: 'none', 
-          padding: '10px 20px', 
-          borderRadius: '5px', 
-          cursor: 'pointer' 
-        }}>Yes, Logout</button>
-        <button onClick={handleLogoutCancel} style={{ 
-          backgroundColor: '#4caf50', 
-          color: 'white', 
-          border: 'none', 
-          padding: '10px 20px', 
-          borderRadius: '5px', 
-          cursor: 'pointer' 
-        }}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* Logout Confirmation Popup */}
+      {showLogoutPopup && (
+        <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="modal-content" style={{ 
+            width: '370px', 
+            color: 'var(--text-primary)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+          }}>
+            <p>Are you sure you want to logout?</p>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-around', 
+              marginTop: '10px' // Reduced from 20px to 10px for better fit
+            }}>
+              <button onClick={handleLogoutConfirm} style={{ 
+                backgroundColor: '#d32f2f', 
+                color: 'white', 
+                border: 'none', 
+                padding: '10px 20px', 
+                borderRadius: '5px', 
+                cursor: 'pointer' 
+              }}>Yes, Logout</button>
+              <button onClick={handleLogoutCancel} style={{ 
+                backgroundColor: '#4caf50', 
+                color: 'white', 
+                border: 'none', 
+                padding: '10px 20px', 
+                borderRadius: '5px', 
+                cursor: 'pointer' 
+              }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLogoutSuccess && (
+        <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
+          <div className="modal-content" style={{ 
+            width: '300px',
+            padding: '20px',
+            textAlign: 'center',
+            backgroundColor: 'white',
+            color: '#41AB5D',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 10px rgba(0,0,0,0.3)'
+          }}>
+            <img src="/icons/logout.png" alt="Logout Success" className="logout-icon" style={{ width: '50px', height: '50px' }} />
+            <h2 style={{ fontSize: '20px', margin: '10px 0' }}>Logout Successful</h2>
+            <p>You have been logged out successfully.</p>
+          </div>
+        </div>
+      )}
+
 
       {/* Header Section - Updated login button text */}
       <header className={`home-header ${headerScrolled ? 'scrolled' : ''}`}>

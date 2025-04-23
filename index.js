@@ -107,25 +107,28 @@ app.post('/api/check-email', (req, res) => {
 });
 
 // Reset password after OTP verification
-app.post('/api/reset-password', (req, res) => {
+app.post('/api/reset-password', async (req, res) => {
   const { email, newPassword } = req.body;
 
-  UserModel.findOneAndUpdate(
-    { email: email },
-    { password: newPassword },  // Update the password
-    { new: true }
-  )
-    .then(user => {
-      if (user) {
-        res.json({ message: 'Password reset successfully!' });
-      } else {
-        res.status(400).json({ message: 'Email not found.' });
-      }
-    })
-    .catch(err => {
-      console.error("Error resetting password:", err);
-      res.status(500).json({ message: 'Server error' });
-    });
+  try {
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const user = await UserModel.findOneAndUpdate(
+      { email: email },
+      { password: hashedPassword },  // Store the hashed password
+      { new: true }
+    );
+
+    if (user) {
+      res.json({ message: 'Password reset successfully!' });
+    } else {
+      res.status(400).json({ message: 'Email not found.' });
+    }
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/register', async (req, res) => {
@@ -224,38 +227,69 @@ app.get('/users', async (req, res) => {
   });
 
 // Save a new submission
-app.post('/submissions', async (req, res) => {
-  const { location, hazards, result } = req.body;
-
-  try {
-    const newSubmission = new SubmissionModel({ location, hazards, result });
-    await newSubmission.save();
-    res.status(201).json(newSubmission);
-  } catch (error) {
-    console.error('Error saving submission:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// Fetch submissions based on search criteria
 app.get('/submissions', async (req, res) => {
-  const { location, hazards } = req.query;
-
-  if (!location || !hazards) {
-    return res.status(400).json({ message: 'Missing location or hazards' });
-  }
-
   try {
-    const query = {
-      location: { $regex: location, $options: 'i' }, // Case-insensitive search
-      hazards: { $all: hazards.split(',') }, // Match all selected hazards
-    };
+    const { location, hazards } = req.query;
+    console.log('GET /submissions query:', { location, hazards });
 
-    const submissions = await SubmissionModel.find(query);
+    if (!location) {
+      return res.status(400).json({ error: 'Location is required' });
+    }
+
+    // Clean up location format
+    const cleanLocation = location.trim().replace(/,+$/, '');
+
+    // Build query
+    const query = { location: cleanLocation };
+
+    // Only add hazards filter if hazards are provided
+    if (hazards) {
+      const hazardArray = hazards.split(',').map(h => h.trim());
+      query.hazards = { $elemMatch: { $in: hazardArray } };
+    }
+
+    console.log('MongoDB query:', query);
+
+    const submissions = await SubmissionModel.find(query)
+      .sort({ timestamp: -1 });
+
+    console.log('Found submissions:', submissions);
     res.json(submissions);
+
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: error.message });
+  }
+});
+// POST submissions route
+app.post('/submissions', async (req, res) => {
+  try {
+    const { location, hazards, timestamp } = req.body;
+    
+    // Validate the incoming data
+    if (!location || !hazards || !Array.isArray(hazards)) {
+      return res.status(400).json({ 
+        error: 'Invalid submission data',
+        received: { location, hazards, timestamp }
+      });
+    }
+
+    // Create new submission
+    const submission = new SubmissionModel({
+      location,
+      hazards,
+      timestamp
+    });
+
+    const savedSubmission = await submission.save();
+    res.status(201).json(savedSubmission);
+
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 });
   

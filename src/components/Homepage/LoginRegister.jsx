@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginRegister.module.css";
 import ForgotPassword from "./ForgotPassword";
 import axios from "axios";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-
 
 const LoginRegister = ({ closeModal }) => {
   const navigate = useNavigate();
@@ -16,11 +15,37 @@ const LoginRegister = ({ closeModal }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('');
+  const [focusedField, setFocusedField] = useState(null);
+  
+  // Create ref for password popup
+  const passwordPopupRef = useRef(null);
 
   // Error states
   const [loginError, setLoginError] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
+
+  // Password validation states
+  const [passwordErrors, setPasswordErrors] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    symbol: false
+  });
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [adminPasswordErrors, setAdminPasswordErrors] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    symbol: false
+  });
+
+  // Password touched states to track if user has interacted with fields
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [adminPasswordTouched, setAdminPasswordTouched] = useState(false);
 
   // Success message state
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -33,7 +58,7 @@ const LoginRegister = ({ closeModal }) => {
   });
 
   const [userCredentials, setUserCredentials] = useState({
-    email:'',
+    email: '',
     password: '',
     role: ''
   });
@@ -58,6 +83,62 @@ const LoginRegister = ({ closeModal }) => {
     rightButtonText: 'Sign Up'
   });
 
+  // Validate password function
+  const validatePassword = (password) => {
+    return {
+      length: password.length < 8,
+      uppercase: !/[A-Z]/.test(password),
+      lowercase: !/[a-z]/.test(password),
+      number: !/[0-9]/.test(password),
+      symbol: !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
+  };
+
+  // Check if password has any validation errors
+  const hasPasswordErrors = (errors) => {
+    return Object.values(errors).some(error => error);
+  };
+
+  // Update password errors when password changes
+  useEffect(() => {
+    if (passwordTouched) {
+      setPasswordErrors(validatePassword(password));
+    }
+  }, [password, passwordTouched]);
+
+  // Update confirm password error when either password changes
+  useEffect(() => {
+    if (confirmPasswordTouched) {
+      setConfirmPasswordError(password !== confirmPassword);
+    }
+  }, [password, confirmPassword, confirmPasswordTouched]);
+
+  // Update admin password errors when admin password changes
+  useEffect(() => {
+    if (adminPasswordTouched) {
+      setAdminPasswordErrors(validatePassword(adminCredentials.password));
+    }
+  }, [adminCredentials.password, adminPasswordTouched]);
+
+  // Add event listener to detect clicks outside password popup
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (passwordPopupRef.current && 
+          !passwordPopupRef.current.contains(event.target) && 
+          !event.target.classList.contains('passwordInput')) {
+        // Reset the focused field to close password popup
+        setFocusedField(null);
+      }
+    }
+
+    // Add the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Remove the event listener on cleanup
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const togglePasswordVisibility = (field) => {
     setShowPassword(prev => ({
       ...prev,
@@ -70,6 +151,10 @@ const LoginRegister = ({ closeModal }) => {
     // Clear error messages when switching forms
     setLoginError('');
     setRegisterError('');
+    // Reset touched states
+    setPasswordTouched(false);
+    setConfirmPasswordTouched(false);
+    setAdminPasswordTouched(false);
   };
 
   const handleLogin = async (e) => {
@@ -114,7 +199,17 @@ const LoginRegister = ({ closeModal }) => {
     e.preventDefault();
     setRegisterError(''); // Clear previous errors
 
+    // Check password security requirements
+    const passwordIssues = validatePassword(password);
+    if (hasPasswordErrors(passwordIssues)) {
+      setPasswordTouched(true);
+      setPasswordErrors(passwordIssues);
+      setRegisterError("Please fix password security issues before registering.");
+      return;
+    }
+
     if (password !== confirmPassword) {
+      setConfirmPasswordError(true);
       setRegisterError("Passwords do not match!");
       return;
     }
@@ -138,6 +233,8 @@ const LoginRegister = ({ closeModal }) => {
       setPassword('');
       setConfirmPassword('');
       setRole('');
+      setPasswordTouched(false);
+      setConfirmPasswordTouched(false);
 
       // We don't auto-login after registration
     } catch (err) {
@@ -148,10 +245,11 @@ const LoginRegister = ({ closeModal }) => {
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
+    setAdminLoginError('');
   
     try {
-      console.log("Admin credentials:", adminCredentials); // Check the data before sending
-
+      console.log("Admin credentials:", adminCredentials);
+  
       const res = await axios.post("http://localhost:5000/admin-login", adminCredentials);
   
       if (res.data.success) {
@@ -160,14 +258,18 @@ const LoginRegister = ({ closeModal }) => {
           password: res.data.password
         }));
   
-        alert("Admin login successful!");
-        navigate("/admin-dashboard");
+        setSuccessMessage("Admin login successful!");
+        setShowSuccessPopup(true);
+  
+        setTimeout(() => {
+          navigate("/admin-dashboard");
+        }, 2000);
       } else {
-        alert(res.data.message || "Admin login failed");
+        setAdminLoginError(res.data.message || "Admin login failed");
       }
     } catch (err) {
       console.error("Admin login error:", err);
-      alert("Incorrect Credentials!");
+      setAdminLoginError("Incorrect Credentials!");
     }
   };
 
@@ -178,6 +280,9 @@ const LoginRegister = ({ closeModal }) => {
     setUserCredentials({ email: '', password: '', role: '' });
     setLoginError('');
     setAdminLoginError('');
+    setPasswordTouched(false);
+    setConfirmPasswordTouched(false);
+    setAdminPasswordTouched(false);
     // Toggle the label of the Admin button
     setAdminButtonLabel(prevLabel => prevLabel === 'Admin' ? 'User' : 'Admin');
     // Update Toggle Container content for Admin mode
@@ -208,6 +313,10 @@ const LoginRegister = ({ closeModal }) => {
       ...prev,
       [name]: value
     }));
+
+    if (name === 'password') {
+      setAdminPasswordTouched(true);
+    }
   };
 
   const handleUserChange = (e) => {
@@ -272,6 +381,48 @@ const LoginRegister = ({ closeModal }) => {
     });
   };
 
+  const renderPasswordRequirements = (errors, touched, focused) => {
+    if (!touched) return null;
+    
+    // Check if all requirements are met
+    const allRequirementsMet = !hasPasswordErrors(errors);
+    
+    // When all requirements are met, return just a simple success message (no popup)
+    if (allRequirementsMet) {
+      return <p className={styles.successText}>Strong Password!</p>;
+    }
+    
+    // Only show the requirements popup when focused and there are errors
+    if (focused) {
+      return (
+        <div className={styles.passwordPopup} ref={passwordPopupRef}>
+          <div className={styles.passwordRequirements}>
+            <p className={styles.requirementsTitle}>Password must have:</p>
+            <ul>
+              <li className={errors.length ? styles.invalid : styles.valid}>
+                At least 8 characters
+              </li>
+              <li className={errors.uppercase ? styles.invalid : styles.valid}>
+                At least one uppercase letter (A-Z)
+              </li>
+              <li className={errors.lowercase ? styles.invalid : styles.valid}>
+                At least one lowercase letter (a-z)
+              </li>
+              <li className={errors.number ? styles.invalid : styles.valid}>
+                At least one number (0-9)
+              </li>
+              <li className={errors.symbol ? styles.invalid : styles.valid}>
+                At least one special character (!@#$%^&*)
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <>
       <div className={`${styles.container} ${isActive ? styles.active : ""}`} id="container">
@@ -329,29 +480,38 @@ const LoginRegister = ({ closeModal }) => {
               required
             />
 
-            <div className={styles.passwordWrapper}>
-              <input
-                type={showPassword.registerPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className={styles.largerDots}
-              />
-              <button
-                type="button"
-                className={styles.togglePassword}
-                onClick={() => togglePasswordVisibility('registerPassword')}
-              >
-                {showPassword.registerPassword ?
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
-                  <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
-                }
-              </button>
+            <div className={styles.inputGroup}>
+              <div className={`${styles.passwordWrapper} ${passwordTouched && hasPasswordErrors(passwordErrors) ? styles.errorInput : ""}`}>
+                <input
+                  type={showPassword.registerPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => {
+                    setPasswordTouched(true);
+                    setFocusedField('password');
+                  }}
+                  required
+                  className={`${styles.largerDots} passwordInput ${passwordTouched && hasPasswordErrors(passwordErrors) ? styles.errorInput : ""}`}
+                />
+                <button
+                  type="button"
+                  className={styles.togglePassword}
+                  onClick={() => togglePasswordVisibility('registerPassword')}
+                >
+                  {showPassword.registerPassword ?
+                    <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
+                    <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
+                  }
+                </button>
+              </div>
+              {renderPasswordRequirements(passwordErrors, passwordTouched, focusedField === 'password')}
             </div>
-            <div className={styles.passwordWrapper}>
+
+            <div className={styles.inputGroup}>
+              <div className={`${styles.passwordWrapper} ${confirmPasswordTouched && confirmPasswordError ? styles.errorInput : ""}`}>
               <input
                 type={showPassword.confirmPassword ? "text" : "password"}
                 id="confirm_password"
@@ -359,22 +519,30 @@ const LoginRegister = ({ closeModal }) => {
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onFocus={() => {
+                  setConfirmPasswordTouched(true);
+                  setFocusedField('confirmPassword');
+                }}
                 required
-                className={styles.largerDots}
+                className={`${styles.largerDots} passwordInput ${confirmPasswordTouched && confirmPasswordError ? styles.errorInput : ""}`}
               />
-              <button
-                type="button"
-                className={styles.togglePassword}
-                onClick={() => togglePasswordVisibility('confirmPassword')}
-              >
-                {showPassword.confirmPassword ?
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
-                  <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
-                }
-              </button>
+                <button
+                  type="button"
+                  className={styles.togglePassword}
+                  onClick={() => togglePasswordVisibility('confirmPassword')}
+                >
+                  {showPassword.confirmPassword ?
+                    <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
+                    <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
+                  }
+                </button>
+              </div>
+              {confirmPasswordTouched && focusedField === 'confirmPassword' && confirmPasswordError && (
+                <p className={styles.errorText}>Passwords do not match</p>
+              )}
             </div>
 
-            {/* New Role Dropdown */}
+            {/* Role Dropdown */}
             <div className={styles.selectWrapper}>
               <select
                 name="role"
@@ -397,7 +565,14 @@ const LoginRegister = ({ closeModal }) => {
             {/* Registration error message */}
             {registerError && <p className={styles.errorMessage}>{registerError}</p>}
 
-            <button type="submit">Sign Up</button>
+            <button type="submit" disabled={
+              hasPasswordErrors(passwordErrors) || 
+              confirmPasswordError || 
+              !email || 
+              !password || 
+              !confirmPassword || 
+              !role
+            }>Sign Up</button>
           </form>
         </div>
 
@@ -409,60 +584,36 @@ const LoginRegister = ({ closeModal }) => {
             {!isAdminLogin && (
               <>
                 <button type="button" className={styles.googleBtn}>
-                <GoogleLogin
-              onSuccess={credentialResponse => {
-                const credentialResponseDecoded = jwtDecode(credentialResponse.credential);
-
-                // Send the decoded Google user info to your backend
-                fetch("http://localhost:5000/auth/google", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json"
-                  },
-                  body: JSON.stringify(credentialResponseDecoded)
-                })
-                .then(res => res.json())
-                .then(data => {
-                  console.log("✅ Google user saved or found:", data);
-
-                  // Save returned email and role to localStorage
-                  localStorage.setItem("user", JSON.stringify({
-                    email: data.email,
-                    role: data.role
-                  }));
-
-                  // Navigate to map after storing user
-                  navigate("/map");
-                })
-                .catch(err => {
-                  console.error("❌ Error handling Google login:", err);
-                });
-              }}
-              onError={() => {
-                console.log("❌ Google Sign Up failed");
-              }}
-              render={renderProps => (
-                <button
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                  type="button"
-                  className={`${styles.googleBtn} ${styles.customGoogle}`}
-                >
-                  <img 
-                    src="/icons/google.webp" 
-                    alt="Google logo" 
-                    className={styles.googleIcon}
+                  <GoogleLogin
+                    onSuccess={credentialResponse => {
+                      handleGoogleSuccess(credentialResponse);
+                    }}
+                    onError={() => {
+                      console.log("❌ Google Sign Up failed");
+                    }}
+                    render={renderProps => (
+                      <button
+                        onClick={renderProps.onClick}
+                        disabled={renderProps.disabled}
+                        type="button"
+                        className={`${styles.googleBtn} ${styles.customGoogle}`}
+                      >
+                        <img 
+                          src="/icons/google.webp" 
+                          alt="Google logo" 
+                          className={styles.googleIcon}
+                        />
+                        Sign in with Google
+                      </button>
+                    )}
                   />
-                  Sign up with Google
                 </button>
-              )}
-            />
-            </button>
                 <div className={styles.divider}>
                   <span>OR</span>
                 </div>
               </>
             )}
+            
             {isAdminLogin ? (
               <>
                 <input
@@ -473,6 +624,31 @@ const LoginRegister = ({ closeModal }) => {
                   placeholder="Admin Username"
                   required
                 />
+
+                <div className={styles.inputGroup}>
+                  <div className={styles.passwordWrapper}>
+                    <input
+                      type={showPassword.adminPassword ? "text" : "password"}
+                      name="password"
+                      value={adminCredentials.password}
+                      onChange={handleAdminChange}
+                      placeholder="Admin Password"
+                      required
+                      className={`${styles.largerDots} passwordInput`}
+                    />
+                    <button
+                      type="button"
+                      className={styles.togglePassword}
+                      onClick={() => togglePasswordVisibility('adminPassword')}
+                    >
+                      {showPassword.adminPassword ?
+                        <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
+                        <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
+                      }
+                    </button>
+                  </div>
+                </div>
+                
                 {adminLoginError && <p className={styles.errorMessage}>{adminLoginError}</p>}
               </>
             ) : (
@@ -485,42 +661,46 @@ const LoginRegister = ({ closeModal }) => {
                   placeholder="Email Address"
                   required
                 />
+
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={showPassword.userPassword ? "text" : "password"}
+                    name="password"
+                    value={userCredentials.password}
+                    onChange={handleUserChange}
+                    placeholder="Password"
+                    required
+                    className={`${styles.largerDots} passwordInput`}
+                    onFocus={() => setFocusedField('userPassword')}
+                  />
+                  <button
+                    type="button"
+                    className={styles.togglePassword}
+                    onClick={() => togglePasswordVisibility('userPassword')}
+                  >
+                    {showPassword.userPassword ?
+                      <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
+                      <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
+                    }
+                  </button>
+                </div>
+                
                 {loginError && <p className={styles.errorMessage}>{loginError}</p>}
+                
+                <a href="#" onClick={(e) => {
+                  e.preventDefault();
+                  handleForgotPassword();
+                }}>
+                  Forgot your password?
+                </a>
               </>
             )}
 
-            <div className={styles.passwordWrapper}>
-              <input
-                type={isAdminLogin ? (showPassword.adminPassword ? "text" : "password") : (showPassword.userPassword ? "text" : "password")}
-                name="password"
-                value={isAdminLogin ? adminCredentials.password : userCredentials.password}
-                onChange={isAdminLogin ? handleAdminChange : handleUserChange}
-                placeholder={isAdminLogin ? "Admin Password" : "Password"}
-                required
-                className={styles.largerDots}
-              />
-              <button
-                type="button"
-                className={styles.togglePassword}
-                onClick={() => togglePasswordVisibility(isAdminLogin ? 'adminPassword' : 'userPassword')}
-              >
-                {(isAdminLogin ? showPassword.adminPassword : showPassword.userPassword) ?
-                  <img src="/icons/ayclose.png" alt="Hide" className={styles.eyeIcon} /> :
-                  <img src="/icons/ay.png" alt="Show" className={styles.eyeIcon} />
-                }
-              </button>
-            </div>
-
-            {!isAdminLogin && (
-              <a href="#" onClick={(e) => {
-                e.preventDefault();
-                handleForgotPassword();
-              }}>
-                Forgot your password?
-              </a>
-            )}
-
-            <button type="submit">
+            <button type="submit" disabled={
+              isAdminLogin ? 
+              !adminCredentials.username || !adminCredentials.password : 
+              !userCredentials.email || !userCredentials.password
+            }>
               {isAdminLogin ? "Sign In" : "Sign In"}
             </button>
           </form>
@@ -554,27 +734,19 @@ const LoginRegister = ({ closeModal }) => {
         </div>
       </div>
 
-       {/* Success Popup */}
-       {showSuccessPopup && (
-          <div className={styles.successPopupOverlay}>
-            <div className={styles.successPopup}>
-              <div className={styles.successHeader}>
-                <img src="/icons/success.png" alt="Success" className={styles.successIcon} />
-                <h2>Success!</h2>
-              </div>
-              <p>{successMessage}</p>
-              <button onClick={closeSuccessPopup} className={styles.successButton}>OK</button>
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className={styles.successPopupOverlay}>
+          <div className={styles.successPopup}>
+            <div className={styles.successHeader}>
+              <img src="/icons/success.png" alt="Success" className={styles.successIcon} />
+              <h2>Success!</h2>
             </div>
+            <p>{successMessage}</p>
+            <button onClick={closeSuccessPopup} className={styles.successButton}>OK</button>
           </div>
-        )}
-
-        {/* Render Forgot Password as overlay */}
-        {showForgotPassword && (
-          <ForgotPassword
-            closeModal={closeModal}
-            goBackToLogin={handleBackToLogin}
-          />
-        )}
+        </div>
+      )}
 
       {/* Render Forgot Password as overlay */}
       {showForgotPassword && (

@@ -264,31 +264,30 @@ app.get('/submissions', async (req, res) => {
 // POST submissions route
 app.post('/submissions', async (req, res) => {
   try {
-    const { location, hazards, timestamp } = req.body;
-    
-    // Validate the incoming data
+    console.log('Received submission request:', req.body);
+    const { location, hazards } = req.body;
+
     if (!location || !hazards || !Array.isArray(hazards)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid submission data',
-        received: { location, hazards, timestamp }
+        received: { location, hazards }
       });
     }
 
-    // Create new submission
     const submission = new SubmissionModel({
-      location,
-      hazards,
-      timestamp
+      location: location.trim(),
+      hazards: hazards
     });
 
     const savedSubmission = await submission.save();
+    console.log('Saved submission:', savedSubmission);
     res.status(201).json(savedSubmission);
 
   } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message 
+    console.error('Error saving submission:', error);
+    res.status(500).json({
+      error: 'Failed to save submission',
+      details: error.message
     });
   }
 });

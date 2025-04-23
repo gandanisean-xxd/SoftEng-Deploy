@@ -8,19 +8,28 @@ import re
 from ollama import generate
 from sentence_transformers import SentenceTransformer
 import faiss
-import os  # Import os to access environment variables
+import os
+import time
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 
-# Hardcoded API key
-API_KEY = 'FBB8KAYBW6NEP57PELECNHWRV'
+API_KEY = 'KWSMMFCN6WSP7JTU45KYV5BJV'
 
-# Load JSON data
-with open(r'C:\Users\QCU\Documents\SE\Actual Code\SoftEng-main\qa_data.json', 'r') as f:
+with open(r'C:\Users\Princess\OneDrive\文件\GitHub\SoftEng-main (Orig)\SoftEng-main\qa_data.json', 'r', encoding='utf-8') as f:
     qa_data = json.load(f)
+
+new_qa = {
+    "question": "Who specifically made you?",
+    "answer": "Remuel Bongat Fernan made me."
+}
+qa_data.setdefault('about', []).append(new_qa)
+
+with open(r'C:\Users\Princess\OneDrive\文件\GitHub\SoftEng-main (Orig)\SoftEng-main\qa_data.json', 'w', encoding='utf-8') as f:
+    json.dump(qa_data, f, indent=2, ensure_ascii=False)
 
 categories = ['faqs', 'about', 'vague']
 questions = []
@@ -33,7 +42,6 @@ for cat in categories:
         answers.append(item['answer'])
         category_map.append(cat)
 
-# Embed questions
 embed_model = SentenceTransformer('all-MiniLM-L6-v2')
 question_embeddings = embed_model.encode(questions)
 index = faiss.IndexFlatL2(question_embeddings.shape[1])
@@ -42,37 +50,6 @@ index.add(np.array(question_embeddings))
 @app.route('/')
 def home():
     return send_from_directory('.', 'index.html')
-
-@app.route('/weather', methods=['GET'])
-def get_weather():
-    location = request.args.get('location')
-    if not location:
-        return jsonify({'error': 'Location parameter is required'}), 400
-
-    url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}'
-    params = {'key': API_KEY, 'include': 'current'}
-
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-        current = data.get('currentConditions', {})
-
-        temp_f = current.get('temp')
-        temp_c = (temp_f - 32) * 5 / 9 if temp_f else None
-
-        weather_data = {
-            'temperature': temp_c,
-            'conditions': current.get('conditions'),
-            'humidity': current.get('humidity'),
-            'windSpeed': current.get('windspeed'),
-            'windDirection': current.get('winddirection'),
-            'location': location
-        }
-        return jsonify(weather_data)
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Weather API error: {e}")
-        return jsonify({'error': 'Failed to retrieve weather data'}), 500
 
 @app.route('/embed', methods=['POST'])
 def embed_new_question():
@@ -89,8 +66,8 @@ def embed_new_question():
 
     qa_data[category].append({'question': question, 'answer': answer})
 
-    with open(r'C:\Users\QCU\Documents\SE\Actual Code\SoftEng-main\qa_data.json', 'w') as f:
-        json.dump(qa_data, f, indent=2)
+    with open(r'C:\Users\Princess\OneDrive\文件\GitHub\SoftEng-main (Orig)\SoftEng-main\qa_data.json', 'w', encoding='utf-8') as f:
+        json.dump(qa_data, f, indent=2, ensure_ascii=False)
 
     questions.append(question)
     answers.append(answer)
@@ -107,43 +84,60 @@ def chat():
     if not user_input:
         return jsonify({'error': 'Message is required'}), 400
 
-    user_input = user_input.lower()
+    user_input_lower = user_input.lower().strip()
 
-    # Non-English check
-    if not re.match(r'^[\x00-\x7F]+$', user_input):
-        return jsonify({'response': "Sorry, I can only understand English 🗣️"})
+    if not re.match(r'^[\x00-\x7F]+$', user_input_lower):
+        return jsonify({'response': "Sorry, I can only understand English 🚣️"})
 
     greetings = ["hi", "hello", "hey", "good morning", "good evening"]
-    if any(greet in user_input for greet in greetings):
-        return jsonify({'response': "Hello! 😊 How can I help you today?"})
+    if any(greet in user_input_lower for greet in greetings):
+        return jsonify({'response': "Hello! 😊"})
 
     for i, question in enumerate(questions):
-        if question.lower() in user_input:
+        if question.lower().strip() in user_input_lower:
             return jsonify({'response': answers[i]})
 
-    if any(keyword in user_input for keyword in ["weather", "gis", "meteorology"]):
-        location = user_input.split("in")[-1].strip() if "in" in user_input else None
-        if location:
-            try:
-                with app.test_request_context():
-                    req = request
-                    req.args = {'location': location}
-                    weather_data = get_weather().get_json()
+    if any(keyword in user_input_lower for keyword in ["weather", "gis", "meteorology"]):
+        location_query = user_input_lower.split("in")[-1].strip() if "in" in user_input_lower else user_input_lower
+        location_query = location_query.replace("weather", "").strip()
 
-                return jsonify({
-                    'response': (
-                        f"Weather in {location}: {weather_data['conditions']}, "
-                        f"{weather_data['temperature']:.1f}°C 🌡️, "
-                        f"Humidity: {weather_data['humidity']}% 💧, "
-                        f"Wind: {weather_data['windSpeed']} km/h 🌬️ "
-                        f"from {weather_data['windDirection']}°"
-                    )
-                })
-            except:
-                return jsonify({'response': "Couldn't get the weather info, sorry!"})
+        weather_url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location_query}'
+        params = {
+            'key': API_KEY,
+            'include': 'current'
+        }
+
+        try:
+            response = requests.get(weather_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            current = data.get('currentConditions', {})
+            temp_f = current.get('temp')
+            temp_c = (temp_f - 32) * 5 / 9 if temp_f is not None else None
+
+            weather_data = {
+                'temperature': temp_c,
+                'conditions': current.get('conditions'),
+                'humidity': current.get('humidity'),
+                'windSpeed': current.get('windspeed'),
+                'windDirection': current.get('winddirection'),
+                'location': data.get('resolvedAddress')
+            }
+
+            return jsonify({
+                'response': (
+                    f"Current weather in {weather_data['location']}: {weather_data['conditions']}, "
+                    f"{weather_data['temperature']:.1f}°C 🌡️, Wind: {weather_data['windSpeed']} km/h 🌬️"
+                )
+            })
+
+        except Exception as e:
+            logging.error(f"Weather fetch error: {e}")
+            return jsonify({'response': "Sorry, I couldn't retrieve the weather data."})
 
     if len(user_input.split()) < 3:
-        return jsonify({'response': "Can you ask a more specific question?"})
+        return jsonify({'response': "Please be more specific."})
 
     irrelevant_keywords = [
         "tiktok", "facebook", "instagram", "twitter", "snapchat", "reddit", "netflix", "hulu",
@@ -163,7 +157,7 @@ def chat():
     ]
 
     if any(re.search(rf'\b{re.escape(k)}\b', user_input) for k in irrelevant_keywords):
-        return jsonify({'response': "Let's stick to GIS, weather & meteorology 🌦️"})
+        return jsonify({'response': "Let's focus on GIS, weather, and urban planning. 🗺️🌦️"})
 
     query_embedding = embed_model.encode([user_input])
     D, I = index.search(np.array(query_embedding), k=1)
@@ -171,30 +165,42 @@ def chat():
     retrieved_answer = answers[I[0][0]]
 
     logging.info(f"User: {user_input}")
-    logging.info(f"Matched: {retrieved_question} → {retrieved_answer}")
+    logging.info(f"Matched (embedding): {retrieved_question} → {retrieved_answer}")
 
     prompt = (
-        "Your name is Chub, a concise and friendly AI assistant for a GIS web app.\n"
-        "Respond briefly (3-10 words), without links, jokes, or questions. "
-        "Use emojis appropriately. Only answer in English.\n"
-        "Do not answer any private or sensitive questions.\n"
-        "If a user asks about who made you, tell them concisely that you are made by EcoUrban Initiatives.\n"
-        "Always respond briefly and politely.\n"
-        "Do not ask users.\n"
-        "If a user asks about personal information, politely decline to answer.\n"
-        "Provide helpful and factual responses related to GIS and urban planning.\n"
-        "Clarify any vague questions by asking for more details.\n"
+        "Answer the user's question directly and briefly (maximum 5 words). Do not start your answer with any introductory phrases or acknowledge your identity unless specifically asked.\n"
+        "Your name is Malya\n"
+        "You were developed and made in 2025. \n"
+        "You are a concise AI assistant for a GIS web app. \n"
+        "Do not use aliases.\n"
+        "Do not engage in conversation beyond answering the current question.\n"
+        "Do not mention a 'team' unless specifically describing EcoUrban Initiatives' creation of you.\n"
+        "Do not offer demos or alternatives.\n"
+        "You can use emojis. \n"
+        "Answer only in English.\n"
+        "Do not ask the user any questions.\n"
+        "If asked for future updates, tell them that your developers are currently working on it. \n"
+        "Do not answer private or sensitive questions.\n"
+        "If asked 'What are you?' or similar identity questions, respond with: 'I am Malia, your GIS assistant.'\n"
+        "If asked 'Who made you?' or 'Who specifically made you?', respond with: 'Remuel Bongat Fernan made me.'\n"
+        "If asked about EcoUrban Initiatives, mention they are a dedicated team focused on sustainable urban development.\n"
+        "Be polite.\n"
+        "Decline to answer personal questions.\n"
+        "Provide factual GIS and urban planning info if relevant.\n"
         f"Question: {user_input}\n"
         "Answer:"
     )
 
+    start_time = time.time()
     try:
         response = generate("tinyllama", prompt=prompt)
+        end_time = time.time()
+        logging.info(f"Ollama response time: {end_time - start_time:.2f} seconds")
         return jsonify({'response': response.response.strip()})
     except Exception as e:
         logging.error(f"TinyLlama Error: {e}")
         return jsonify({'error': 'AI response failed'}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))  # Use the PORT environment variable
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=True)

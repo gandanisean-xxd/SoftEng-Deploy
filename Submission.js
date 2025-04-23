@@ -1,11 +1,20 @@
 import mongoose from 'mongoose';
 
-const SubmissionSchema = new mongoose.Schema({
-  location: { type: String, required: true },
-  hazards: { type: [String], required: true },
-  result: { type: String, required: true }, // Store result details
+const submissionSchema = new mongoose.Schema({
+  location: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  hazards: {
+    type: [String],
+    required: true
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-const SubmissionModel = mongoose.model('Submission', SubmissionSchema);
-
+const SubmissionModel = mongoose.model('Submission', submissionSchema);
 export default SubmissionModel;

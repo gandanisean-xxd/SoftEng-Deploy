@@ -5,6 +5,11 @@ import UserModel from './User.js';
 import bcrypt from 'bcryptjs';
 import AdminModel from './admin.js';
 import SubmissionModel from './Submission.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -299,6 +304,12 @@ app.post('/submissions', async (req, res) => {
   }
 });
   
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all route to serve the frontend's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
   
 // Test Route
 app.get('/api/hello', (req, res) => {

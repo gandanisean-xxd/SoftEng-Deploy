@@ -37,6 +37,7 @@ const Sidebar = ({
   const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('');
 
 
   useEffect(() => {

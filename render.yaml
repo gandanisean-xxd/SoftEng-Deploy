@@ -3,7 +3,7 @@ services:
     name: eco-urban
     env: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: npm run dev
     plan: free
     autoDeploy: true
     envVars:

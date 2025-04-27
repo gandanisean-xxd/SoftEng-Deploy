@@ -14,7 +14,14 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB 
-mongoose.connect("mongodb://localhost:27017/dbtagle");
+mongoose.connect("mongodb+srv://tagleseanandrei:QsIO8e1RvPqDDpwS@cluster0.tphbs0m.mongodb.net/" + "test?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch(err => {
+  console.error('Error connecting to MongoDB:', err);
+});
 
 app.post('/admin-login', async (req, res) => {
   const { username, password } = req.body;

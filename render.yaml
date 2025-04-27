@@ -2,7 +2,7 @@ services:
   - type: web
     name: eco-urban
     env: node
-    buildCommand: npm install
+    buildCommand: npm install; npm run build
     startCommand: npm run dev
     plan: free
     autoDeploy: true

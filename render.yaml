@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: gis-chatbot-app
+    name: eco-urban
     env: node
     buildCommand: npm install
     startCommand: npm start

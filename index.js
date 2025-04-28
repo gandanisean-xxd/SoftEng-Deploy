@@ -7,7 +7,7 @@ import AdminModel from './Admin.js';
 import SubmissionModel from './Submission.js';
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 const router = express.Router();
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;

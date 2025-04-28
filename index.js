@@ -10,6 +10,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const router = express.Router();
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 app.use(cors());
 app.use(express.json());
 
@@ -21,7 +23,7 @@ mongoose.connect("mongodb+srv://tagleseanandrei:QsIO8e1RvPqDDpwS@cluster0.tphbs0
   console.log('Connected to MongoDB');
 })
 
-app.post('/admin-login', async (req, res) => {
+app.post(`${BACKEND_URL}/admin-login`, async (req, res) => {
   const { username, password } = req.body;
   
   // Example validation
@@ -40,7 +42,7 @@ app.post('/admin-login', async (req, res) => {
   res.json({ success: true, username: admin.username, password: admin.password });
 });
 
-app.post('/login', async (req, res) => {
+app.post(`${BACKEND_URL}/login`, async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -94,7 +96,7 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.post('/api/check-email', (req, res) => {
+app.post(`${BACKEND_URL}/api/check-email`, (req, res) => {
   const { email } = req.body;
   
   UserModel.findOne({ email: email })
@@ -112,7 +114,7 @@ app.post('/api/check-email', (req, res) => {
 });
 
 // Reset password after OTP verification
-app.post('/api/reset-password', async (req, res) => {
+app.post(`${BACKEND_URL}/api/reset-password`, async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
@@ -136,7 +138,7 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
-app.post('/register', async (req, res) => {
+app.post(`${BACKEND_URL}/register`, async (req, res) => {
   const { email, password, role } = req.body;
   
   // Hash the password
@@ -156,7 +158,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.get('/users', async (req, res) => {
+app.get(`${BACKEND_URL}/users`, async (req, res) => {
   try {
     const users = await UserModel.find();
     console.log(users); // Log the users data to ensure it's an array
@@ -168,7 +170,7 @@ app.get('/users', async (req, res) => {
 });
 
   
-  app.post('/auth/google', async (req, res) => {
+  app.post(`${BACKEND_URL}/auth/google`, async (req, res) => {
     const { email, name, picture, sub } = req.body;
   
     try {
@@ -192,7 +194,7 @@ app.get('/users', async (req, res) => {
     }
   });
 
-  app.post('/users/update-status', async (req, res) => {
+  app.post(`${BACKEND_URL}/users/update-status`, async (req, res) => {
     const { userId, newStatus } = req.body;
     console.log('Received update request for:', userId, newStatus);
   
@@ -214,7 +216,7 @@ app.get('/users', async (req, res) => {
     }
   });
 
-  app.delete('/users/:id', async (req, res) => {
+  app.delete(`${BACKEND_URL}/users/:id`, async (req, res) => {
     const userId = req.params.id;
   
     try {
@@ -232,7 +234,7 @@ app.get('/users', async (req, res) => {
   });
 
 // Save a new submission
-app.get('/submissions', async (req, res) => {
+app.get(`${BACKEND_URL}/submissions`, async (req, res) => {
   try {
     const { location, hazards } = req.query;
     console.log('GET /submissions query:', { location, hazards });
@@ -267,7 +269,7 @@ app.get('/submissions', async (req, res) => {
   }
 });
 // POST submissions route
-app.post('/submissions', async (req, res) => {
+app.post(`${BACKEND_URL}/submissions`, async (req, res) => {
   try {
     console.log('Received submission request:', req.body);
     const { location, hazards } = req.body;
@@ -299,11 +301,11 @@ app.post('/submissions', async (req, res) => {
   
   
 // Test Route
-app.get('/api/hello', (req, res) => {
+app.get(`${BACKEND_URL}/api/hello`, (req, res) => {
   res.json({ message: 'Hello from backend' });
 });
 
-app.get('/', (req, res) => {
+app.get(`${BACKEND_URL}/`, (req, res) => {
   res.send('Welcome to the backend server!');
 });
 

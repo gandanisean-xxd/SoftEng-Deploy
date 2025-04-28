@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB 
-mongoose.connect("mongodb+srv://tagleseanandrei:<db_password>@cluster0.tphbs0m.mongodb.net/" + "test?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://tagleseanandrei:QsIO8e1RvPqDDpwS@cluster0.tphbs0m.mongodb.net/" + "test?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {

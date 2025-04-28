@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const router = express.Router();
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = "https://eco-urban.onrender.com";
 
 app.use(cors());
 app.use(express.json());

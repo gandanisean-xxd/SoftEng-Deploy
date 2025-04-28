@@ -23,7 +23,7 @@ const SubmissionHistoryPopup = ({
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/submissions`, {
+      const response = await fetch(`https://eco-urban.onrender.com/submissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const SubmissionHistoryPopup = ({
         console.log('Selected hazards:', selectedHazards);
   
         const response = await fetch(
-          `${BACKEND_URL}/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
+          `https://eco-urban.onrender.com/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
         );
   
         if (!response.ok) {

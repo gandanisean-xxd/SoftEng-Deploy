@@ -45,7 +45,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       setLoading(true);
 
       try {
-        const response = await axios.get('http://localhost:10000/weather', {
+        const response = await axios.get(`https://eco-urban.onrender.com/weather`, {
           params: { location: location }
         });
         const weatherData = response.data;
@@ -73,7 +73,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
 
     // Send message to Flask server for chat responses
     try {
-      const response = await axios.post(`${BACKEND_URL}/chat`, { message: newMessage });
+      const response = await axios.post(`https://eco-urban.onrender.com/chat`, { message: newMessage });
       const botMessage = response.data.response;
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {

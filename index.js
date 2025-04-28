@@ -303,6 +303,10 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from backend' });
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the backend server!');
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

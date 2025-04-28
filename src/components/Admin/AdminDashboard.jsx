@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:5000/users');
+        const response = await fetch(`${BACKEND_URL}/users`);
         const data = await response.json();
         // Add IDs manually if needed (MongoDB uses _id)
         const formattedUsers = data.map((user, index) => ({
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
     console.log("Frontend sending newStatus:", newStatus);
   
     try {
-      const response = await fetch('http://localhost:5000/users/update-status', {
+      const response = await fetch(`${BACKEND_URL}/users/update-status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, newStatus }),
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
 
   const deleteUser = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:5000/users/${userId}`, {
+      const response = await fetch(`${BACKEND_URL}/users/${userId}`, {
         method: 'DELETE',
       });
   

@@ -73,7 +73,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
 
     // Send message to Flask server for chat responses
     try {
-      const response = await axios.post('http://localhost:10000/chat', { message: newMessage });
+      const response = await axios.post(`${BACKEND_URL}/chat`, { message: newMessage });
       const botMessage = response.data.response;
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {

@@ -23,7 +23,7 @@ const SubmissionHistoryPopup = ({
     }
 
     try {
-      const response = await fetch('http://localhost:5000/submissions', {
+      const response = await fetch(`${BACKEND_URL}/submissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const SubmissionHistoryPopup = ({
         console.log('Selected hazards:', selectedHazards);
   
         const response = await fetch(
-          `http://localhost:5000/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
+          `${BACKEND_URL}/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
         );
   
         if (!response.ok) {
